@@ -19,7 +19,7 @@ export default function HomePage() {
           <Card sx={{ width: 600 }} elevation={4}>
             <CardContent>
               <Typography variant='h3' align='center'>Study Buddy Spring 2024</Typography>
-              <Typography variant='body1' color='text.secondary'>This is your template project for the Spring 2024 Baylor Software Engineering II class project! See the README for insturctions on how to set this project up and run it locally. Andrew is here</Typography>
+              <Typography variant='body1' color='text.secondary'>This is your template project for the Spring 2024 Baylor Software Engineering II class project! See the README for insturctions on how to set this project up and run it locally. Andrew is testing workflows</Typography>
             </CardContent>
           </Card>
           <Stack direction="row">
