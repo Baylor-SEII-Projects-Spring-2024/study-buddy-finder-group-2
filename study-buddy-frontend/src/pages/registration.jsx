@@ -1,6 +1,6 @@
 import React from 'react';
 
-function LoginPage() {
+function RegistrationPage() {
   return (
     <div>
       <h1>This is the registration page</h1>
@@ -8,4 +8,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default RegistrationPage;

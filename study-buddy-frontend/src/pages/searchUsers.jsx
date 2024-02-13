@@ -1,6 +1,6 @@
 import React from 'react';
 
-function LoginPage() {
+function SearchUsersPage() {
   return (
     <div>
       <h1>This is the search users page</h1>
@@ -8,4 +8,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default SearchUsersPage;

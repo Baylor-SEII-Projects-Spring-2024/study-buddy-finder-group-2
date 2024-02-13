@@ -1,6 +1,6 @@
 import React from 'react';
 
-function LoginPage() {
+function MyInfoPage() {
   return (
     <div>
       <h1>This is the logged in user page</h1>
@@ -8,4 +8,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default MyInfoPage;
