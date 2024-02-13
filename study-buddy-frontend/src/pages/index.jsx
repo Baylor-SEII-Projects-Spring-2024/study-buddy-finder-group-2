@@ -2,6 +2,7 @@ import React from 'react';
 import Head from 'next/head'
 import { Button, Card, CardContent, Stack, Typography } from '@mui/material'
 import styles from '@/styles/Home.module.css'
+import Link from 'next/link';
 
 export default function HomePage() {
   const onButtonPress = () => {
@@ -28,6 +29,19 @@ export default function HomePage() {
 
             {/* Another way is by creating a dedicated CSS file and using the styles from there: */}
             <Button variant='contained' color="secondary" onClick={onButtonPress} className={styles.wideButton}>I am a wider button</Button>
+
+            <Link href="/login" passHref>
+              <Button variant='contained' color="primary"> Login</Button>
+            </Link>
+
+            <Link href="/invitations" passHref>
+              <Button variant='contained' color="primary"> Invitations</Button>
+            </Link>
+
+            <Link href="/registration" passHref>
+              <Button variant='contained' color="primary"> Register</Button>
+            </Link>
+
           </Stack>
         </Stack>
       </main>
