@@ -12,7 +12,7 @@ import java.util.List;
 public class MeetupsEndpoint {
 
     // CrossOrigin(origins = "http://localhost:3000") // for local testing
-    @CrossOrigin(origins = "34.16.169.60:3000")
+    @CrossOrigin(origins = "http://34.16.169.60:3000")
     @GetMapping("/viewMeetups")
     public List<String> getMeetups() {
         return List.of("sample meetup 1", "sample meetup 2", "sample meetup 3", "sample meetup 4");
