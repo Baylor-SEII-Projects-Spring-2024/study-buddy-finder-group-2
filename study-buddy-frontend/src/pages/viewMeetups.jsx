@@ -4,7 +4,7 @@ function MeetupsPage() {
     const [meetups, setMeetups] = useState([]);
 
     useEffect(() => {
-        //fetch('http://localhost:8080/viewMeetups') use for local development
+        //fetch('http://localhost:8080/viewMeetups') // use this for local development
         fetch('http://34.16.169.60:8080/viewMeetups')
             .then(response => response.json())
             .then(data => setMeetups(data))

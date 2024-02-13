@@ -11,8 +11,8 @@ import java.util.List;
 @RestController
 public class MeetupsEndpoint {
 
+    // CrossOrigin(origins = "http://localhost:3000") // for local testing
     @CrossOrigin(origins = "34.16.169.60:3000")
-    // @CrossOrigin(origins = "http://localhost:3000") use for local testing
     @GetMapping("/viewMeetups")
     public List<String> getMeetups() {
         return List.of("sample meetup 1", "sample meetup 2", "sample meetup 3", "sample meetup 4");

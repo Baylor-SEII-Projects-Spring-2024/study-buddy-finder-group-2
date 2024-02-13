@@ -3,6 +3,7 @@
 VENV=".venv"
 S1="get_checks.py"
 S2="health_check.py"
+S3="routing.py"
 REQUIREMENTS="requirements.txt"
 REQUIREMENTS_HASH=".requirements.hash"
 
@@ -38,6 +39,7 @@ run_scripts() {
   echo "Running python scripts..."
   python3 "$S1"
   python3 "$S2"
+  python3 "$S3"
 }
 
 activate_venv
