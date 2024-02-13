@@ -15,7 +15,8 @@ urls = ['http://34.16.169.60:3000',
         'http://34.16.169.60:3000/invitations',
         'http://34.16.169.60:3000/editMeetup',
         'http://34.16.169.60:3000/editCourse',
-        'http://34.16.169.60:8080/ping'
+        'http://34.16.169.60:8080/ping',
+        'http://34.16.169.60:8080/viewMeetups'
 ]
 
 for url in urls:
