@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Head from "next/head";
 
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
@@ -13,6 +13,15 @@ function LoginPage() {
             firstName: data.get('username'),
             password: data.get('password'),
         });
+
+        // attempting to connect to backend
+        /*useEffect(() => {
+            fetch('http://localhost:8080/login') // use this for local development
+                // fetch('http://34.16.169.60:8080/viewMeetups')
+                .then(response => response.json())
+                .then(data => setMeetups(data))
+                .catch(error => console.error('Error fetching meetups:', error));
+        }, [])*/
     };
 
     return (
