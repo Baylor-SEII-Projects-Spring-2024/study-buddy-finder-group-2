@@ -4,6 +4,7 @@ import Head from "next/head";
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
 
 function LoginPage() {
+    // gets username and password data from the text fields
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -35,7 +36,7 @@ function LoginPage() {
                 <Box component="form" noValidate onSubmit={handleSubmit}
                      sx={{ paddingTop: 5, width: 200, margin: 'auto' }}>
                     <Stack spacing={3}>
-                        {/* username textbox */}
+                        {/* username text field */}
                         <TextField
                             required
                             id="username"
@@ -45,7 +46,7 @@ function LoginPage() {
                             helperText="Enter your username."
                         />
 
-                        {/* password textbox, text is hidden */}
+                        {/* password text field, text is hidden */}
                         {/* TODO: toggle visibility?? */}
                         <TextField
                             required
