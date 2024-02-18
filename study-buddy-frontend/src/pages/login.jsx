@@ -2,9 +2,18 @@ import React from 'react';
 import Head from "next/head";
 
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
-import Link from "next/link";
 
 function LoginPage() {
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        console.log({
+            // takes data using the name field
+            firstName: data.get('username'),
+            password: data.get('password'),
+        });
+    };
+
     return (
         <>
             <Head>
@@ -23,12 +32,14 @@ function LoginPage() {
                 </Box>
 
                 {/* Stack of username, password, and cancel/login buttons */}
-                <Box sx={{ paddingTop: 5, width: 200, margin: 'auto' }}>
+                <Box component="form" noValidate onSubmit={handleSubmit}
+                     sx={{ paddingTop: 5, width: 200, margin: 'auto' }}>
                     <Stack spacing={3}>
                         {/* username textbox */}
                         <TextField
                             required
-                            id="username-required"
+                            id="username"
+                            name="username"
                             label="Username"
                             variant="outlined"
                             helperText="Enter your username."
@@ -38,7 +49,8 @@ function LoginPage() {
                         {/* TODO: toggle visibility?? */}
                         <TextField
                             required
-                            id="password-required"
+                            id="password"
+                            name="password"
                             type="password"
                             label="Password"
                             variant="outlined"
@@ -46,18 +58,28 @@ function LoginPage() {
                         />
 
                         {/* this box is used to make cancel/login horizontal */}
-                        <Box sx={{ width: 200 }}>
+                        <Box sx={{ width: 200 }} >
                             <Stack spacing={4} direction="row" justifyContent="center">
-                                {/*link the cancel button back to home page*/}
-                                <Link href="/" passHref>
-                                    <Button variant='contained' color="error" size="small">Cancel</Button>
-                                </Link>
+                                {/* cancel button linked back to home page */}
+                                <Button
+                                    id="cancel"
+                                    variant="contained"
+                                    color="error"
+                                    size="small"
+                                    href="/"
+                                >
+                                    Cancel</Button>
 
-                                {/* link the login button to student landing page */}
-                                {/* TODO: change link according to type of user */}
-                                <Link href="/studentLanding" passHref>
-                                    <Button variant='contained' color="primary" size="small">Login</Button>
-                                </Link>
+                                {/* type submits a form to get username and password data */}
+                                {/* TODO: link according to type of user */}
+                                <Button
+                                    id="login"
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    type="submit"
+                                >
+                                    Login</Button>
                             </Stack>
                         </Box>
 
