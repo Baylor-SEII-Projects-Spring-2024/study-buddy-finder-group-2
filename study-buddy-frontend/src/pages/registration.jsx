@@ -12,6 +12,7 @@ function RegistrationPage() {
             password: data.get('password'),
         });
     };
+
   return (
       <Box>
           <Box component="form" noValidate onSubmit={handleSubmit}
@@ -37,7 +38,7 @@ function RegistrationPage() {
               </RadioGroup>
               <Box row={true}>
               <Button id="cancel" variant="contained" color="error" href="/">Cancel</Button>
-              <Button id="register" variant="contained">Register</Button>
+              <Button id="register" variant="contained" type="submit">Register</Button>
               </Box>
           </Box>
 
