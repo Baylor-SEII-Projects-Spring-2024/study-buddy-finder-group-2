@@ -26,8 +26,9 @@ function RegistrationPage() {
               <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"/><br/>
               <TextField autoComplete="email" id="email" name="email" label="Email"/><br/>
               <TextField id="username" name="username" label="Username"/><br/>
-              <TextField autoComplete="new-password" type="password" id="password" name="password" label="Password"/><br/>
-              <TextField autoComplete="confirm-password" id="confirm_password" name="confirm_password"
+              <TextField autoComplete="new-password" type="password" id="password" name="password"
+                         label="Password"/><br/>
+              <TextField id="confirm_password" name="confirm_password"
                          label="Confirm Password"/><br/>
               <FormLabel htmlFor="user_type">Are you a:</FormLabel>
               <RadioGroup name="user_type" row={true}>
@@ -35,7 +36,7 @@ function RegistrationPage() {
                   <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
               </RadioGroup>
               <Box row={true}>
-              <Button id="cancel" variant="contained" color="error">Cancel</Button>
+              <Button id="cancel" variant="contained" color="error" href="/">Cancel</Button>
               <Button id="register" variant="contained">Register</Button>
               </Box>
           </Box>
