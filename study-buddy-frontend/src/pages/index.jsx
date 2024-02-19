@@ -19,34 +19,30 @@ export default function HomePage() {
         <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
           <Card sx={{ width: 600 }} elevation={4}>
             <CardContent>
-              <Typography variant='h3' align='center'>Study Buddy Spring 2024</Typography>
-              <Typography variant='body1' color='text.secondary'>This is your template project for the Spring 2024 Baylor Software Engineering II class project! See the README for insturctions on how to set this project up and run it locally. Andrew is testing workflows</Typography>
+              <Typography variant='h4' align='center'>Welcome to Study Buddies!</Typography>
+              <Typography variant='h6' align='center'>By: StuCon</Typography>
+              <Typography variant='s1' align='center'>This application is made by students for students. We support students and tutors in order to foster connections and encourage the development of new skills.</Typography>
             </CardContent>
           </Card>
+
           <Stack direction="row">
-            {/* There are multiple ways to apply styling to Material UI components. One way is using the `sx` prop: */}
-            <Button variant='contained' onClick={onButtonPress} sx={{ width: 200 }}>I am a button</Button>
-
-            {/* Another way is by creating a dedicated CSS file and using the styles from there: */}
-            <Button variant='contained' color="secondary" onClick={onButtonPress} className={styles.wideButton}>I am a wider button</Button>
-
             <Link href="/login" passHref>
               <Button variant='contained' color="primary"> Login</Button>
-            </Link>
-
-            <Link href="/invitations" passHref>
-              <Button variant='contained' color="primary"> Invitations</Button>
             </Link>
 
             <Link href="/registration" passHref>
               <Button variant='contained' color="primary"> Register</Button>
             </Link>
 
+            <Link href="/invitations" passHref>
+              <Button variant='contained' color="primary"> Invitations</Button>
+            </Link>
+
             <Link href="/viewMeetups" passHref>
               <Button variant='contained' color="primary"> View meetups</Button>
             </Link>
-
           </Stack>
+
         </Stack>
       </main>
     </>
