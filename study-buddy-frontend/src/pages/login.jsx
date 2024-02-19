@@ -1,28 +1,48 @@
 import React, {useEffect, useState} from 'react';
 import Head from "next/head";
+import axios from "axios";
 
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
 
 function LoginPage() {
+    const [username, setUsername] = useState();
+    const [password, setPassword] = useState();
+
     // gets username and password data from the text fields
     const handleSubmit = (event) => {
         event.preventDefault();
+        // TODO: can I just pass this formdata to the backend??
         const data = new FormData(event.currentTarget);
-        console.log({
-            // takes data using the name field
-            firstName: data.get('username'),
-            password: data.get('password'),
-        });
+        // TODO: do I need to create a loginform similar to A2??
+        const user = {
+            username,
+            password
+        };
 
-        // attempting to connect to backend
-        /*useEffect(() => {
-            fetch('http://localhost:8080/login') // use this for local development
-                // fetch('http://34.16.169.60:8080/viewMeetups')
-                .then(response => response.json())
-                .then(data => setMeetups(data))
-                .catch(error => console.error('Error fetching meetups:', error));
-        }, [])*/
+        // connecting to backend to authorize user
+        axios
+            .post('http://localhost:8080/api/login', user)
+            .then((res) => {
+                console.log('User is recognized!');
+                // TODO: go to next page here??
+            });
     };
+
+    function handleInputChange(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+
+
+        switch (name) {
+            case 'username':
+                setUsername(value);
+                break;
+            case 'password':
+                setPassword(value);
+                break;
+        }
+    }
 
     return (
         <>
@@ -53,6 +73,7 @@ function LoginPage() {
                             label="Username"
                             variant="outlined"
                             helperText="Enter your username."
+                            onChange={handleInputChange}
                         />
 
                         {/* password text field, text is hidden */}
@@ -65,6 +86,7 @@ function LoginPage() {
                             label="Password"
                             variant="outlined"
                             helperText="Enter your password."
+                            onChange={handleInputChange}
                         />
 
                         {/* this box is used to make cancel/login horizontal */}
