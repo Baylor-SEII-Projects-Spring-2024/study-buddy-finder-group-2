@@ -7,9 +7,6 @@ S3="routing.py"
 
 run_scripts() {
   echo "Running python scripts..."
-  #python3 "$S1"
-  #python3 "$S2"
-  #python3 "$S3"
   "${VENV}/bin/python" "$S1"
   "${VENV}/bin/python" "$S2"
   "${VENV}/bin/python" "$S3"
