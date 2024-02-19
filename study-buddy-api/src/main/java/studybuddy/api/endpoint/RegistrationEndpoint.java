@@ -1,2 +1,4 @@
-package studybuddy.api.endpoint;public class RegistrationEndpoint {
+package studybuddy.api.endpoint;
+
+public class RegistrationEndpoint {
 }
