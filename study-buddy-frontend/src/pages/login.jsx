@@ -10,6 +10,8 @@ function LoginPage() {
     const [password, setPassword] = useState(null);
 
     // TODO: create a reducer function??
+    // ERROR IS: Store does not have a valid reducer.
+    // Make sure the argument passed to combineReducers is an object whose values are reducers.
 
     // gets username and password data from the text fields
     const handleSubmit = (event) => {

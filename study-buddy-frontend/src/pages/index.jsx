@@ -1,13 +1,16 @@
 import React from 'react';
 import Head from 'next/head'
 import { Button, Card, CardContent, Stack, Typography } from '@mui/material'
-import styles from '@/styles/Home.module.css'
 import Link from 'next/link';
 
+// This was being used in the template project (idk for what)
+//import styles from '@/styles/Home.module.css'
+
 export default function HomePage() {
-  const onButtonPress = () => {
+  // handle button press example
+  /*const onButtonPress = () => {
     alert('You pressed a button!');
-  }
+  }*/
 
   return (
     <>
