@@ -9,6 +9,8 @@ function LoginPage() {
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
 
+    // TODO: create a reducer function??
+
     // gets username and password data from the text fields
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -22,8 +24,10 @@ function LoginPage() {
         axios
             .post('http://localhost:8080/api/login', user)
             .then((res) => {
-                console.log('User is recognized!');
-                // TODO: go to next page here??
+                if(res.status == 200) {
+                    console.log('User is recognized!');
+                    // TODO: redirect to a landing page
+                }
             });
     };
 
