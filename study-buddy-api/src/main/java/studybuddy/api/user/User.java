@@ -18,6 +18,12 @@ public class User {
     @Column(name = "USER_ID")
     Long id;
 
+    @Column(name = "NAME")
+    String name;
+
+    @Column(name = "USERNAME")
+    String username;
+
     @Column(name = "EMAIL_ADDRESS")
     String emailAddress;
 
