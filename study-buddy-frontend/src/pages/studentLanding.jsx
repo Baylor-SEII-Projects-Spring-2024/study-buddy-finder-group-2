@@ -1,22 +1,10 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Head from "next/head";
 
-import {Button, Menu, MenuItem, Typography} from "@mui/material";
+import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
+import Link from "next/link";
 
 function StudentLandingPage() {
-    // The anchor sets the location of the popper (where the menu appears)
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-
-    // onClick, set the anchor to that element
-    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(e.currentTarget);
-    };
-    // to close the menu, set the anchor to NULL
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
     return (
         <>
             <Head>
@@ -24,38 +12,37 @@ function StudentLandingPage() {
             </Head>
 
             <main>
-                {/* The button where the menu appears */}
-                <Button
-                    id="menu-v1"
-                    aria-controls={open ? 'menu-v1' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                    onClick={handleClick}
-                >
-                     Menu
-                </Button>
+                <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
+                    <Card sx={{ width: 600 }} elevation={4}>
+                        <CardContent>
+                            <Typography variant='h4' align='center'>Welcome Students!</Typography>
+                            <Typography variant='b1' align='center'>This is Study Buddies. Find fellow students and tutors to connect with, create study meetups with your friends, and continue to nurture your mind in the pursuit of knowledge.</Typography>
+                        </CardContent>
+                    </Card>
 
-                {/* Set up of the menu */}
-                <Menu
-                    id="positioned-menuv1"
-                    aria-labelledby="menu-v1"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                    }}
-                >
-                    {/* Set up menu items */}
-                    <MenuItem onClick={handleClose}>Profile</MenuItem>
-                    <MenuItem onClick={handleClose}>My account</MenuItem>
-                    <MenuItem onClick={handleClose}>Logout</MenuItem>
-                </Menu>
+                    <Stack direction="row">
+                        <Link href="/me" passHref>
+                            <Button variant='contained' color="primary"> My Profile</Button>
+                        </Link>
+
+                        <Link href="/invitations" passHref>
+                            <Button variant='contained' color="primary"> Invitations</Button>
+                        </Link>
+
+                        <Link href="/viewMeetups" passHref>
+                            <Button variant='contained' color="primary"> View Meetups</Button>
+                        </Link>
+
+                        <Link href="/" passHref>
+                            <Button variant='contained' color="secondary"> Log Out</Button>
+                        </Link>
+                    </Stack>
+
+                </Stack>
+
+                <Box sx={{ paddingTop: 60, paddingLeft: 70 }}>
+                    <Typography variant="s2">By: StuCon</Typography>
+                </Box>
             </main>
         </>
     );

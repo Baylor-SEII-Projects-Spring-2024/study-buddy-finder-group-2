@@ -33,14 +33,6 @@ export default function HomePage() {
             <Link href="/registration" passHref>
               <Button variant='contained' color="primary"> Register</Button>
             </Link>
-
-            <Link href="/invitations" passHref>
-              <Button variant='contained' color="primary"> Invitations</Button>
-            </Link>
-
-            <Link href="/viewMeetups" passHref>
-              <Button variant='contained' color="primary"> View meetups</Button>
-            </Link>
           </Stack>
 
         </Stack>
