@@ -1,10 +1,17 @@
 import React from 'react';
+import Head from "next/head";
 
 function TutorLandingPage() {
   return (
-    <div>
-      <h1>This is the tutor landing page</h1>
-    </div>
+      <>
+          <Head>
+              <title>LandingPage (Tutor)</title>
+          </Head>
+
+          <main>
+
+          </main>
+      </>
   );
 }
 

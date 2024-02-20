@@ -6,8 +6,8 @@ import axios from "axios";
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
 
 function LoginPage() {
-    const [username, setUsername] = useState();
-    const [password, setPassword] = useState();
+    const [username, setUsername] = useState(null);
+    const [password, setPassword] = useState(null);
 
     // TODO: create a reducer function??
 
@@ -117,8 +117,7 @@ function LoginPage() {
                                     Cancel</Button>
 
                                 {/* type submits a form to get username and password data */}
-                                {/* TODO: link according to type of user */}
-                                <Button
+]                                <Button
                                     id="login"
                                     variant="contained"
                                     color="primary"
