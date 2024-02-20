@@ -24,10 +24,27 @@ function LoginPage() {
         axios
             .post('http://localhost:8080/api/login', user)
             .then((res) => {
+                // executes if success code was sent
                 if(res.status == 200) {
                     console.log('User is recognized!');
-                    // TODO: redirect to a landing page
+
+                    // TODO: redirect to user's correct landing page
+                    if(res.data.userType.includes("student")) {
+                        // TODO: student landing page
+                        console.log('User is a ' + res.data.userType);
+                        window.location = "/studentLanding";
+                    }
+                    else if(res.data.userType.includes("tutor")) {
+                        // TODO: tutor landing page
+                        console.log('User is a ' + res.data.userType);
+                        window.location = "/tutorLanding";
+                    }
                 }
+            })
+            // catches the bad response (error)
+            .catch((err) => {
+                console.log(err);
+                window.alert('Incorrect username or password!');
             });
     };
 
