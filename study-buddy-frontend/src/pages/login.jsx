@@ -27,6 +27,7 @@ function LoginPage() {
                 // executes if success code was sent
                 if(res.status == 200) {
                     console.log('User is recognized!');
+                    console.log(res.data);
 
                     // redirect to user's correct landing page
                     if(res.data.userType.includes("student")) {
