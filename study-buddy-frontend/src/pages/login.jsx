@@ -59,7 +59,7 @@ function LoginPage() {
 
             <main>
                 {/* Welcome text */}
-                <Box sx={{ paddingTop: 25, width: 400, margin: 'auto' }}>
+                <Box sx={{ paddingTop: 20, width: 400, margin: 'auto' }}>
                     <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
                         <CardContent>
                             <Typography variant='h6' align='center'>Welcome to</Typography>
@@ -119,7 +119,7 @@ function LoginPage() {
                                     Cancel</Button>
 
                                 {/* type submits a form to get username and password data */}
-]                                <Button
+                                <Button
                                     id="login"
                                     variant="contained"
                                     color="primary"
