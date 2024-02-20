@@ -119,7 +119,7 @@ function RegistrationPage() {
               <FormLabel htmlFor="user_type">Are you a:</FormLabel>
 
               <RadioGroup id="user_type" row>
-                  <Fo"student" control={<Radio/>} id="user_student" label="Student"/>
+                  <FormControlLabel value="student" control={<Radio/>} id="user_student" label="Student"/>
                   <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
               </RadioGroup>
               <Box row>
