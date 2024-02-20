@@ -4,12 +4,6 @@ import {ButtonGroup, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, S
 import axios, {post} from "axios";
 
 function RegistrationPage() {
-    const [username, setUsername] = useState();
-    const [password, setPassword] = useState();
-    const [fName, setFirstName] = useState();
-    const [lName, setLastName] = useState();
-    const [email, setEmail] = useState();
-    const [password, setPassword] = useState();
 
     //password regex
     const PWD_REGEX = /^[A-z]+$/;
@@ -19,6 +13,14 @@ function RegistrationPage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+
+        const user = {
+            username: data.get('username'),
+            password: data.get('password'),
+            name: data.get('fName'),
+            email: data.get('email')
+        }
+
         console.log({ //testing form submission
             firstName: data.get('fname'),
             email: data.get('email'),
@@ -47,12 +49,20 @@ function RegistrationPage() {
             return;
         }
 
-        try{
-            await axios.post("/api/register", data );
-        }
-        catch(err){
+        axios.post("/api/register", user)
+            .then((res) => {
+                if(res.status === 200) {
+                    console.log('No Existing User! User is now registered!')
+                    //TODO: Redirect
+                }
+                else if(res.status === 409){ //if username + email already exists
+                    console.log('Username or email already exists!');
+                }
+                else if (res.status === 404){
+                    console.log('Request cannot be performed at this time');
+                }
+            })
 
-        }
 
     };
 
