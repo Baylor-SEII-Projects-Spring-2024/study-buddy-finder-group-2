@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Head from "next/head";
+import Link from "next/link";
 import axios from "axios";
 
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
@@ -11,9 +12,7 @@ function LoginPage() {
     // gets username and password data from the text fields
     const handleSubmit = (event) => {
         event.preventDefault();
-        // TODO: can I just pass this formdata to the backend??
-        const data = new FormData(event.currentTarget);
-        // TODO: do I need to create a loginform similar to A2??
+
         const user = {
             username,
             password
@@ -27,22 +26,6 @@ function LoginPage() {
                 // TODO: go to next page here??
             });
     };
-
-    function handleInputChange(event) {
-        const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-
-
-        switch (name) {
-            case 'username':
-                setUsername(value);
-                break;
-            case 'password':
-                setPassword(value);
-                break;
-        }
-    }
 
     return (
         <>
@@ -73,7 +56,7 @@ function LoginPage() {
                             label="Username"
                             variant="outlined"
                             helperText="Enter your username."
-                            onChange={handleInputChange}
+                            onChange={(e) => setUsername(e.target.value)}
                         />
 
                         {/* password text field, text is hidden */}
@@ -86,8 +69,17 @@ function LoginPage() {
                             label="Password"
                             variant="outlined"
                             helperText="Enter your password."
-                            onChange={handleInputChange}
+                            onChange={(e) => setPassword(e.target.value)}
                         />
+
+                        {/* TODO: find out why underline and color are not working*/}
+                        <Link variant="s1"
+                              align="center"
+                              color="primary"
+                              underline="hover"
+                              href="/registration"
+                        >
+                            Create an Account!</Link>
 
                         {/* this box is used to make cancel/login horizontal */}
                         <Box sx={{ width: 200 }} >

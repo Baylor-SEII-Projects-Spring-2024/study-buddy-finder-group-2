@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserRepository;
 
+import java.io.Console;
+
 @Log4j2
 @RestController
 @CrossOrigin(origins = "http://localhost:3000") // for local testing
@@ -16,6 +18,7 @@ import studybuddy.api.user.UserRepository;
 public class LoginEndpoint {
 
     @Autowired
+    // do I use the repository or the jdbc template??
     //private UserRepository userRepository;
     JdbcTemplate jdbcTemplate;
 
@@ -25,7 +28,15 @@ public class LoginEndpoint {
             consumes = "application/json",
             produces = "application/json"
     )
-    public void authorizeUser(@RequestBody String[] user) {
+    public String authorizeUser(@RequestBody User user) {
+        System.out.println(user.getPassword());
+        // TODO:
+        // Query for UserID
+        //String idSql = "SELECT USER_ID FROM User WHERE USERNAME = ?";
+        //jdbcTemplate.query(idSql, user.getUsername());
 
+        // findUser(rs from query)
+        // what to do based on user type??
+        return "authorized";
     }
 }
