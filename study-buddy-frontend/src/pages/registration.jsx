@@ -1,9 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Button, RadioGroup, TextField, Box, Grid} from '@mui/material/';
 import {ButtonGroup, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, Select, Typography} from "@mui/material";
 import axios, {post} from "axios";
 
 function RegistrationPage() {
+    const [username, setUsername] = useState();
+    const [password, setPassword] = useState();
+    const [fName, setFirstName] = useState();
+    const [lName, setLastName] = useState();
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
 
     //password regex
     const PWD_REGEX = /^[A-z]+$/;
@@ -19,9 +25,9 @@ function RegistrationPage() {
             username: data.get('username'),
         });
 
-        //verify that username is valid
+        //TODO: verify that username is valid
         //const verUser = USER_REGEX.test(data.get('username'));
-        //verify that password is valid
+        //TODO: verify that password is valid
         //const verPwd = PWD_REGEX.test(data.get('password'));
         //verify that password is equal to confirm password
         const verMatch = data.get('password') === data.get('confirm_password');
@@ -36,12 +42,13 @@ function RegistrationPage() {
         // }
         if(!verMatch) {
             console.log("passwords do not match");
+            //TODO: notify user that passwords do not Match
             console.log(verMatch);
             return;
         }
 
         try{
-            //await axios.post("register_url", data );
+            await axios.post("/api/register", data );
         }
         catch(err){
 
@@ -102,7 +109,7 @@ function RegistrationPage() {
               <FormLabel htmlFor="user_type">Are you a:</FormLabel>
 
               <RadioGroup id="user_type" row>
-                  <FormControlLabel value="student" control={<Radio/>} id="user_student" label="Student"/>
+                  <Fo"student" control={<Radio/>} id="user_student" label="Student"/>
                   <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
               </RadioGroup>
               <Box row>
