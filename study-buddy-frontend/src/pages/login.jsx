@@ -28,14 +28,14 @@ function LoginPage() {
                 if(res.status == 200) {
                     console.log('User is recognized!');
 
-                    // TODO: redirect to user's correct landing page
+                    // redirect to user's correct landing page
                     if(res.data.userType.includes("student")) {
-                        // TODO: student landing page
+                        // student landing page
                         console.log('User is a ' + res.data.userType);
                         window.location = "/studentLanding";
                     }
                     else if(res.data.userType.includes("tutor")) {
-                        // TODO: tutor landing page
+                        // tutor landing page
                         console.log('User is a ' + res.data.userType);
                         window.location = "/tutorLanding";
                     }
