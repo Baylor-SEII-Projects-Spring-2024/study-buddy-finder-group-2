@@ -24,8 +24,8 @@ function LoginPage() {
 
         // connecting to backend to authorize user
         axios
-            //.post('http://localhost:8080/api/login', user) // for local testing
-            .post('http://34.16.169.60:8080/api/login', user)
+            .post('http://localhost:8080/api/login', user) // for local testing
+            //.post('http://34.16.169.60:8080/api/login', user)
             .then((res) => {
                 // executes if success code was sent
                 if(res.status == 200) {

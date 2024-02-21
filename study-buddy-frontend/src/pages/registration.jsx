@@ -57,8 +57,8 @@ function RegistrationPage() {
         }
 
 
-        //axios.post("http://localhost:8080/api/register", user) // for local testing
-        axios.post("http://34.16.169.60:8080/api/register", user)
+        axios.post("http://localhost:8080/api/register", user) // for local testing
+        //axios.post("http://34.16.169.60:8080/api/register", user)
             .then((res) => {
                 if(res.status === 200) {
                     console.log('No Existing User! User is now registered!')
