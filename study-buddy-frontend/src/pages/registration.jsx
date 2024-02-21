@@ -53,6 +53,7 @@ function RegistrationPage() {
             console.log("passwords do not match");
             //TODO: notify user that passwords do not Match
             console.log(verMatch);
+            window.alert("passwords do not match");
             return;
         }
 
@@ -65,9 +66,10 @@ function RegistrationPage() {
                     //TODO: Redirect
                     if(user_type.includes("student")){
 
+                        //console.log(res.data);
                         //temporary fix
                         var params = new URLSearchParams();
-                        params.append("username", data.get("username"));
+                        params.append("userid", data.get("username").toString());
                         console.log("going to /studentLanding?" + params.toString())
                         location.href = "/studentLanding?" + params.toString();
                     }
@@ -77,11 +79,13 @@ function RegistrationPage() {
                 }
                 else if(res.status === 409){ //if username + email already exists
                     console.log('Username or email already exists!');
+                    window.alert("Username or email already exists!")
                 }
             })
             .catch((err) => {
                 console.log("something is wrong");
                 console.log(err.value);
+                window.alert("something is wrong");
             })
 
 
