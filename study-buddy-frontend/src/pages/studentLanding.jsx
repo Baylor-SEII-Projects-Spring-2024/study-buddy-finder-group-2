@@ -5,7 +5,7 @@ function StudentLandingPage() {
     useEffect(() => {
         console.log(window.location.search);
         const params = new URLSearchParams(window.location.search),
-        user = params.get("username");
+        user = params.get("userid");
         setUsername(user);
     }, []);
     console.log("hi " + username);
