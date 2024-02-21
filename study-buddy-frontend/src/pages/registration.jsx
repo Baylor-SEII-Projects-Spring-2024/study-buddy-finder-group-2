@@ -74,8 +74,8 @@ function RegistrationPage() {
                     else if(user_type.includes("tutor")){
                         var params = new URLSearchParams();
                         params.append("username", data.get("username"));
-                        console.log("going to /studentLanding?" + params.toString())
-                        location.href = "/studentLanding?" + params.toString();                    }
+                        console.log("going to /tutorLanding?" + params.toString())
+                        location.href = "/tutorLanding?" + params.toString();                    }
                 }
                 else if(res.status === 409){ //if username + email already exists
                     console.log('Username or email already exists!');
