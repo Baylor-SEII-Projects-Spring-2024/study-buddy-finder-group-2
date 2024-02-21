@@ -9,7 +9,9 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-     /**
+    /**
+     * findByUsernamePassword
+     *
      * This function queries for all the user information with the given
      * username and password.
      *
