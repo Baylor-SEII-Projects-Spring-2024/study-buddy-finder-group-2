@@ -1,30 +1,37 @@
 import React, {useState} from 'react';
 import {Button, RadioGroup, TextField, Box, Grid} from '@mui/material/';
 import {ButtonGroup, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, Select, Typography} from "@mui/material";
-import axios, {post} from "axios";
+import axios from "axios";
+//import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom';
+
 
 function RegistrationPage() {
+
+    const [username, setUsername] = useState(null);
+    const [name, setName] = useState(null);
+    const [password, setPassword] = useState(null);
+    const [email_address, setEmail] = useState(null);
+    const [user_type, setType] = useState(null);
+
 
     //password regex
     const PWD_REGEX = /^[A-z]+$/;
     //username regex
     const USER_REGEX = /^\[A-z]{3,23}$/;
     // handles submission of form
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
         const user = {
-            username: data.get('username'),
-            password: data.get('password'),
-            name: data.get('fName'),
-            email: data.get('email')
+            username, password, name, email_address, user_type
         }
 
         console.log({ //testing form submission
             firstName: data.get('fname'),
-            email: data.get('email'),
+            email_address: data.get('email'),
             username: data.get('username'),
+            user_type: user_type
         });
 
         //TODO: verify that username is valid
@@ -49,18 +56,34 @@ function RegistrationPage() {
             return;
         }
 
-        axios.post("/api/register", user)
+
+        //axios.post("http://localhost:8080/api/register", user) // for local testing
+        axios.post("http://34.16.169.60:8080/api/register", user)
             .then((res) => {
                 if(res.status === 200) {
                     console.log('No Existing User! User is now registered!')
                     //TODO: Redirect
+                    if(user_type.includes("student")){
+
+                        //temporary fix
+                        var params = new URLSearchParams();
+                        params.append("username", data.get("username"));
+                        console.log("going to /studentLanding?" + params.toString())
+                        location.href = "/studentLanding?" + params.toString();
+                    }
+                    else if(user_type.includes("tutor")){
+                        var params = new URLSearchParams();
+                        params.append("username", data.get("username"));
+                        console.log("going to /tutorLanding?" + params.toString())
+                        location.href = "/tutorLanding?" + params.toString();                    }
                 }
                 else if(res.status === 409){ //if username + email already exists
                     console.log('Username or email already exists!');
                 }
-                else if (res.status === 404){
-                    console.log('Request cannot be performed at this time');
-                }
+            })
+            .catch((err) => {
+                console.log("something is wrong");
+                console.log(err.value);
             })
 
 
@@ -108,17 +131,20 @@ function RegistrationPage() {
                       </MenuItem>
                   ))}
               </Select> <br/>
-              <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"/><br/>
+              <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
+                         onChange={(e) => setName(e.target.value)}/><br/>
               <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"/><br/>
-              <TextField autoComplete="email" id="email" name="email" label="Email"/><br/>
-              <TextField id="username" name="username" label="Username"/><br/>
+              <TextField autoComplete="email" id="email" name="email" label="Email"
+                         onChange={(e) => setEmail(e.target.value)}/><br/>
+              <TextField id="username" name="username" label="Username"
+                         onChange={(e) => setUsername(e.target.value)}/><br/>
               <TextField autoComplete="new-password" type="password" id="password" name="password"
-                         label="Password"/><br/>
+                         label="Password" onChange={(e) => setPassword(e.target.value)}/><br/>
               <TextField id="confirm_password" type="password" name="confirm_password"
                          label="Confirm Password"/><br/>
               <FormLabel htmlFor="user_type">Are you a:</FormLabel>
 
-              <RadioGroup id="user_type" row>
+              <RadioGroup id="user_type" row onChange={(e) => setType(e.target.value)}>
                   <FormControlLabel value="student" control={<Radio/>} id="user_student" label="Student"/>
                   <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
               </RadioGroup>
