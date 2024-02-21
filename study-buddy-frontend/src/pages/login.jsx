@@ -24,11 +24,13 @@ function LoginPage() {
 
         // connecting to backend to authorize user
         axios
-            .post('http://localhost:8080/api/login', user) // for local testing
-            //.post('http://34.16.169.60:8080/api/login', user)
+            //.post('http://localhost:8080/api/login', user) // for local testing
+            .post('http://34.16.169.60:8080/api/login', user)
             .then((res) => {
                 // executes if success code was sent
                 if(res.status == 200) {
+                    var params = new URLSearchParams();
+                    params.append("username", res.data.username);
                     console.log('User is recognized!');
                     console.log(res.data);
 
@@ -36,12 +38,12 @@ function LoginPage() {
                     if(res.data.userType.includes("student")) {
                         // student landing page
                         console.log('User is a ' + res.data.userType);
-                        window.location = "/studentLanding";
+                        window.location = "/studentLanding?" + params.toString();
                     }
                     else if(res.data.userType.includes("tutor")) {
                         // tutor landing page
                         console.log('User is a ' + res.data.userType);
-                        window.location = "/tutorLanding";
+                        window.location = "/tutorLanding?" + params.toString();
                     }
                 }
             })
@@ -112,7 +114,7 @@ function LoginPage() {
                                 {/* cancel button linked back to home page */}
                                 <Button
                                     id="cancel"
-                                    variant="contained"
+                                    variant="outlined"
                                     color="error"
                                     size="small"
                                     href="/"

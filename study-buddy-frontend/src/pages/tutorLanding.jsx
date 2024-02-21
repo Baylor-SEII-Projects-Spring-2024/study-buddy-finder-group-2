@@ -1,9 +1,18 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Head from "next/head";
 import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import Link from "next/link";
 
 function TutorLandingPage() {
+    var [username, setUsername] = useState(null);
+    useEffect(() => {
+        console.log(window.location.search);
+        const params = new URLSearchParams(window.location.search),
+            user = params.get("username");
+        setUsername(user);
+    }, []);
+    console.log("hi " + username);
+
   return (
       <>
           <Head>
@@ -15,7 +24,7 @@ function TutorLandingPage() {
 
                   <Card sx={{ width: 600 }} elevation={4}>
                       <CardContent>
-                          <Typography variant='h4' align='center'>Welcome Tutors!</Typography>
+                          <Typography variant='h4' align='center'>Welcome {username}!</Typography>
                           <Typography variant='b1' align='center'>This is Study Buddies. Find fellow tutors and students to connect with, create study meetups with your friends, and continue to guide student minds in the pursuit of knowledge.</Typography>
                       </CardContent>
                   </Card>
