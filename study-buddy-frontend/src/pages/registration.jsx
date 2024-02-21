@@ -31,6 +31,7 @@ function RegistrationPage() {
             firstName: data.get('fname'),
             email_address: data.get('email'),
             username: data.get('username'),
+            user_type: user_type
         });
 
         //TODO: verify that username is valid
@@ -62,11 +63,16 @@ function RegistrationPage() {
                 if(res.status === 200) {
                     console.log('No Existing User! User is now registered!')
                     //TODO: Redirect
-                    if(data.get("user_type").includes("student")){
-                        window.location = "/studentLanding.jsx"
+                    if(user_type.includes("student")){
+
+                        //temporary fix
+                        var params = new URLSearchParams();
+                        params.append("username", data.get("username"));
+                        console.log("going to /studentLanding?" + params.toString())
+                        location.href = "/studentLanding?" + params.toString();
                     }
-                    else if(data.get("user_type").includes("tutor")){
-                        window.location = "/tutorLanding.jsx"
+                    else if(user_type.includes("tutor")){
+                        window.location = "/tutorLanding"
                     }
                 }
                 else if(res.status === 409){ //if username + email already exists
@@ -75,6 +81,7 @@ function RegistrationPage() {
             })
             .catch((err) => {
                 console.log("something is wrong");
+                console.log(err.value);
             })
 
 
@@ -122,10 +129,13 @@ function RegistrationPage() {
                       </MenuItem>
                   ))}
               </Select> <br/>
-              <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"/><br/>
+              <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
+                         onChange={(e) => setName(e.target.value)}/><br/>
               <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"/><br/>
-              <TextField autoComplete="email" id="email" name="email" label="Email" onChange={(e) => setEmail(e.target.value)}/><br/>
-              <TextField id="username" name="username" label="Username" onChange={(e) => setUsername(e.target.value)}/><br/>
+              <TextField autoComplete="email" id="email" name="email" label="Email"
+                         onChange={(e) => setEmail(e.target.value)}/><br/>
+              <TextField id="username" name="username" label="Username"
+                         onChange={(e) => setUsername(e.target.value)}/><br/>
               <TextField autoComplete="new-password" type="password" id="password" name="password"
                          label="Password" onChange={(e) => setPassword(e.target.value)}/><br/>
               <TextField id="confirm_password" type="password" name="confirm_password"

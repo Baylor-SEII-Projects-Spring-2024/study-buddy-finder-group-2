@@ -1,6 +1,7 @@
 package studybuddy.api.endpoint;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @Log4j2
 @RestController
 public class RegistrationEndpoint {
-
+    @Autowired
     UserService userService = new UserService();
 
     //find if user exists already
@@ -29,16 +30,17 @@ public class RegistrationEndpoint {
     )
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         System.out.println(user.getUsername());
-        //TODO: Search for user
+        //TODO: Figure out why interface null = issue
         if(!(userService.findByUsername(user.getUsername()).isEmpty())
                 || !(userService.findByEmail(user.getEmailAddress()).isEmpty())){
+        //if(false){
             System.out.println("Username or email already exists");
             return ResponseEntity.status(409).build();
         }
         else{
-            //TODO: If user not found, save user to database
             System.out.println("User is available!");
-            return ResponseEntity.ok(userService.saveUser(user));
+            return ResponseEntity.ok(userService.saveUser(user)); //NOTE: won't work
+            //return ResponseEntity.ok(user);
         }
     }
     
