@@ -1,10 +1,19 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Head from "next/head";
 
 import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import Link from "next/link";
 
 function StudentLandingPage() {
+    var [username, setUsername] = useState(null);
+    useEffect(() => {
+        console.log(window.location.search);
+        const params = new URLSearchParams(window.location.search),
+            user = params.get("username");
+        setUsername(user);
+    }, []);
+    console.log("hi " + username);
+
     return (
         <>
             <Head>
@@ -12,11 +21,13 @@ function StudentLandingPage() {
             </Head>
 
             <main>
-                <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
-                    <Card sx={{ width: 600 }} elevation={4}>
+                <Stack sx={{paddingTop: 4}} alignItems='center' gap={2}>
+                    <Card sx={{width: 600}} elevation={4}>
                         <CardContent>
-                            <Typography variant='h4' align='center'>Welcome Students!</Typography>
-                            <Typography variant='b1' align='center'>This is Study Buddies. Find fellow students and tutors to connect with, create study meetups with your friends, and continue to nurture your mind in the pursuit of knowledge.</Typography>
+                            <Typography variant='h4' align='center'>Welcome {username}!</Typography>
+                            <Typography variant='b1' align='center'>This is Study Buddies. Find fellow students and
+                                tutors to connect with, create study meetups with your friends, and continue to nurture
+                                your mind in the pursuit of knowledge.</Typography>
                         </CardContent>
                     </Card>
 
@@ -40,7 +51,7 @@ function StudentLandingPage() {
 
                 </Stack>
 
-                <Box sx={{ paddingTop: 60, paddingLeft: 70 }}>
+                <Box sx={{paddingTop: 60, paddingLeft: 70}}>
                     <Typography variant="s2">By: StuCon</Typography>
                 </Box>
             </main>
