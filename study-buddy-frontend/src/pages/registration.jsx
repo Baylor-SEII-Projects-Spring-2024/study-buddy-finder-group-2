@@ -6,12 +6,13 @@ import axios from "axios";
 
 
 function RegistrationPage() {
-
+    // Database looks for attribute name, not column name when assigning attributes to new row
+    // emailAddress and userType need no underscores
     const [username, setUsername] = useState(null);
     const [name, setName] = useState(null);
     const [password, setPassword] = useState(null);
-    const [email_address, setEmail] = useState(null);
-    const [user_type, setType] = useState(null);
+    const [emailAddress, setEmail] = useState(null);
+    const [userType, setType] = useState(null);
 
 
     //password regex
@@ -24,14 +25,14 @@ function RegistrationPage() {
         const data = new FormData(event.currentTarget);
 
         const user = {
-            username, password, name, email_address, user_type
+            username, password, name, emailAddress, userType
         }
 
         console.log({ //testing form submission
             firstName: data.get('fname'),
-            email_address: data.get('email'),
+            emailAddress: data.get('email'),
             username: data.get('username'),
-            user_type: user_type
+            userType: userType
         });
 
         //TODO: verify that username is valid
@@ -63,30 +64,29 @@ function RegistrationPage() {
                 if(res.status === 200) {
                     console.log('No Existing User! User is now registered!')
                     //TODO: Redirect
-                    if(user_type.includes("student")){
+                    if (res.data.userType.includes("student")) {
 
                         //temporary fix
                         var params = new URLSearchParams();
                         params.append("username", data.get("username"));
                         console.log("going to /studentLanding?" + params.toString())
                         location.href = "/studentLanding?" + params.toString();
-                    }
-                    else if(user_type.includes("tutor")){
+
+                    } else if (res.data.userType.includes("tutor")) {
                         var params = new URLSearchParams();
                         params.append("username", data.get("username"));
                         console.log("going to /tutorLanding?" + params.toString())
-                        location.href = "/tutorLanding?" + params.toString();                    }
-                }
-                else if(res.status === 409){ //if username + email already exists
-                    console.log('Username or email already exists!');
+                        location.href = "/tutorLanding?" + params.toString();
+
+                    } else if (res.status === 409) { //if username + email already exists
+                        console.log('Username or email already exists!');
+                    }
                 }
             })
             .catch((err) => {
                 console.log("something is wrong");
                 console.log(err.value);
-            })
-
-
+            });
     };
 
 
