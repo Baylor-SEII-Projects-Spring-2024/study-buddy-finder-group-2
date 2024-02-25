@@ -12,7 +12,7 @@ def generate_random_word(count) -> str:
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(count))
 
-def register_account(driver):
+def register(driver):
     driver.get('http://34.16.169.60:3000')
     time.sleep(1)
 
@@ -49,7 +49,7 @@ def register_account(driver):
         time.sleep(1)
 
         username_box = driver.find_elements(By.XPATH, '/html/body/div/div/form/div[5]/div/input')
-        username = 'user' + generate_random_word(6)
+        username = 'user' + generate_random_word(8)
         username_box[0].send_keys(username)
         time.sleep(1)
 
@@ -68,10 +68,33 @@ def register_account(driver):
 
         next_button = driver.find_elements(By.XPATH, '/html/body/div/div/form/div[9]/button')
         next_button[0].click()
-        time.sleep(5)
+        time.sleep(2)
 
+        logout_button = driver.find_elements(By.XPATH, '//*[@id="__next"]/main/div[1]/div[2]/a[4]/button')
+        logout_button[0].click()
+        time.sleep(3)
+
+        return username, password
     else:
         print('ROUTING FAILURE')
 
-register_account(driver)
+def login(driver, username, password):
+    login_button = driver.find_elements(By.XPATH, '//*[@id="__next"]/main/div/div[2]/a[1]/button')
+    login_button[0].click()
+    time.sleep(1)
+
+    username_box = driver.find_elements(By.XPATH, '//*[@id="username"]')
+    username_box[0].send_keys(username)
+    time.sleep(1)
+
+    password_box = driver.find_elements(By.XPATH, '//*[@id="password"]')
+    password_box[0].send_keys(password)
+    time.sleep(1)
+
+    login_button = driver.find_elements(By.XPATH, '/html/body/div/main/form/div/div[3]/div/button')
+    login_button[0].click()
+    time.sleep(5)
+
+username, password = register(driver)
+login(driver, username, password)
 driver.quit()
