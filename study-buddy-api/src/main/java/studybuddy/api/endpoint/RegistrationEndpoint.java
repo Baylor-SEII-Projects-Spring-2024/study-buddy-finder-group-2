@@ -30,6 +30,7 @@ public class RegistrationEndpoint {
     )
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         System.out.println(user.getUsername());
+        System.out.println(user.getUserType());
         //TODO: Figure out why interface null = issue
         if(!(userService.findByUsername(user.getUsername()).isEmpty())
                 || !(userService.findByEmail(user.getEmailAddress()).isEmpty())){
