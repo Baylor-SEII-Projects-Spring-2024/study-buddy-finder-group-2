@@ -31,4 +31,7 @@ public class Meeting {
 
     @Column(name = "DATE")
     LocalDateTime date;
+
+    @Column(name = "LOCATION")
+    String location;
 }
