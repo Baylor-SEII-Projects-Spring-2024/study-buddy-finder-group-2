@@ -5,9 +5,21 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    /**
+     * findByName
+     * This function queries for all the users information with the given
+     * part of the name
+     * @param namePrefix
+     *
+     * @return List of Users that start with namePrefix
+     *          empty List if no matches
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.name LIKE ?1%", nativeQuery = true)
+    List<User> findByNameStartingWith(String namePrefix);
 
     /**
      * findByUsernamePassword
