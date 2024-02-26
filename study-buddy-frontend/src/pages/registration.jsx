@@ -90,14 +90,8 @@ function RegistrationPage() {
             .catch((err) => {
                 console.log("something is wrong");
                 console.log(err.value);
-<<<<<<< HEAD
                 window.alert("something is wrong");
             })
-
-
-=======
-            });
->>>>>>> 3357ab6622e70b8bad0c3312a672e8be408467fa
     };
 
 
