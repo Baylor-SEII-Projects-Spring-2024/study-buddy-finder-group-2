@@ -2,6 +2,10 @@ package studybuddy.api.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import studybuddy.api.roles.Role;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -32,4 +36,11 @@ public class User {
 
     @Column(name = "USER_TYPE")
     String userType;
+
+    // creates join table with Role
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
+    private List<Role> roles = new ArrayList<>();
 }
