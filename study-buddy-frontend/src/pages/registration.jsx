@@ -41,7 +41,7 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        axios.get("http://34.16.169.60:8080/api/request-school-options");
+        axios.get("http://34.16.169.60:8080/api/request-school-options")
         //axios.get("http://localhost:8080/api/request-school-options")
             .then((result) => {
                 console.log(result.data);
