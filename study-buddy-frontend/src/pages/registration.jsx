@@ -41,8 +41,8 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        //axios.get("http://34.16.169.60:8080/api/request-school-options");
-        axios.get("http://localhost:8080/api/request-school-options")
+        axios.get("http://34.16.169.60:8080/api/request-school-options");
+        //axios.get("http://localhost:8080/api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -111,8 +111,8 @@ function RegistrationPage() {
         }
 
 
-        axios.post("http://localhost:8080/api/register", user) // for local testing
-        //axios.post("http://34.16.169.60:8080/api/register", user)
+        //axios.post("http://localhost:8080/api/register", user) // for local testing
+        axios.post("http://34.16.169.60:8080/api/register", user)
             .then((res) => {
                 if(res.status === 200) {
                     console.log('No Existing User! User is now registered!')
