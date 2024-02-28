@@ -1,7 +1,18 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, RadioGroup, TextField, Box, Grid} from '@mui/material/';
-import {ButtonGroup, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, Select, Typography} from "@mui/material";
-import axios from "axios";
+import {
+    Autocomplete,
+    ButtonGroup,
+    FormControlLabel,
+    FormLabel,
+    InputLabel,
+    MenuItem,
+    Radio,
+    Select,
+    Typography
+} from "@mui/material";
+import axios, {get} from "axios";
+import {NextResponse as r} from "next/server";
 //import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom';
 
 
@@ -13,12 +24,27 @@ function RegistrationPage() {
     const [password, setPassword] = useState(null);
     const [emailAddress, setEmail] = useState(null);
     const [userType, setType] = useState(null);
+    const [school, setSchool] = useState(null);
+    const [schools, setSchools] = useState(null);
 
+
+
+    //TODO: get list of schools from database
+    useEffect(() => {
+        //axios.get("http://34.16.169.60:8080/api/request-school-options");
+        axios.get("http://localhost:8080/api/request-school-options")
+            .then((result) => {
+                console.log(result.data);
+                setSchools(result.data);
+    })
+            .catch(error => console.log(error)); // for local testing
+
+    }, []);
 
     //password regex
-    const PWD_REGEX = /^[A-z]+$/;
+    const PWD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g;
     //username regex
-    const USER_REGEX = /^\[A-z]{3,23}$/;
+    const USER_REGEX = /^\[A-z]{3,23}$/g;
     // handles submission of form
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -36,20 +62,20 @@ function RegistrationPage() {
         });
 
         //TODO: verify that username is valid
-        //const verUser = USER_REGEX.test(data.get('username'));
+        const verUser = USER_REGEX.test(data.get('username'));
         //TODO: verify that password is valid
-        //const verPwd = PWD_REGEX.test(data.get('password'));
+        const verPwd = PWD_REGEX.test(data.get('password'));
         //verify that password is equal to confirm password
         const verMatch = data.get('password') === data.get('confirm_password');
 
-        // if(!verUser){
-        //     console.log("invalid username");
-        //     return;
-        // }
-        // else if(!verPwd){
-        //     console.log("invalid password");
-        //     return;
-        // }
+        if(!verUser){
+            console.log("invalid username");
+            return;
+        }
+        else if(!verPwd){
+            console.log("invalid password");
+            return;
+        }
         if(!verMatch) {
             console.log("passwords do not match");
             //TODO: notify user that passwords do not Match
@@ -98,24 +124,7 @@ function RegistrationPage() {
 
     // registration page information
     //note: get list of schools from database later
-    const schools =[
-        {
-            value: '',
-            label: 'select a school',
-        },
-        {
-            value: 'baylor',
-            label: 'Baylor University',
-        },
-        {
-            value: 'tamu',
-            label: 'A&M University',
-        },
-        {
-            value: 'tcu',
-            label: 'TCU University',
-        }
-    ]
+
     return (
       <Box>
           <Box component="form" validate="true" onSubmit={handleSubmit}
@@ -127,15 +136,33 @@ function RegistrationPage() {
                }}>
               <Typography component="h1" variant="h5">Register</Typography><br/>
               <InputLabel id="schoolLabel">School</InputLabel>
-              <Select defaultValue="" labelId="schoolLabel" id="school" name="school" label="School" sx={{
-                  m: 1, minWidth: 225
-              }}>
-                  {schools.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                      </MenuItem>
-                  ))}
-              </Select> <br/>
+
+              <Autocomplete // school selector
+                  id="school-select"
+                  options={schools}
+                  sx={{ width: 200}}
+                  autoHighlight
+                  getOptionLabel={(option) => option.schoolName}
+                  onChange={option => {
+                      setSchool(option.id); // setting user's school
+                  }}
+                  renderOption={(props, option) => (
+                      <Box component="li" sx={{ display: 'flex'}} {...props}>
+                          {option.schoolName}
+                      </Box>
+                  )}
+                  renderInput={(params) => (
+                      <TextField
+                          {...params}
+                          label="Choose a School"
+                          inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                          }}
+                      />
+                  )}
+              /> <br/>
+
               <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
                          onChange={(e) => setName(e.target.value)}/><br/>
               <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"/><br/>
