@@ -11,7 +11,7 @@ public class MeetingService {
     @Autowired
     private MeetingRepository meetingRepository;
 
-    public Meeting saveMeeting(Meeting meeting) {
+    public Meeting save(Meeting meeting) {
         return meetingRepository.save(meeting);
     }
 
