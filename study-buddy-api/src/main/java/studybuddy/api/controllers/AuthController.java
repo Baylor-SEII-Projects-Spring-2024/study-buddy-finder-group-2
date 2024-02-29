@@ -39,15 +39,25 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
+    // AuthResponseDto
+    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
         // TODO: how to get roles/userType in token (set authorities??)
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
                         loginDto.getPassword()));
 
+        // get the user type from database
+        String userType = userService.findUserType(loginDto.getUsername());
+
         SecurityContextHolder.getContext().setAuthentication(auth);
-        String token = jwtGenerator.generateToken(auth);
-        return new ResponseEntity<>(new AuthResponseDto(token), HttpStatus.OK);
+        String token = jwtGenerator.generateToken(auth, userType);
+
+        if(userType.equals("student")) {
+            return new ResponseEntity<>(token, HttpStatus.valueOf(200));
+        }
+        else {
+            return new ResponseEntity<>(token, HttpStatus.valueOf(201));
+        }
     }
 
     @PostMapping("register")
@@ -67,6 +77,7 @@ public class AuthController {
         // TODO: add school to registerDto
         // user.setSchool(registerDto.getSchool());
 
+        // because we are returning a string, the user must sign in after creating an account
         userService.saveUser(user);
         return new ResponseEntity<>("User is registered!", HttpStatus.OK);
     }

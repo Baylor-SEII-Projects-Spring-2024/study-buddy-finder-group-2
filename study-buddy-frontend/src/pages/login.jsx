@@ -3,6 +3,10 @@ import Head from "next/head";
 import Link from "next/link";
 import axios from "axios";
 
+import { jwtDecode } from "jwt-decode";
+//import { decode } from "base-64";
+//global.atob = decode;
+
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
 
 function LoginPage() {
@@ -24,27 +28,34 @@ function LoginPage() {
 
         // connecting to backend to authorize user
         axios
-            .post('http://localhost:8080/api/login', user) // for local testing
+            .post('http://localhost:8080/api/authorization/login', user) // for local testing
             //.post('http://34.16.169.60:8080/api/login', user)
             .then((res) => {
-                // executes if success code was sent
-                if(res.status == 200) {
-                    var params = new URLSearchParams();
-                    params.append("username", res.data.username);
-                    console.log('User is recognized!');
-                    console.log(res.data);
+                //TODO:
+                // pass tokens to other pages
+                // extract userType (custom claim)
+                // what are refresh tokens??
+                // use JSON.parse() to get token as String??
 
-                    // redirect to user's correct landing page
-                    if(res.data.userType.includes("student")) {
-                        // student landing page
-                        console.log('User is a ' + res.data.userType);
-                        window.location = "/studentLanding?" + params.toString();
-                    }
-                    else if(res.data.userType.includes("tutor")) {
-                        // tutor landing page
-                        console.log('User is a ' + res.data.userType);
-                        window.location = "/tutorLanding?" + params.toString();
-                    }
+                // executes if success code was sent
+                var params = new URLSearchParams();
+                console.log(res.data);
+                const token  = res.data;
+                const decodedUser = jwtDecode(token);
+                console.log(decodedUser);
+
+                params.append("username", decodedUser.sub);
+                console.log(decodedUser.sub + 'is recognized!');
+
+                if(res.status === 200) {
+                    // student landing page
+                    console.log('User is a student');
+                    //window.location = "/studentLanding?" + params.toString();
+                }
+                else if(res.status === 201) {
+                    // tutor landing page
+                    console.log('User is a tutor');
+                    //window.location = "/tutorLanding?" + params.toString();
                 }
             })
             // catches the bad response (error)
