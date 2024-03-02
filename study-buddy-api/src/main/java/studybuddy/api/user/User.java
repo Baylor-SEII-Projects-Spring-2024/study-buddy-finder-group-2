@@ -18,8 +18,11 @@ public class User {
     @Column(name = "USER_ID")
     Long id;
 
-    @Column(name = "NAME")
-    String name;
+    @Column(name = "FIRSTNAME")
+    String firstName;
+
+    @Column(name = "LASTNAME")
+    String lastName;
 
     @Column(name = "USERNAME")
     String username;
