@@ -26,7 +26,7 @@ function MeetupsPage() {
       }
 
       //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-        axios.post("http://34.16.169.60:8080/viewMeetups/create", meeting)
+        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();

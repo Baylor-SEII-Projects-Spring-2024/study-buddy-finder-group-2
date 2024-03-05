@@ -6,27 +6,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
-import studybuddy.api.user.User;
-import studybuddy.api.user.UserService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
 
 @Log4j2
 @RestController
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class MeetupsEndpoint {
 
     @Autowired
     private MeetingService meetingService;
-    //@CrossOrigin(origins = "http://localhost:3000") // for local testing
-    @CrossOrigin(origins = "http://34.16.169.60:3000")
+
     @GetMapping("/viewMeetups")
     public List<Meeting> getMeetups() {
         return meetingService.findAll();
     }
 
-    //@CrossOrigin(origins = "http://localhost:3000") // for local testing
-    @CrossOrigin(origins = "http://34.16.169.60:3000")
     @RequestMapping(
             value = "/viewMeetups",
             method = RequestMethod.POST,
