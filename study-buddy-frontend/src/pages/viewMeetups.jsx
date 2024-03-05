@@ -32,8 +32,8 @@ function MeetupsPage() {
                     handleClose();
 
                     //refetch the meetups
-                    fetch('http://localhost:8080/viewMeetups') // use this for local development
-                    //fetch('http://34.16.169.60:8080/viewMeetups')
+                    //fetch('http://localhost:8080/viewMeetups') // use this for local development
+                    fetch('http://34.16.169.60:8080/viewMeetups')
                     .then(response => response.json())
                     .then(data => setMeetups(data))
                     .catch(error => console.error('Error fetching meetups:', error));
@@ -50,8 +50,8 @@ function MeetupsPage() {
     const [meetups, setMeetups] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8080/viewMeetups') // use this for local development
-        //fetch('http://34.16.169.60:8080/viewMeetups')
+        //fetch('http://localhost:8080/viewMeetups') // use this for local development
+        fetch('http://34.16.169.60:8080/viewMeetups')
             .then(response => response.json())
             .then(data => setMeetups(data))
             .catch(error => console.error('Error fetching meetups:', error));
