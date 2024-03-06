@@ -10,7 +10,8 @@ function StudentLandingPage() {
         console.log(window.location.search);
         const params = new URLSearchParams(window.location.search),
             user = params.get("username");
-        setUsername(user);
+
+            setUsername(user);
     }, []);
     console.log("hi " + username);
 
