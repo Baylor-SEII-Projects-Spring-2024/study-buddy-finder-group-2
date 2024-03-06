@@ -54,14 +54,14 @@ function MeetupsPage() {
         event.preventDefault();
 
       //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`, meeting)
+        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
 
                     //refetch the meetups
-                    fetch('http://localhost:8080/viewMeetups') // use this for local development
-                    //fetch('http://34.16.169.60:8080/viewMeetups')
+                    //fetch('http://localhost:8080/viewMeetups') // use this for local development
+                    fetch('http://34.16.169.60:8080/viewMeetups')
                     .then(response => response.json())
                     .then(data => setMeetups(data))
                     .catch(error => console.error('Error fetching meetings:', error));
@@ -78,8 +78,8 @@ function MeetupsPage() {
     const [meetups, setMeetups] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8080/viewMeetups') // use this for local development
-        //fetch('http://34.16.169.60:8080/viewMeetups')
+        //fetch('http://localhost:8080/viewMeetups') // use this for local development
+        fetch('http://34.16.169.60:8080/viewMeetups')
             .then(response => response.json())
             .then(data => setMeetups(data))
             .catch(error => console.error('Error fetching meetings:', error));
@@ -125,8 +125,8 @@ function MeetupsPage() {
                         <CardContent>
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
-                                <strong>ID: </strong> {meetup.id}
-                                <br />
+                                {/* <strong>ID: </strong> {meetup.id}
+                                <br /> */}
                                 <strong>Title: </strong> {meetup.title}
                                 <br />
                                 <strong>Description: </strong> {meetup.description}
