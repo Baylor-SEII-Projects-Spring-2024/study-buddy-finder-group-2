@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+//import java.time.ZonedDateTime;
 
 @Data
 @Entity
@@ -31,4 +32,7 @@ public class Meeting {
 
     @Column(name = "DATE")
     LocalDateTime date;
+
+    @Column(name = "LOCATION")
+    String location;
 }
