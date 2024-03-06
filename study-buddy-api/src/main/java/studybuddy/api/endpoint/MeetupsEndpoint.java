@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
-
 @Log4j2
 @RestController
 @CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
@@ -36,5 +35,10 @@ public class MeetupsEndpoint {
 
         //add error checking
         return ResponseEntity.ok(meeting);
+    }
+
+    @DeleteMapping("/viewMeetups/{id}")
+    public void deleteMeeting(@PathVariable Long id) {
+        meetingService.delete(id);
     }
 }
