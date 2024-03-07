@@ -7,8 +7,10 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 
 //TODO: Be able to choose people from connections to add to meeting
+//TODO: Connect users and their meetings
+//TODO: Bug where user able to input a bit of the date and it goes through
 //TODO: fix reducer thing in console log?
-//TODO: Convert timezones from UTC?
+//TODO: Convert timezones from UTC
 //TODO: Convert from military time to AM/PM
 
 function MeetupsPage() {
@@ -21,6 +23,7 @@ function MeetupsPage() {
 
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
+    // CREATE
     const handleSubmit = (event) => {
       // prevents page reload
       event.preventDefault();
@@ -50,6 +53,43 @@ function MeetupsPage() {
             });
     }
 
+    const handleSubmitUpdate = (event) => {
+        // prevents page reload
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+
+        const meeting = {
+            id, title, description, subject, date, location
+        }
+
+        console.log("State variables after update");
+        console.log("ID: " + id);
+        console.log("title: " + title);
+        console.log("desc: " + description);
+        console.log("sub: " + subject);
+        console.log("location: " + location);
+  
+        //axios.put("http://localhost:8080/viewMeetups", meeting) // for local testing
+          axios.put("http://34.16.169.60:8080/viewMeetups", meeting)
+              .then((res) => {
+                  if(res.status === 200) {
+                      handleCloseEdit();
+  
+                      //refetch the meetups
+                      //fetch('http://localhost:8080/viewMeetups') // use this for local development
+                      fetch('http://34.16.169.60:8080/viewMeetups')
+                      .then(response => response.json())
+                      .then(data => setMeetups(data))
+                      .catch(error => console.error('Error fetching meetings:', error));
+                  }
+              })
+              .catch((err) => {
+                  console.log("ERROR UPDATING MEETING.");
+                  console.log(err.value);
+              });
+      }
+
+    // DELETE
     const handleDelete = (event) =>{
         event.preventDefault();
 
@@ -74,6 +114,8 @@ function MeetupsPage() {
     }
 
 
+
+
     //GET MEETUPS (runs after every render)
     const [meetups, setMeetups] = useState([]);
 
@@ -89,6 +131,7 @@ function MeetupsPage() {
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
+        setId(null);
         setOpen(true);
     };
 
@@ -103,6 +146,15 @@ function MeetupsPage() {
     // takes in selected meeting to display content of that meeting
     const handleClickOpenEdit = (meetup) => {
         setSelectedMeeting(meetup);
+
+        // set state variables to the currently selected meeting
+        setId(meetup.id);
+        setTitle(meetup.title);
+        setDescription(meetup.description);
+        setSubject(meetup.subject);
+        setDate(meetup.date);
+        setLocation(meetup.location);
+
         setOpenEdit(true);
     };
 
@@ -160,7 +212,7 @@ function MeetupsPage() {
         <DialogContent>
 
           <DialogContentText>
-            Set the title, description, date, and location of your meeting.
+            Set the title, description, subject, date, and location of your meeting.
           </DialogContentText>
 
           <TextField
@@ -204,8 +256,15 @@ function MeetupsPage() {
           />
 
         <DateTimePicker
-        label="Date"
-        onChange={(e) => setDate(e)}
+            label="Date"
+            onChange={(e) => setDate(e)}
+
+            //makes field required
+            slotProps={{
+                textField: {
+                required: true,
+                }
+            }}
         />
 
         <TextField
@@ -225,24 +284,11 @@ function MeetupsPage() {
 
         <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
-            <Button type="submit" onSubmit={handleSubmit}>Create</Button>
+            <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Create</Button>
         </DialogActions>
         
       </Dialog>
     </LocalizationProvider>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -257,13 +303,13 @@ function MeetupsPage() {
             open={openEdit}
             onClose={handleCloseEdit}
 
-             component="form" validate="true" onSubmit={handleSubmit}
+             component="form" validate="true" onSubmit={handleSubmitUpdate}
       >
         <DialogTitle>Edit Meetup</DialogTitle>
         <DialogContent>
 
           <DialogContentText>
-            Edit the title, description, date, and location of your meeting.
+            Edit the title, description, subject, date, and location of your meeting.
           </DialogContentText>
 
           <TextField
@@ -276,7 +322,7 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.title || ''}
+            defaultValue={selectedMeeting?.title || ''}
             onChange={(e) => setTitle(e.target.value)}
           />
 
@@ -290,7 +336,7 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.description || ''}
+            defaultValue={selectedMeeting?.description || ''}
             onChange={(e) => setDescription(e.target.value)}
           />
 
@@ -305,14 +351,22 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.subject || ''}
+            defaultValue={selectedMeeting?.subject || ''}
             onChange={(e) => setSubject(e.target.value)}
           />
 
         <DateTimePicker
-        label="Date"
-        value={dayjs(selectedMeeting?.date)}
-        onChange={(e) => setDate(e)}
+            label="Date"
+            defaultValue={dayjs(selectedMeeting?.date)}
+
+            //makes field required
+            slotProps={{
+                textField: {
+                required: true,
+                }
+            }}
+
+            onChange={(e) => setDate(e)}
         />
 
         <TextField
@@ -325,7 +379,7 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.location || ''}
+            defaultValue={selectedMeeting?.location || ''}
             onChange={(e) => setLocation(e.target.value)}
           />
 
@@ -334,7 +388,7 @@ function MeetupsPage() {
         <DialogActions>
             <Button onClick={handleCloseEdit}>Cancel</Button>
             <Button onClick={handleDelete} style={{ backgroundColor: 'red', color: 'white' }}>Delete</Button>
-            <Button type="submit" onSubmit={handleSubmit}>Update</Button>
+            <Button type="submit" onSubmit={handleSubmitUpdate} style={{ backgroundColor: 'purple', color: 'white' }}>Update</Button>
         </DialogActions>
         
       </Dialog>

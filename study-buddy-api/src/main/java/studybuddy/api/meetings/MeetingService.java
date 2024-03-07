@@ -17,6 +17,10 @@ public class MeetingService {
 
     public void delete(Long meetingId){ meetingRepository.deleteById(meetingId);}
 
+    public Optional<Meeting> findById(Long meetingId){
+        return meetingRepository.findById(meetingId);
+    }
+
     public List<Meeting> findAll(){
         return meetingRepository.findAll();
     }
