@@ -23,6 +23,14 @@ function MeetupsPage() {
 
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
+    const fetchMeetups = () => {
+        //fetch('http://localhost:8080/viewMeetups') // use this for local development
+        fetch('http://34.16.169.60:8080/viewMeetups')
+          .then(response => response.json())
+          .then(data => setMeetups(data))
+          .catch(error => console.error('Error fetching meetings:', error));
+    };
+
     // CREATE
     const handleSubmit = (event) => {
       // prevents page reload
@@ -38,13 +46,7 @@ function MeetupsPage() {
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
-
-                    //refetch the meetups
-                    //fetch('http://localhost:8080/viewMeetups') // use this for local development
-                    fetch('http://34.16.169.60:8080/viewMeetups')
-                    .then(response => response.json())
-                    .then(data => setMeetups(data))
-                    .catch(error => console.error('Error fetching meetings:', error));
+                    fetchMeetups();
                 }
             })
             .catch((err) => {
@@ -74,13 +76,7 @@ function MeetupsPage() {
               .then((res) => {
                   if(res.status === 200) {
                       handleCloseEdit();
-  
-                      //refetch the meetups
-                      //fetch('http://localhost:8080/viewMeetups') // use this for local development
-                      fetch('http://34.16.169.60:8080/viewMeetups')
-                      .then(response => response.json())
-                      .then(data => setMeetups(data))
-                      .catch(error => console.error('Error fetching meetings:', error));
+                      fetchMeetups();
                   }
               })
               .catch((err) => {
@@ -98,13 +94,7 @@ function MeetupsPage() {
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
-
-                    //refetch the meetups
-                    //fetch('http://localhost:8080/viewMeetups') // use this for local development
-                    fetch('http://34.16.169.60:8080/viewMeetups')
-                    .then(response => response.json())
-                    .then(data => setMeetups(data))
-                    .catch(error => console.error('Error fetching meetings:', error));
+                    fetchMeetups();
                 }
             })
             .catch((err) => {
@@ -113,18 +103,11 @@ function MeetupsPage() {
             });
     }
 
-
-
-
     //GET MEETUPS (runs after every render)
     const [meetups, setMeetups] = useState([]);
 
     useEffect(() => {
-        //fetch('http://localhost:8080/viewMeetups') // use this for local development
-        fetch('http://34.16.169.60:8080/viewMeetups')
-            .then(response => response.json())
-            .then(data => setMeetups(data))
-            .catch(error => console.error('Error fetching meetings:', error));
+        fetchMeetups();
     }, [])
 
     //DIALOG (CREATE MEETUP)
@@ -200,14 +183,13 @@ function MeetupsPage() {
 
         
 
-      {/*CREATE MEETUP*/}
+      {/*CREATE MEETUP DIALOG BOX*/}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Dialog
-            open={open}
-            onClose={handleClose}
-
-             component="form" validate="true" onSubmit={handleSubmit}
-      >
+                open={open}
+                onClose={handleClose}
+                component="form" validate="true" onSubmit={handleSubmit}
+            >
         <DialogTitle>Create Meetup</DialogTitle>
         <DialogContent>
 
@@ -263,6 +245,7 @@ function MeetupsPage() {
             slotProps={{
                 textField: {
                 required: true,
+                style: { marginTop: '10px' }
                 }
             }}
         />
@@ -292,12 +275,7 @@ function MeetupsPage() {
 
 
 
-
-
-
-
-
-    {/*EDIT MEETUP*/}
+    {/*EDIT MEETUP DIALOG BOX*/}
     <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Dialog
             open={openEdit}
@@ -363,6 +341,7 @@ function MeetupsPage() {
             slotProps={{
                 textField: {
                 required: true,
+                style: { marginTop: '10px' }
                 }
             }}
 
