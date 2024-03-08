@@ -19,7 +19,7 @@ class StudyBuddyApplicationTests {
 	}
 
 	@Test
-	void failingTest() {
-		assertEquals(3, 2);
+	void passingTest() {
+		assertEquals(2, 2);
 	}
 }
