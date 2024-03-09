@@ -24,4 +24,8 @@ public class MeetingService {
     public List<Meeting> findAll(){
         return meetingRepository.findAll();
     }
+
+    public List<Meeting> findByUsername(String username){
+        return meetingRepository.findByUsername(username);
+    }
 }

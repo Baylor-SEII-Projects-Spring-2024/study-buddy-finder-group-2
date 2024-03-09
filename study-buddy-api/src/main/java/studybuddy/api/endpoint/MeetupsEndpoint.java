@@ -20,9 +20,9 @@ public class MeetupsEndpoint {
     @Autowired
     private MeetingService meetingService;
 
-    @GetMapping("/viewMeetups")
-    public List<Meeting> getMeetups() {
-        return meetingService.findAll();
+    @GetMapping("/viewMeetups/{username}")
+    public List<Meeting> getMeetups(@PathVariable String username) {
+        return meetingService.findByUsername(username);
     }
 
     @RequestMapping(

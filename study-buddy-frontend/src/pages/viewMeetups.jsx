@@ -7,14 +7,13 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 
 //TODO: Be able to choose people from connections to add to meeting
-//TODO: Connect users and their meetings
 //TODO: Bug where user able to input a bit of the date and it goes through
-//TODO: fix reducer thing in console log?
 //TODO: Convert timezones from UTC
 //TODO: Convert from military time to AM/PM
 
 function MeetupsPage() {
     const [id, setId] = useState(null);
+    const [username, setUsername] = useState(null);
     const [title, setTitle] = useState(null);
     const [description, setDescription] = useState(null);
     const [subject, setSubject] = useState(null);
@@ -23,9 +22,23 @@ function MeetupsPage() {
 
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
-    const fetchMeetups = () => {
-        //fetch('http://localhost:8080/viewMeetups') // use this for local development
-        fetch('http://34.16.169.60:8080/viewMeetups')
+    //GET MEETUPS (runs after every render) and set user
+    const [meetups, setMeetups] = useState([]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search),
+        user = params.get("username");
+
+        setUsername(user);
+
+        fetchMeetups(user);
+    }, [])
+
+    const fetchMeetups = (user) => {
+        console.log("User to fetch for: " + user);
+
+        //fetch(`http://localhost:8080/viewMeetups/${user}`) // use this for local development
+        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
           .then(response => response.json())
           .then(data => setMeetups(data))
           .catch(error => console.error('Error fetching meetings:', error));
@@ -38,7 +51,7 @@ function MeetupsPage() {
       const data = new FormData(event.currentTarget);
 
       const meeting = {
-          id, title, description, subject, date, location
+          id, username, title, description, subject, date, location
       }
 
       //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
@@ -46,7 +59,7 @@ function MeetupsPage() {
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
-                    fetchMeetups();
+                    fetchMeetups(username);
                 }
             })
             .catch((err) => {
@@ -61,11 +74,12 @@ function MeetupsPage() {
         const data = new FormData(event.currentTarget);
 
         const meeting = {
-            id, title, description, subject, date, location
+            id, username, title, description, subject, date, location
         }
 
         console.log("State variables after update");
         console.log("ID: " + id);
+        console.log("username: " + username);
         console.log("title: " + title);
         console.log("desc: " + description);
         console.log("sub: " + subject);
@@ -76,7 +90,7 @@ function MeetupsPage() {
               .then((res) => {
                   if(res.status === 200) {
                       handleCloseEdit();
-                      fetchMeetups();
+                      fetchMeetups(username);
                   }
               })
               .catch((err) => {
@@ -94,7 +108,7 @@ function MeetupsPage() {
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
-                    fetchMeetups();
+                    fetchMeetups(username);
                 }
             })
             .catch((err) => {
@@ -103,12 +117,7 @@ function MeetupsPage() {
             });
     }
 
-    //GET MEETUPS (runs after every render)
-    const [meetups, setMeetups] = useState([]);
-
-    useEffect(() => {
-        fetchMeetups();
-    }, [])
+    
 
     //DIALOG (CREATE MEETUP)
     const [open, setOpen] = React.useState(false);
@@ -161,6 +170,8 @@ function MeetupsPage() {
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
                                 {/* <strong>ID: </strong> {meetup.id}
+                                <br />
+                                <strong>Username: </strong> {meetup.username}
                                 <br /> */}
                                 <strong>Title: </strong> {meetup.title}
                                 <br />
