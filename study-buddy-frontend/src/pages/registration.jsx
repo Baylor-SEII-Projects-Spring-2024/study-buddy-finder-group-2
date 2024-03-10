@@ -38,15 +38,14 @@ function RegistrationPage() {
     const [errSchool, setErrSchool] = useState(false);
     const [errUserType, setErrUserType] = useState(false);
 
-
     //getting list of schools from database
     useEffect(() => {
         axios.get("http://34.16.169.60:8080/api/request-school-options")
-        //axios.get("http://localhost:8080/api/request-school-options")
+            //axios.get("http://localhost:8080/api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
-    })
+            })
             .catch(error => console.log(error)); // for local testing
 
     }, []);
@@ -68,7 +67,12 @@ function RegistrationPage() {
 
         setErrFirstName(name == null || name === '');
         setErrLastName(lastName === null || lastName === '');
+        setErrSchool(school === null);
         setErrEmail(emailAddress === null || emailAddress === '');
+        console.log(errEmail);
+        if(school !== null && emailAddress !== null && emailAddress !== ''){
+            setErrEmail(emailAddress.length > school.emailDomain.length && emailAddress.substr(school.emailDomain.length, emailAddress.length) !== school.emailDomain);
+        }
         setErrUserType(userType === null);
 
         if(!verUser){
@@ -152,77 +156,78 @@ function RegistrationPage() {
     //note: get list of schools from database later
 
     return (
-      <Box>
-          <Box component="form" validate="true" onSubmit={handleSubmit}
-               sx={{
-                   marginTop: 5,
-                   display: 'flex',
-                   flexDirection: 'column',
-                   alignItems: 'center',
-               }}>
-              <Typography component="h1" variant="h5">Register</Typography><br/>
-              <InputLabel id="schoolLabel">School</InputLabel>
+        <Box>
+            <Box component="form" validate="true" onSubmit={handleSubmit}
+                 sx={{
+                     marginTop: 5,
+                     display: 'flex',
+                     flexDirection: 'column',
+                     alignItems: 'center',
+                 }}>
+                <Typography component="h1" variant="h5">Register</Typography><br/>
+                <InputLabel id="schoolLabel">School</InputLabel>
 
-              <Autocomplete // school selector
-                  id="school-select"
-                  options={schools}
-                  sx={{ width: 200}}
-                  autoHighlight
-                  getOptionLabel={(option) => option.schoolName}
-                  error={errSchool} helperText={errSchool ? 'Please input your school' : ''}
-                  isOptionEqualToValue={(option,value) => option.id === value.id}
-                  onChange={(e,v) => setSchool(v)}
-                  renderOption={(props, option) => (
-                      <Box component="li" sx={{ display: 'flex'}} {...props}>
-                          {option.schoolName}
-                      </Box>
-                  )}
-                  renderInput={(params) => (
-                      <TextField
-                          {...params}
-                          label="Choose a School"
-                          inputProps={{
-                              ...params.inputProps,
-                              autoComplete: 'new-password', // disable autocomplete and autofill
-                          }}
-                      />
-                  )}
-              /> <br/>
+                <Autocomplete // school selector
+                    id="school-select"
+                    options={schools}
+                    sx={{ width: 200}}
+                    autoHighlight
+                    getOptionLabel={(option) => option.schoolName}
+                    isOptionEqualToValue={(option,value) => option.id === value.id}
+                    onChange={(e,v) => setSchool(v)}
+                    renderOption={(props, option) => (
+                        <Box component="li" sx={{ display: 'flex'}} {...props}>
+                            {option.schoolName}
+                        </Box>
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                            error={errSchool}
+                            helperText={errSchool ? 'Please input your school' : ''}
+                            {...params}
+                            label="Choose a School"
+                            inputProps={{
+                                ...params.inputProps,
+                                autoComplete: 'new-password', // disable autocomplete and autofill
+                            }}
+                        />
+                    )}
+                /> <br/>
 
-              <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
-                         onChange={(e) => setName(e.target.value)}
-                         error={errFirstName} helperText={errFirstName ? 'Please input a first name' : ''}/><br/>
-              <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
-                         onChange={(e) => setLastName(e.target.value)}
-                         error={errLastName} helperText={errLastName ? 'Please input a last name' : ''}/><br/>
-              <TextField autoComplete="email" id="email" name="email" label="Email"
-                         onChange={(e) => setEmail(e.target.value)}
-                         error={errEmail} helperText={errEmail ? 'Please input your school email' : ''}/><br/>
-              <TextField id="username" name="username" label="Username"
-                         onChange={(e) => setUsername(e.target.value)}
-                         error={errUser} helperText={errUser ? 'Please input a username of only letters and numbers' : ''}/><br/>
-              <TextField autoComplete="new-password" type="password" id="password" name="password"
-                         label="Password" onChange={(e) => setPassword(e.target.value)}
-                         error={errPwd} helperText={errPwd ? <>
-              Password must have least 8 characters, 1 capital letter, <br/> 1 number,and 1 special character (@.#$!%*?&^) </> : ''}/><br/>
-              <TextField id="confirm_password" type="password" name="confirm_password"
-                         label="Confirm Password"
-                         onChange={(e) => setConfirmPassword(e.target.value)}
-                         error={errCPwd} helperText={errCPwd ? 'Please confirm password' : ''}/><br/>
-              <FormLabel htmlFor="user_type">Are you a:</FormLabel>
+                <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
+                           onChange={(e) => setName(e.target.value)}
+                           error={errFirstName} helperText={errFirstName ? 'Please input a first name' : ''}/><br/>
+                <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
+                           onChange={(e) => setLastName(e.target.value)}
+                           error={errLastName} helperText={errLastName ? 'Please input a last name' : ''}/><br/>
+                <TextField autoComplete="email" id="email" name="email" label="Email"
+                           onChange={(e) => setEmail(e.target.value)}
+                           error={errEmail} helperText={errEmail ? 'Please input your school email' : ''}/><br/>
+                <TextField id="username" name="username" label="Username"
+                           onChange={(e) => setUsername(e.target.value)}
+                           error={errUser} helperText={errUser ? 'Please input a username of only letters and numbers' : ''}/><br/>
+                <TextField autoComplete="new-password" type="password" id="password" name="password"
+                           label="Password" onChange={(e) => setPassword(e.target.value)}
+                           error={errPwd} helperText={errPwd ? <>
+                    Password must have least 8 characters, 1 capital letter, <br/> 1 number,and 1 special character (@.#$!%*?&^) </> : ''}/><br/>
+                <TextField id="confirm_password" type="password" name="confirm_password"
+                           label="Confirm Password"
+                           onChange={(e) => setConfirmPassword(e.target.value)}
+                           error={errCPwd} helperText={errCPwd ? 'Please confirm password' : ''}/><br/>
+                <FormLabel htmlFor="user_type">Are you a:</FormLabel>
 
-              <RadioGroup id="user_type" row
-                          onChange={(e) => setType(e.target.value)}>
-                  <FormControlLabel value="student" control={<Radio/>} id="user_student" label="Student"/>
-                  <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
-              </RadioGroup>
-              <Box row>
-                  <Button id="cancel" variant="outlined" color="error" href="/">Cancel</Button>
-                  <Button id="register" variant="contained" type="submit" onClick={submitInfo}>Next</Button>
-              </Box>
-          </Box>
-      </Box>
-  );
+                <RadioGroup id="user_type" row
+                            onChange={(e) => setType(e.target.value)}>
+                    <FormControlLabel value="student" control={<Radio/>} id="user_student" label="Student"/>
+                    <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
+                </RadioGroup>
+                <Box row>
+                    <Button id="cancel" variant="outlined" color="error" href="/">Cancel</Button>
+                    <Button id="register" variant="contained" type="submit" onClick={submitInfo}>Next</Button>
+                </Box>
+            </Box>
+        </Box>
+    );
 }
 
 export default RegistrationPage;
