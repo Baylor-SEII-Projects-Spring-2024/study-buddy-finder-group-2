@@ -21,8 +21,8 @@ public class Course {
     @Column(name = "COURSE_NUMBER")
     private int courseNumber;
 
-    @Column(name = "COURSE_TYPE") //Change to what it should be lol
-    private String courseType;
+    @Column(name = "COURSE_PREFIX") //Change to what it should be lol
+    private String coursePrefix;
 
     @Column(name = "COURSE_NAME")
     private String courseName;
