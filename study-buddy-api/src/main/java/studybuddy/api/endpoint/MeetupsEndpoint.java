@@ -1,20 +1,59 @@
 package studybuddy.api.endpoint;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import studybuddy.api.meetings.Meeting;
+import studybuddy.api.meetings.MeetingService;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 
+import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @RestController
+@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
-    // CrossOrigin(origins = "http://localhost:3000") // for local testing
-    @CrossOrigin(origins = "http://34.16.169.60:3000")
-    @GetMapping("/viewMeetups")
-    public List<String> getMeetups() {
-        return List.of("sample meetup 1", "sample meetup 2", "sample meetup 3", "sample meetup 4");
+    @Autowired
+    private MeetingService meetingService;
+
+    @GetMapping("/viewMeetups/{username}")
+    public List<Meeting> getMeetups(@PathVariable String username) {
+        return meetingService.findByUsername(username);
+    }
+
+    @RequestMapping(
+            value = "/viewMeetups",
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
+        return ResponseEntity.ok(meetingService.save(meeting));
+    }
+
+    @DeleteMapping("/viewMeetups/{id}")
+    public void deleteMeeting(@PathVariable Long id) {
+        meetingService.delete(id);
+    }
+
+    @RequestMapping(
+            value = "/viewMeetups",
+            method = RequestMethod.PUT,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<Meeting> updateMeeting(@RequestBody Meeting meeting) {
+        Optional<Meeting> oldMeeting = meetingService.findById(meeting.getId());
+
+        if(oldMeeting.isPresent()){
+            return ResponseEntity.ok(meetingService.save(meeting));
+        }
+        else{
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
