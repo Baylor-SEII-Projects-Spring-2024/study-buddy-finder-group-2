@@ -40,5 +40,9 @@ public class User {
     String userType;
 
     @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "users_courses",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id"))
     private Set<Course> courses;
 }
