@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import studybuddy.api.course.Course;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,5 +43,25 @@ public class UserTests {
     void testUserFind() {
         Optional<User> user1 = userService.findUser(1L);
         assertTrue(user1.isEmpty());
+    }
+
+    @Test
+    void testUserCoursesSave() {
+        Course c = new Course();
+        c.setCourseNumber(1440);
+        c.setCoursePrefix("CSI");
+        c.setCourseName("CSI 1440");
+
+        User newUser = new User();
+        newUser.userType = "STUDENT";
+        newUser.emailAddress = "example@example.com";
+        newUser.password = "password";
+        newUser.courses = new HashSet<>(){};
+        newUser.addCourse(c);
+
+        User savedUser = userService.saveUser(newUser);
+        assertNotNull(savedUser.id);
+        assertNotNull(savedUser.courses);
+        savedUser.courses.forEach(x -> System.out.println(x.getCourseName()));
     }
 }
