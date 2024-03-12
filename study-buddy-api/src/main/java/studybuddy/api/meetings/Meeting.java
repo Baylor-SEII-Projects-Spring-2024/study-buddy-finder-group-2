@@ -20,6 +20,9 @@ public class Meeting {
     @Column(name = "MEETING_ID")
     Long id;
 
+    @Column(name = "USERNAME")
+    String username;
+
     @Column(name = "TITLE")
     String title;
 
@@ -31,4 +34,7 @@ public class Meeting {
 
     @Column(name = "DATE")
     LocalDateTime date;
+
+    @Column(name = "LOCATION")
+    String location;
 }
