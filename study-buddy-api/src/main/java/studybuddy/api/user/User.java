@@ -2,6 +2,9 @@ package studybuddy.api.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import studybuddy.api.course.Course;
+
+import java.util.Set;
 
 @Data
 @Entity
@@ -35,4 +38,7 @@ public class User {
 
     @Column(name = "USER_TYPE")
     String userType;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Course> courses;
 }
