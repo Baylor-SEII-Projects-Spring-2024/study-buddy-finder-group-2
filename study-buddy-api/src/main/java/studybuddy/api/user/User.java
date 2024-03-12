@@ -2,6 +2,7 @@ package studybuddy.api.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Cascade;
 import studybuddy.api.course.Course;
 
 import java.util.Set;
@@ -39,7 +40,7 @@ public class User {
     @Column(name = "USER_TYPE")
     String userType;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
             joinColumns = @JoinColumn(name = "user_id"),

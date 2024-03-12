@@ -40,4 +40,20 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      */
     @Query(value = "SELECT * FROM courses c WHERE course_id = ?1", nativeQuery = true)
     public Course findCourseById(long id);
+
+    /**
+     * finds a list of courses a user has
+     * @param userId
+     * @return
+     */
+    public List<Course> findCoursesByUsersId(long userId);
+
+    /**
+     *
+     * @param courseId
+     * @param userId
+     * @return course that is deleted from join table
+     */
+    public Course removeCoursesByCourseIdAndUsersId(long courseId,long userId);
+
 }

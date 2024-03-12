@@ -30,6 +30,4 @@ public class CourseService {
     public Course saveCourse(Course course) {
         return courseRepository.save(course);
     }
-
-
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import studybuddy.api.user.User;
 
+import java.util.Set;
+
 @Data
 @Entity
 @Table(name = Course.TABLE_NAME)
@@ -26,5 +28,12 @@ public class Course {
 
     @Column(name = "COURSE_NAME")
     private String courseName;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "users_courses",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id"))
+    private Set<User> users;
 
 }
