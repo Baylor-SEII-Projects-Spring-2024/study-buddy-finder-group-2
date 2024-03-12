@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
@@ -16,8 +17,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      *
      * @return List of All stored Courses
      */
-    @Query(value = "SELECT * FROM courses c", nativeQuery = true)
-    public List<Course> findAllCourses();
+    @Query(value = "SELECT * FROM courses c ORDER BY course_prefix", nativeQuery = true)
+    public Set<Course> findAllCourses();
 
     /**
      * findAllCoursesByPrefix
@@ -28,7 +29,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      * @return list of courses with the prefix
      */
     @Query(value = "SELECT * FROM courses c WHERE course_prefix = ?1", nativeQuery = true)
-    public List<Course> findAllCoursesByPrefix(String prefix);
+    public Set<Course> findAllCoursesByPrefix(String prefix);
 
     /**
      * findCourseById
@@ -43,17 +44,17 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     /**
      * finds a list of courses a user has
-     * @param userId
+     * @param username
      * @return
      */
-    public List<Course> findCoursesByUsersId(long userId);
+    public Set<Course> findCoursesByUsersUsername(String username);
 
     /**
      *
      * @param courseId
-     * @param userId
+     * @param username
      * @return course that is deleted from join table
      */
-    public Course removeCoursesByCourseIdAndUsersId(long courseId,long userId);
+    public Course removeCoursesByCourseIdAndUsersUsername(long courseId,String username);
 
 }

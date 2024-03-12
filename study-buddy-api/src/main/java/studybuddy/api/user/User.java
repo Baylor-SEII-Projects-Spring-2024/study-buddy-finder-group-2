@@ -5,6 +5,8 @@ import lombok.Data;
 import org.hibernate.annotations.Cascade;
 import studybuddy.api.course.Course;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -43,7 +45,20 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
-            joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "username"),
             inverseJoinColumns = @JoinColumn(name = "course_id"))
-    private Set<Course> courses;
+    Set<Course> courses;
+
+    public void addCourse(Course c){
+        if(courses  == null){
+            courses = new HashSet<Course>();
+        }
+        courses.add(c);
+    }
+
+    public void removeCourse(Course c){
+            courses.remove(c);
+    }
+
+
 }

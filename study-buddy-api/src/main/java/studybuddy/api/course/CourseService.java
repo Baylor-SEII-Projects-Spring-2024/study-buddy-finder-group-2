@@ -2,8 +2,10 @@ package studybuddy.api.course;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import studybuddy.api.user.User;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CourseService {
@@ -16,7 +18,7 @@ public class CourseService {
      *
      * @return all courses in the repository
      */
-    public List<Course> findAllCourses(){
+    public Set<Course> findAllCourses(){
         return courseRepository.findAllCourses();
     }
 
@@ -30,4 +32,18 @@ public class CourseService {
     public Course saveCourse(Course course) {
         return courseRepository.save(course);
     }
+
+    /**
+     * @param user
+     * @return
+     */
+    public Set<Course> getCoursesOfUser(User user){return courseRepository.findCoursesByUsersUsername(user.getUsername());}
+
+    /**
+     *
+     * @param username
+     * @return
+     */
+    public Set<Course> getCoursesOfUserByUsername(String username){return courseRepository.findCoursesByUsersUsername(username);}
+
 }

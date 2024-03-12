@@ -98,4 +98,11 @@ public class UserService {
     public User saveUser(User user) {
         return userRepository.save(user);
     }
+
+    /**
+     *
+     * @param c
+     * @return
+     */
+    public List<User> getUsersByCourse(Course c) {return userRepository.findByCoursesCourseId(c.getCourseId());}
 }

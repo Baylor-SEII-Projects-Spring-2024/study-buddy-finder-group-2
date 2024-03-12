@@ -32,7 +32,7 @@ public class Course {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
-            joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "username"),
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     private Set<User> users;
 
