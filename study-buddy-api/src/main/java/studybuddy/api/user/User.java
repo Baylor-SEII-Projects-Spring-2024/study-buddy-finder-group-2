@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
 import studybuddy.api.course.Course;
+import studybuddy.api.school.School;
 
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +49,11 @@ public class User {
             joinColumns = @JoinColumn(name = "username"),
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     Set<Course> courses;
+
+    /*
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id", referencedColumnName = "school_id")
+    School school; */
 
     public void addCourse(Course c){
         if(courses  == null){

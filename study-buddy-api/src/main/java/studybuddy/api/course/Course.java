@@ -2,6 +2,7 @@ package studybuddy.api.course;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import studybuddy.api.school.School;
 import studybuddy.api.user.User;
 
 import java.util.Set;
@@ -35,5 +36,10 @@ public class Course {
             joinColumns = @JoinColumn(name = "username"),
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     private Set<User> users;
+
+    /*
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id", referencedColumnName = "school_id")
+    private School school; */
 
 }

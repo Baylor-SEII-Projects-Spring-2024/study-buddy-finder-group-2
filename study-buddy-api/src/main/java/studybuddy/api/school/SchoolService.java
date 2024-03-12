@@ -23,4 +23,13 @@ public class SchoolService{
     public List<School> getSchools(){
         return schoolRepository.getAllSchools();
     }
+
+    /**
+     * saveSchool
+     * Saves the school to the repository
+     *
+     * @param school
+     * @return
+     */
+    public School saveSchool(School school){return schoolRepository.save(school);}
 }

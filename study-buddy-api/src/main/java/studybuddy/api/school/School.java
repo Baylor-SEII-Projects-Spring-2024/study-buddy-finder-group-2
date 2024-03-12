@@ -24,4 +24,5 @@ public class School {
     @Column(name = "EMAIL_DOMAIN")
     String emailDomain;
 
+
 }
