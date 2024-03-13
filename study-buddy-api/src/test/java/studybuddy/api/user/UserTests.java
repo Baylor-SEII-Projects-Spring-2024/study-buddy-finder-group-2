@@ -107,4 +107,19 @@ public class UserTests {
         assertEquals(savedUser.username, foundUser.username);
         assertEquals(savedUser.id, foundUser.id);
     }
+
+    @Test
+    void testFindUserType() {
+        User newUser = new User();
+        newUser.userType = "STUDENT";
+        newUser.username = "test_username_three";
+        newUser.emailAddress = "user_type@test.com";
+        newUser.password = "password";
+
+        User savedUser = userService.saveUser(newUser);
+        assertNotNull(savedUser.id);
+
+        String userType = userService.findUserType(newUser.username);
+        assertEquals(newUser.userType, userType);
+    }
 }
