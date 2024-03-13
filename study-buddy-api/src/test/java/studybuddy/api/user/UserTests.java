@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import studybuddy.api.course.Course;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,7 +46,6 @@ public class UserTests {
         assertTrue(user1.isEmpty());
     }
 
-    @Test
     void testFindByEmail() {
         User newUser = new User();
         newUser.userType = "STUDENT";
@@ -106,5 +108,20 @@ public class UserTests {
         assertEquals(newUser.password, foundUser.password);
         assertEquals(savedUser.username, foundUser.username);
         assertEquals(savedUser.id, foundUser.id);
+    }
+
+    @Test
+    void testFindUserType() {
+        User newUser = new User();
+        newUser.userType = "STUDENT";
+        newUser.username = "test_username_three";
+        newUser.emailAddress = "user_type@test.com";
+        newUser.password = "password";
+
+        User savedUser = userService.saveUser(newUser);
+        assertNotNull(savedUser.id);
+
+        String userType = userService.findUserType(newUser.username);
+        assertEquals(newUser.userType, userType);
     }
 }
