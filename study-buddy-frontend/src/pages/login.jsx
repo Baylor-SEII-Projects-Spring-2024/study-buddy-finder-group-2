@@ -1,21 +1,18 @@
 import React, {useState} from 'react';
+
+import {buildStore} from "@/utils/redux";
 import Head from "next/head";
 import Link from "next/link";
 import axios from "axios";
 
 import { jwtDecode } from "jwt-decode";
-//import { decode } from "base-64";
-//global.atob = decode;
 
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
 
 function LoginPage() {
     const [username, setUsername] = useState(null);
     const [password, setPassword] = useState(null);
-
-    // TODO: create a reducer function??
-    // ERROR IS: Store does not have a valid reducer.
-    // Make sure the argument passed to combineReducers is an object whose values are reducers.
+    //const dispatch = useDispatch();
 
     // gets username and password data from the text fields
     const handleSubmit = (event) => {
@@ -31,21 +28,23 @@ function LoginPage() {
             .post('http://localhost:8080/api/authorization/login', user) // for local testing
             //.post('http://34.16.169.60:8080/api/login', user)
             .then((res) => {
-                //TODO:
-                // pass tokens to other pages
-                // extract userType (custom claim)
-                // what are refresh tokens??
-                // use JSON.parse() to get token as String??
-
-                // executes if success code was sent
                 var params = new URLSearchParams();
                 console.log(res.data);
+
+                // this is decoding the token to pass the username to the reducer function
+                // decode does not return a JSON (returns a JwtPayload object)
                 const token  = res.data;
                 const decodedUser = jwtDecode(token);
                 console.log(decodedUser);
 
+                // TODO: should probably pass the token and decode when needed
+                // this should change the state
+                // token's subject is the username, which is a String
+                buildStore().dispatch({type: 'AUTH_TOKEN', payload: decodedUser.sub});
+                console.log(buildStore().getState());
+
                 params.append("username", decodedUser.sub);
-                console.log(decodedUser.sub + 'is recognized!');
+                console.log(decodedUser.sub + ' is recognized!');
 
                 if(res.status === 200) {
                     // student landing page
