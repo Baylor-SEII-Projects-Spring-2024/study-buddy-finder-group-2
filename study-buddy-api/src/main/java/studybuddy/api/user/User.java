@@ -59,7 +59,7 @@ public class User {
         if(courses  == null){
             courses = new HashSet<Course>();
         }
-        courses.add(c);
+        if(!courses.contains(c)) courses.add(c);
     }
 
     public void removeCourse(Course c){

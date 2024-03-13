@@ -1,8 +1,10 @@
 package studybuddy.api.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import studybuddy.api.course.Course;
 
 import java.util.List;
@@ -75,4 +77,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     public List<User> findByCoursesCourseId(long courseId);
 
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM users_courses uc WHERE uc.course_id = ?1 AND uc.username = ?2", nativeQuery = true)
+    public void deleteCourseByCourseId(long courseid, long userid);
 }

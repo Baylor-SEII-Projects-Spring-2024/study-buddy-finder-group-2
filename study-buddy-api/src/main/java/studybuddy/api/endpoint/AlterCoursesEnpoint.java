@@ -27,13 +27,13 @@ public class AlterCoursesEnpoint{
     UserService userService = new UserService();
 
     @RequestMapping(
-            value = "/api/get-courses/{username}",
+            value = "/api/get-courses-user/{username}",
             method = RequestMethod.GET,
-            consumes = "application/json",
             produces = "application/json"
     )
     public ResponseEntity<Set<Course>> getUserCourses(@PathVariable String username){
-        return ResponseEntity.ok((courseService.getCoursesOfUserByUsername(username)));
+        System.out.println(courseService.getCoursesOfUserByUsername(username).isEmpty());
+        return new ResponseEntity<>(courseService.getCoursesOfUserByUsername(username), HttpStatus.OK);
     }
 
     @RequestMapping(
@@ -43,7 +43,7 @@ public class AlterCoursesEnpoint{
             produces = "application/json"
     )
     public ResponseEntity<Course> addCourse(@PathVariable Course course){
-        return ResponseEntity.ok(courseService.saveCourse(course));
+        return new ResponseEntity<>(courseService.saveCourse(course), HttpStatus.OK);
     }
 
 
@@ -68,13 +68,13 @@ public class AlterCoursesEnpoint{
     };
 
     @RequestMapping(
-            value = "/api/add-user-course/",
-            method = RequestMethod.PATCH,
+            value = "/api/add-user-course/{username}",
+            method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json"
     )
+    public ResponseEntity<Set<Course>> addUserCourse(@PathVariable String username, @RequestBody Course course){
 
-    public ResponseEntity<Set<Course>> addUserCourse(@RequestParam Course course, @RequestParam String username){
         Optional<User> user = userService.findByUsername(username);
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {
@@ -90,32 +90,29 @@ public class AlterCoursesEnpoint{
     @RequestMapping(
             value = "/api/get-all-courses/",
             method = RequestMethod.GET,
-            consumes = "application/json",
             produces = "application/json"
     )
     public ResponseEntity<Set<Course>> getAllCourses(){
-        return ResponseEntity.ok(courseService.findAllCourses());
+        return new ResponseEntity<>(courseService.findAllCourses(), HttpStatus.OK);
     }
 
 
     @RequestMapping(
-            value = "/api/remove-course",
-            method = RequestMethod.PATCH,
+            value = "/api/remove-course/{username}",
+            method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<Set<Course>> RemoveUserCourse(@RequestParam Course course, @RequestParam String username){
+    public ResponseEntity<Set<Course>> RemoveUserCourse(@PathVariable String username, @RequestBody Course course){
         Optional<User> user = userService.findByUsername(username);
+        System.out.println(course.getCourseId());
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {
-            x.removeCourse(course);
-            userService.saveUser(x);
-            list.addAll(courseService.getCoursesOfUser(x));
-
+            userService.deleteCourseFromUser(course, x);
         });
 
         if(user.isEmpty()) return ResponseEntity.badRequest().body(null);
-        return ResponseEntity.ok(list);
+        return new ResponseEntity<>(courseService.getCoursesOfUserByUsername(username), HttpStatus.OK);
     };
 
 

@@ -27,14 +27,11 @@ public class Course {
     @Column(name = "COURSE_PREFIX") //Change to what it should be lol
     private String coursePrefix;
 
-    @Column(name = "COURSE_NAME")
-    private String courseName;
-
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
-            joinColumns = @JoinColumn(name = "username"),
-            inverseJoinColumns = @JoinColumn(name = "course_id"))
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "username"))
     private Set<User> users;
 
     /*

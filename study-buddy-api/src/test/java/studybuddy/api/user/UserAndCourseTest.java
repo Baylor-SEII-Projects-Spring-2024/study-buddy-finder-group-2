@@ -30,7 +30,6 @@ public class UserAndCourseTest {
         Course c = new Course();
         c.setCourseNumber(1440);
         c.setCoursePrefix("CSI");
-        c.setCourseName("CSI 1440");
 
         User newUser = new User();
         newUser.userType = "STUDENT";
@@ -42,7 +41,7 @@ public class UserAndCourseTest {
         User savedUser = userService.saveUser(newUser);
         assertNotNull(savedUser.id);
         assertNotNull(savedUser.courses);
-        savedUser.courses.forEach(x -> System.out.println(x.getCourseName()));
+        savedUser.courses.forEach(x -> System.out.println(x.getCoursePrefix()));
 
 
         Set<Course> savedCourse = courseService.findAllCourses();

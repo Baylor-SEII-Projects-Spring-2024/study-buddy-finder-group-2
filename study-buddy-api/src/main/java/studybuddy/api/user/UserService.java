@@ -105,4 +105,13 @@ public class UserService {
      * @return
      */
     public List<User> getUsersByCourse(Course c) {return userRepository.findByCoursesCourseId(c.getCourseId());}
+
+    /**
+     *
+     * @param c
+     * @param u
+     */
+    public void deleteCourseFromUser(Course c, User u){
+        userRepository.deleteCourseByCourseId(c.getCourseId(), u.id);
+    }
 }

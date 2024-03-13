@@ -17,7 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      *
      * @return List of All stored Courses
      */
-    @Query(value = "SELECT * FROM courses c ORDER BY course_prefix", nativeQuery = true)
+    @Query(value = "SELECT course_prefix, course_id, course_number FROM courses c ORDER BY course_prefix", nativeQuery = true)
     public Set<Course> findAllCourses();
 
     /**
@@ -28,7 +28,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      * @param prefix
      * @return list of courses with the prefix
      */
-    @Query(value = "SELECT * FROM courses c WHERE course_prefix = ?1", nativeQuery = true)
+    @Query(value = "SELECT course_prefix, course_id, course_number FROM courses c WHERE course_prefix = ?1", nativeQuery = true)
     public Set<Course> findAllCoursesByPrefix(String prefix);
 
     /**
@@ -39,7 +39,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      * @param id
      * @return Course with matching id
      */
-    @Query(value = "SELECT * FROM courses c WHERE course_id = ?1", nativeQuery = true)
+    @Query(value = "SELECT course_prefix, course_id, course_number FROM courses c WHERE course_id = ?1", nativeQuery = true)
     public Course findCourseById(long id);
 
     /**
@@ -52,9 +52,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     /**
      *
      * @param courseId
-     * @param username
      * @return course that is deleted from join table
      */
-    public Course removeCoursesByCourseIdAndUsersUsername(long courseId,String username);
+    public Course removeCoursesByCourseId(long courseId);
 
 }
