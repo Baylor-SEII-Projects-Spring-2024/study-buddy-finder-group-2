@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
+import {useDispatch, useSelector} from "react-redux";
 
-import {buildStore} from "@/utils/redux";
 import Head from "next/head";
 import Link from "next/link";
 import axios from "axios";
@@ -8,11 +8,14 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
+import type {RootState} from "@/utils/redux";
+import {authorize} from "@/utils/authSlice";
 
 function LoginPage() {
     const [username, setUsername] = useState(null);
     const [password, setPassword] = useState(null);
-    //const dispatch = useDispatch();
+    const auth = useSelector((state: RootState) => state.authorizaiton.auth);
+    const dispatch = useDispatch();
 
     // gets username and password data from the text fields
     const handleSubmit = (event) => {
@@ -38,10 +41,10 @@ function LoginPage() {
                 console.log(decodedUser);
 
                 // TODO: should probably pass the token and decode when needed
-                // this should change the state
+                // this changes the state
                 // token's subject is the username, which is a String
-                buildStore().dispatch({type: 'AUTH_TOKEN', payload: decodedUser.sub});
-                console.log(buildStore().getState());
+                dispatch(authorize(decodedUser.sub));
+                console.log(auth);
 
                 params.append("username", decodedUser.sub);
                 console.log(decodedUser.sub + ' is recognized!');
