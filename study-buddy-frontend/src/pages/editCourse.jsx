@@ -59,8 +59,8 @@ function EditCoursePage() {
     }, [])
 
     const getUsersCourses = () => {
-        axios.get(`http://34.16.169.60:8080/api/get-courses-user/${username}`)
-        //axios.get(`http://localhost:8080/api/get-courses-user/${username}`)
+        //axios.get(`http://34.16.169.60:8080/api/get-courses-user/${username}`)
+        axios.get(`http://localhost:8080/api/get-courses-user/${username}`)
             .then((res1) =>{
                 setUsersCourses(res1.data);
                 console.log(username);

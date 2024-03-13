@@ -123,6 +123,5 @@ public class UserTests {
 
         String userType = userService.findUserType(newUser.username);
         assertEquals(newUser.userType, userType);
->>>>>>> main
     }
 }
