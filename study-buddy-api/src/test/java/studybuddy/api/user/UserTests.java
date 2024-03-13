@@ -41,4 +41,9 @@ public class UserTests {
         Optional<User> user1 = userService.findUser(1L);
         assertTrue(user1.isEmpty());
     }
+
+    @Test
+    void failing() {
+        assertEquals(2, 3);
+    }
 }
