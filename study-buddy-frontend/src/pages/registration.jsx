@@ -81,12 +81,14 @@ function RegistrationPage() {
          setErrPwd(!verPwd);
          setErrCPwd(!verMatch);
 
+         //axios.get("http://34.16.169.60:8080/api/find-username", username)
          axios.get("http://localhost:8080/api/find-username", username)
              .catch((res) => {
                  window.alert("Username already exists! Find a different one");
                  setErrUser(true);
              })
 
+         //axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
          axios.get("http://localhost:8080/api/find-email", emailAddress)
              .catch((res) => {
                  window.alert("Email already exists!");
@@ -120,7 +122,7 @@ function RegistrationPage() {
                         console.log(res.data);
                         //temporary fix
                         var params = new URLSearchParams();
-                        params.append("userid", res.data.get("username").toString());
+                        params.append("username", res.data.get("username").toString());
                         console.log("going to /studentLanding?" + params.toString())
                         location.href = "/studentLanding?" + params.toString();
 

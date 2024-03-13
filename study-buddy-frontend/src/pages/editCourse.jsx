@@ -31,15 +31,18 @@ function EditCoursePage() {
         setUsername(name);
         console.log(username);
 
+        //axios.get(`http://34.16.169.60:8080/users/${name}`)
         axios.get(`http://localhost:8080/users/${name}`)
             .then((res) => {
                 setUser(res.data);
+                //axios.get(`http://34.16.169.60:8080/api/get-courses-user/${name}`)
                 axios.get(`http://localhost:8080/api/get-courses-user/${name}`)
                     .then((res1) =>{
                         setUsersCourses(res1.data);
                         console.log(name);
                         console.log(res1.data);
                     })
+                //axios.get('http://34.16.169.60:8080/users/${name}`)
                 axios.get("http://localhost:8080/api/get-all-courses/")
                     .then((res2) => {
                         if(res2.data !== null) setCourses(res2.data);
@@ -56,7 +59,8 @@ function EditCoursePage() {
     }, [])
 
     const getUsersCourses = () => {
-        axios.get(`http://localhost:8080/api/get-courses-user/${username}`)
+        axios.get(`http://34.16.169.60:8080/api/get-courses-user/${username}`)
+        //axios.get(`http://localhost:8080/api/get-courses-user/${username}`)
             .then((res1) =>{
                 setUsersCourses(res1.data);
                 console.log(username);
@@ -65,6 +69,21 @@ function EditCoursePage() {
 
     }
 
+    const backToLanding = () => {
+        if (user.userType.includes("student")) {
+            //temporary fix
+            var params = new URLSearchParams();
+            params.append("username", user.username.toString());
+            console.log("going to /studentLanding?" + params.toString())
+            location.href = "/studentLanding?" + params.toString();
+
+        } else if (user.userType.includes("tutor")) {
+            var params = new URLSearchParams();
+            params.append("username", user.username);
+            console.log("going to /tutorLanding?" + params.toString());
+            location.href = "/tutorLanding?" + params.toString();
+        }
+    }
 
 
     const createCourse = () => {
@@ -87,6 +106,7 @@ function EditCoursePage() {
 
     const removeCourse = (event) => {
         console.log(`TIME TO REMOVE `+event.coursePrefix+" "+event.courseNumber);
+        //axios.post(`http://34.16.169.60:8080/api/remove-course/${username}`, event)
         axios.post(`http://localhost:8080/api/remove-course/${username}`, event)
             .then(() => {
                 getUsersCourses();
@@ -97,6 +117,7 @@ function EditCoursePage() {
         event.preventDefault();
 
         if(course !== null) {
+            //axios.post(`http://34.16.169.60:8080/api/add-user-course/${username}`, course)
             axios.post(`http://localhost:8080/api/add-user-course/${username}`, course)
                 .then((res) => {
                     console.log("yay we did it! Added " + course.coursePrefix + " " + course.courseNumber);
@@ -117,7 +138,9 @@ function EditCoursePage() {
           <InputLabel id="coursesLabel">Add Courses</InputLabel>
 
           <Box>
-          <Autocomplete // pre-existing course selector
+              <Button onClick={() => backToLanding()}>Back</Button>
+
+              <Autocomplete // pre-existing course selector
               id="courses-select"
               options={courses}
               sx={{ width: 200}}
@@ -175,6 +198,7 @@ function EditCoursePage() {
                   })}
               </List>
           </Box>
+
       </Box>
   );
 }
