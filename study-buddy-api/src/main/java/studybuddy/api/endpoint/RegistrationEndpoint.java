@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class RegistrationEndpoint {
     @Autowired
     UserService userService = new UserService();

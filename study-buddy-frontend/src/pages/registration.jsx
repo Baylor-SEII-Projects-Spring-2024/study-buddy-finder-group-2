@@ -40,8 +40,8 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        //axios.get("http://34.16.169.60:8080/api/request-school-options")
-            axios.get("http://localhost:8080/api/request-school-options")
+        axios.get("http://34.16.169.60:8080/api/request-school-options")
+        //    axios.get("http://localhost:8080/api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -81,15 +81,15 @@ function RegistrationPage() {
          setErrPwd(!verPwd);
          setErrCPwd(!verMatch);
 
-         //axios.get("http://34.16.169.60:8080/api/find-username", username)
-         axios.get("http://localhost:8080/api/find-username", username)
+         axios.get("http://34.16.169.60:8080/api/find-username", username)
+         //axios.get("http://localhost:8080/api/find-username", username)
              .catch((res) => {
                  window.alert("Username already exists! Find a different one");
                  setErrUser(true);
              })
 
-         //axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
-         axios.get("http://localhost:8080/api/find-email", emailAddress)
+         axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
+         //axios.get("http://localhost:8080/api/find-email", emailAddress)
              .catch((res) => {
                  window.alert("Email already exists!");
                  setErrEmail(true);
