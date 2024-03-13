@@ -24,7 +24,7 @@ export default function HomePage() {
             <CardContent>
               <Typography variant='h4' align='center'>Welcome to Study Buddies!</Typography>
               <Typography variant='h6' align='center'>By: StuCon</Typography>
-              <Typography variant='s1' align='center'>Hi mentors! This application is made by students for students. We support students and tutors in order to foster connections and encourage the development of new skills.</Typography>
+              <Typography variant='s1' align='center'>This application is made by students for students. We support students and tutors in order to foster connections and encourage the development of new skills.</Typography>
             </CardContent>
           </Card>
 
