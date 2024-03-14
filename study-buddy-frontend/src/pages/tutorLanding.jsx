@@ -41,6 +41,9 @@ function TutorLandingPage() {
                       <Link href="/viewMeetups" passHref>
                           <Button variant='contained' color="primary"> View Meetups</Button>
                       </Link>
+                      <Link href="/searchUsers" passHref>
+                          <Button variant='contained' color="primary"> Search Users</Button>    
+                      </Link>
 
                       <Link href="/" passHref>
                           <Button variant='contained' color="secondary"> Log Out</Button>
