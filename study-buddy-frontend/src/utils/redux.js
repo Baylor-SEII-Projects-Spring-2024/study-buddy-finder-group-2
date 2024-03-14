@@ -6,7 +6,7 @@ import authReducer from './authSlice';
 // reducer functions are used to alter the global state
 // this is done by creating an action and then dispatching it to the reducer
 const reducers = combineReducers({
-    authorization: authReducer
+    authorization: authReducer,
 });
 
 // the store stores the global state
@@ -22,6 +22,6 @@ export const buildStore = (initialState) => {
 };
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof buildStore.getState>
+//export type RootState = ReturnType<typeof reduxStore.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-export type AppDispatch = typeof buildStore.dispatch
+//export type AppDispatch = typeof reduxStore.dispatch;

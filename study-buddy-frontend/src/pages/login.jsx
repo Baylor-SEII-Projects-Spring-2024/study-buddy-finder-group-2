@@ -8,14 +8,13 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 import {Box, Button, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
-import type {RootState} from "@/utils/redux";
-import {authorize} from "@/utils/authSlice";
+import {authorize, deauthorize} from "@/utils/authSlice";
 
 function LoginPage() {
     const [username, setUsername] = useState(null);
     const [password, setPassword] = useState(null);
-    const auth = useSelector((state: RootState) => state.authorizaiton.auth);
-    const dispatch = useDispatch();
+    const auth = useSelector(state => state.authorization); //get current state
+    const dispatch = useDispatch(); // use to change state
 
     // gets username and password data from the text fields
     const handleSubmit = (event) => {
@@ -31,33 +30,26 @@ function LoginPage() {
             .post('http://localhost:8080/api/authorization/login', user) // for local testing
             //.post('http://34.16.169.60:8080/api/login', user)
             .then((res) => {
-                var params = new URLSearchParams();
-                console.log(res.data);
-
                 // this is decoding the token to pass the username to the reducer function
                 // decode does not return a JSON (returns a JwtPayload object)
                 const token  = res.data;
                 const decodedUser = jwtDecode(token);
                 console.log(decodedUser);
 
-                // TODO: should probably pass the token and decode when needed
                 // this changes the state
-                // token's subject is the username, which is a String
-                dispatch(authorize(decodedUser.sub));
-                console.log(auth);
+                // (passes token and sets auth = true)
+                dispatch(authorize(token));
 
-                params.append("username", decodedUser.sub);
-                console.log(decodedUser.sub + ' is recognized!');
-
+                // find a different way to decide if student or tutor
                 if(res.status === 200) {
                     // student landing page
                     console.log('User is a student');
-                    //window.location = "/studentLanding?" + params.toString();
+                    window.location = "/studentLanding";
                 }
                 else if(res.status === 201) {
                     // tutor landing page
                     console.log('User is a tutor');
-                    //window.location = "/tutorLanding?" + params.toString();
+                    window.location = "/tutorLanding";
                 }
             })
             // catches the bad response (error)
@@ -143,6 +135,15 @@ function LoginPage() {
                                     type="submit"
                                 >
                                     Login</Button>
+                                {/* for testing */}
+                                <Button
+                                    id="testing"
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => dispatch(deauthorize())}
+                                >
+                                    Logout</Button>
                             </Stack>
                         </Box>
 
