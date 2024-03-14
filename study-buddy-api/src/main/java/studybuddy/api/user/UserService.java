@@ -1,7 +1,9 @@
 package studybuddy.api.user;
 
+import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import studybuddy.api.course.Course;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +22,7 @@ public class UserService {
      * @return a List of Users that matches
      *        empty List if no matches
      */
-    List<User> findByNameStartingWith(String startOfName){return userRepository.findByNameStartingWith(startOfName);}
+    public List<Pair<String, String>> findByNameStartingWith(String startOfName){return userRepository.findByNameStartingWith(startOfName);}
     /**
      * findUser
      *

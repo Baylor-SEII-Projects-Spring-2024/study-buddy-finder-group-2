@@ -1,5 +1,6 @@
 package studybuddy.api.user;
 
+import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +15,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
-     * findByName
+     * findByNameStartingWith
      * This function queries for all the users information with the given
      * part of the name
      * @param namePrefix
@@ -22,8 +23,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return List of Users that start with namePrefix
      *          empty List if no matches
      */
-    @Query(value = "SELECT * FROM users u WHERE u.name LIKE ?1%", nativeQuery = true)
-    List<User> findByNameStartingWith(String namePrefix);
+    @Query(value = "SELECT name, username FROM users u WHERE u.name LIKE ?1%", nativeQuery = true)
+    List<Pair<String, String>> findByNameStartingWith(String namePrefix);
 
     /**
      * findByUsernamePassword

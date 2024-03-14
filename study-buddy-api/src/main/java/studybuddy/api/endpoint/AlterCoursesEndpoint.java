@@ -1,10 +1,8 @@
 package studybuddy.api.endpoint;
 
 import lombok.extern.log4j.Log4j2;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.course.Course;
@@ -20,7 +18,7 @@ import java.util.Set;
 @RestController
 //@CrossOrigin(origins = "http://localhost:3000") // for local testing
 @CrossOrigin(origins = "http://34.16.169.60:3000")
-public class AlterCoursesEnpoint{
+public class AlterCoursesEndpoint{
     @Autowired
     CourseService courseService = new CourseService();
     @Autowired
