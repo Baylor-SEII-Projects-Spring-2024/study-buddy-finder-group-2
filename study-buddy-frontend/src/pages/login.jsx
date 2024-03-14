@@ -13,7 +13,8 @@ import {authorize, deauthorize} from "@/utils/authSlice";
 function LoginPage() {
     const [username, setUsername] = useState(null);
     const [password, setPassword] = useState(null);
-    const auth = useSelector(state => state.authorization); //get current state
+    //const [token, setToken] = useState(null);
+    const user = useSelector(state => state.authorization.token); //get current state
     const dispatch = useDispatch(); // use to change state
 
     // gets username and password data from the text fields
@@ -33,11 +34,14 @@ function LoginPage() {
                 // this is decoding the token to pass the username to the reducer function
                 // decode does not return a JSON (returns a JwtPayload object)
                 const token  = res.data;
-                const decodedUser = jwtDecode(token);
-                console.log(decodedUser);
+                // this works! window.sessionStorage.setItem('token', token);
+                //setToken(token);
+                //const decodedUser = jwtDecode(token);
+                //console.log(decodedUser);
 
                 // this changes the state
                 // (passes token and sets auth = true)
+                // TODO: onClick={() => dispatch(authorize(token))} ??
                 dispatch(authorize(token));
 
                 // find a different way to decide if student or tutor

@@ -21,6 +21,7 @@ export const buildStore = (initialState) => {
     });
 };
 
+// syntax errors!! (I also tried to put this in _app.js, which is why is says reduxStore)
 // Infer the `RootState` and `AppDispatch` types from the store itself
 //export type RootState = ReturnType<typeof reduxStore.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}

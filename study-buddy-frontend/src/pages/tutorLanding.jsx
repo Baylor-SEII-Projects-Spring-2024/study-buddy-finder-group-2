@@ -1,15 +1,24 @@
 import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from "react-redux";
+
 import Head from "next/head";
 import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import Link from "next/link";
+import {jwtDecode} from "jwt-decode";
 
 function TutorLandingPage() {
-    var [username, setUsername] = useState(null);
+    const [username, setUsername] = useState(null);
+    const user = useSelector(state => state.authorization); //get current state
+    const dispatch = useDispatch(); // use to change state
+
+    // TODO: why does this always run twice??
     useEffect(() => {
-        console.log(window.location.search);
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
-        setUsername(user);
+        //console.log(window.location.search);
+        //const decodedUser = jwtDecode(user.token);
+        console.log(user);
+        // this works! console.log(window.sessionStorage.getItem('token'));
+
+        //setUsername(decodedUser.sub);
     }, []);
     console.log("hi " + username);
 
