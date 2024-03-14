@@ -9,6 +9,7 @@ import studybuddy.api.meetings.MeetingService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @RestController
@@ -19,9 +20,9 @@ public class MeetupsEndpoint {
     @Autowired
     private MeetingService meetingService;
 
-    @GetMapping("/viewMeetups")
-    public List<Meeting> getMeetups() {
-        return meetingService.findAll();
+    @GetMapping("/viewMeetups/{username}")
+    public List<Meeting> getMeetups(@PathVariable String username) {
+        return meetingService.findByUsername(username);
     }
 
     @RequestMapping(
@@ -31,14 +32,28 @@ public class MeetupsEndpoint {
             produces = "application/json"
     )
     public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
-        meetingService.save(meeting);
-
-        //add error checking
-        return ResponseEntity.ok(meeting);
+        return ResponseEntity.ok(meetingService.save(meeting));
     }
 
     @DeleteMapping("/viewMeetups/{id}")
     public void deleteMeeting(@PathVariable Long id) {
         meetingService.delete(id);
+    }
+
+    @RequestMapping(
+            value = "/viewMeetups",
+            method = RequestMethod.PUT,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<Meeting> updateMeeting(@RequestBody Meeting meeting) {
+        Optional<Meeting> oldMeeting = meetingService.findById(meeting.getId());
+
+        if(oldMeeting.isPresent()){
+            return ResponseEntity.ok(meetingService.save(meeting));
+        }
+        else{
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

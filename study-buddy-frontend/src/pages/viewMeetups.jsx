@@ -7,12 +7,13 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 
 //TODO: Be able to choose people from connections to add to meeting
-//TODO: fix reducer thing in console log?
-//TODO: Convert timezones from UTC?
+//TODO: Bug where user able to input a bit of the date and it goes through
+//TODO: Convert timezones from UTC
 //TODO: Convert from military time to AM/PM
 
 function MeetupsPage() {
     const [id, setId] = useState(null);
+    const [username, setUsername] = useState(null);
     const [title, setTitle] = useState(null);
     const [description, setDescription] = useState(null);
     const [subject, setSubject] = useState(null);
@@ -21,27 +22,44 @@ function MeetupsPage() {
 
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
+    //GET MEETUPS (runs after every render) and set user
+    const [meetups, setMeetups] = useState([]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search),
+        user = params.get("username");
+
+        setUsername(user);
+
+        fetchMeetups(user);
+    }, [])
+
+    const fetchMeetups = (user) => {
+        console.log("User to fetch for: " + user);
+
+        //fetch(`http://localhost:8080/viewMeetups/${user}`) // use this for local development
+         fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
+          .then(response => response.json())
+          .then(data => setMeetups(data))
+          .catch(error => console.error('Error fetching meetings:', error));
+    };
+
+    // CREATE
     const handleSubmit = (event) => {
       // prevents page reload
       event.preventDefault();
       const data = new FormData(event.currentTarget);
 
       const meeting = {
-          id, title, description, subject, date, location
+          id, username, title, description, subject, date, location
       }
 
       //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+         axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
-
-                    //refetch the meetups
-                    //fetch('http://localhost:8080/viewMeetups') // use this for local development
-                    fetch('http://34.16.169.60:8080/viewMeetups')
-                    .then(response => response.json())
-                    .then(data => setMeetups(data))
-                    .catch(error => console.error('Error fetching meetings:', error));
+                    fetchMeetups(username);
                 }
             })
             .catch((err) => {
@@ -50,6 +68,38 @@ function MeetupsPage() {
             });
     }
 
+    const handleSubmitUpdate = (event) => {
+        // prevents page reload
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+
+        const meeting = {
+            id, username, title, description, subject, date, location
+        }
+
+        console.log("State variables after update");
+        console.log("ID: " + id);
+        console.log("username: " + username);
+        console.log("title: " + title);
+        console.log("desc: " + description);
+        console.log("sub: " + subject);
+        console.log("location: " + location);
+  
+        //axios.put("http://localhost:8080/viewMeetups", meeting) // for local testing
+           axios.put("http://34.16.169.60:8080/viewMeetups", meeting)
+              .then((res) => {
+                  if(res.status === 200) {
+                      handleCloseEdit();
+                      fetchMeetups(username);
+                  }
+              })
+              .catch((err) => {
+                  console.log("ERROR UPDATING MEETING.");
+                  console.log(err.value);
+              });
+      }
+
+    // DELETE
     const handleDelete = (event) =>{
         event.preventDefault();
 
@@ -58,13 +108,7 @@ function MeetupsPage() {
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
-
-                    //refetch the meetups
-                    //fetch('http://localhost:8080/viewMeetups') // use this for local development
-                    fetch('http://34.16.169.60:8080/viewMeetups')
-                    .then(response => response.json())
-                    .then(data => setMeetups(data))
-                    .catch(error => console.error('Error fetching meetings:', error));
+                    fetchMeetups(username);
                 }
             })
             .catch((err) => {
@@ -73,22 +117,13 @@ function MeetupsPage() {
             });
     }
 
-
-    //GET MEETUPS (runs after every render)
-    const [meetups, setMeetups] = useState([]);
-
-    useEffect(() => {
-        //fetch('http://localhost:8080/viewMeetups') // use this for local development
-        fetch('http://34.16.169.60:8080/viewMeetups')
-            .then(response => response.json())
-            .then(data => setMeetups(data))
-            .catch(error => console.error('Error fetching meetings:', error));
-    }, [])
+    
 
     //DIALOG (CREATE MEETUP)
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
+        setId(null);
         setOpen(true);
     };
 
@@ -103,6 +138,15 @@ function MeetupsPage() {
     // takes in selected meeting to display content of that meeting
     const handleClickOpenEdit = (meetup) => {
         setSelectedMeeting(meetup);
+
+        // set state variables to the currently selected meeting
+        setId(meetup.id);
+        setTitle(meetup.title);
+        setDescription(meetup.description);
+        setSubject(meetup.subject);
+        setDate(meetup.date);
+        setLocation(meetup.location);
+
         setOpenEdit(true);
     };
 
@@ -126,6 +170,8 @@ function MeetupsPage() {
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
                                 {/* <strong>ID: </strong> {meetup.id}
+                                <br />
+                                <strong>Username: </strong> {meetup.username}
                                 <br /> */}
                                 <strong>Title: </strong> {meetup.title}
                                 <br />
@@ -148,19 +194,18 @@ function MeetupsPage() {
 
         
 
-      {/*CREATE MEETUP*/}
+      {/*CREATE MEETUP DIALOG BOX*/}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Dialog
-            open={open}
-            onClose={handleClose}
-
-             component="form" validate="true" onSubmit={handleSubmit}
-      >
+                open={open}
+                onClose={handleClose}
+                component="form" validate="true" onSubmit={handleSubmit}
+            >
         <DialogTitle>Create Meetup</DialogTitle>
         <DialogContent>
 
           <DialogContentText>
-            Set the title, description, date, and location of your meeting.
+            Set the title, description, subject, date, and location of your meeting.
           </DialogContentText>
 
           <TextField
@@ -204,8 +249,16 @@ function MeetupsPage() {
           />
 
         <DateTimePicker
-        label="Date"
-        onChange={(e) => setDate(e)}
+            label="Date"
+            onChange={(e) => setDate(e)}
+
+            //makes field required
+            slotProps={{
+                textField: {
+                required: true,
+                style: { marginTop: '10px' }
+                }
+            }}
         />
 
         <TextField
@@ -225,7 +278,7 @@ function MeetupsPage() {
 
         <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
-            <Button type="submit" onSubmit={handleSubmit}>Create</Button>
+            <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Create</Button>
         </DialogActions>
         
       </Dialog>
@@ -233,37 +286,19 @@ function MeetupsPage() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    {/*EDIT MEETUP*/}
+    {/*EDIT MEETUP DIALOG BOX*/}
     <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Dialog
             open={openEdit}
             onClose={handleCloseEdit}
 
-             component="form" validate="true" onSubmit={handleSubmit}
+             component="form" validate="true" onSubmit={handleSubmitUpdate}
       >
         <DialogTitle>Edit Meetup</DialogTitle>
         <DialogContent>
 
           <DialogContentText>
-            Edit the title, description, date, and location of your meeting.
+            Edit the title, description, subject, date, and location of your meeting.
           </DialogContentText>
 
           <TextField
@@ -276,7 +311,7 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.title || ''}
+            defaultValue={selectedMeeting?.title || ''}
             onChange={(e) => setTitle(e.target.value)}
           />
 
@@ -290,7 +325,7 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.description || ''}
+            defaultValue={selectedMeeting?.description || ''}
             onChange={(e) => setDescription(e.target.value)}
           />
 
@@ -305,14 +340,23 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.subject || ''}
+            defaultValue={selectedMeeting?.subject || ''}
             onChange={(e) => setSubject(e.target.value)}
           />
 
         <DateTimePicker
-        label="Date"
-        value={dayjs(selectedMeeting?.date)}
-        onChange={(e) => setDate(e)}
+            label="Date"
+            defaultValue={dayjs(selectedMeeting?.date)}
+
+            //makes field required
+            slotProps={{
+                textField: {
+                required: true,
+                style: { marginTop: '10px' }
+                }
+            }}
+
+            onChange={(e) => setDate(e)}
         />
 
         <TextField
@@ -325,7 +369,7 @@ function MeetupsPage() {
             type="string"
             fullWidth
             variant="standard"
-            value={selectedMeeting?.location || ''}
+            defaultValue={selectedMeeting?.location || ''}
             onChange={(e) => setLocation(e.target.value)}
           />
 
@@ -334,7 +378,7 @@ function MeetupsPage() {
         <DialogActions>
             <Button onClick={handleCloseEdit}>Cancel</Button>
             <Button onClick={handleDelete} style={{ backgroundColor: 'red', color: 'white' }}>Delete</Button>
-            <Button type="submit" onSubmit={handleSubmit}>Update</Button>
+            <Button type="submit" onSubmit={handleSubmitUpdate} style={{ backgroundColor: 'purple', color: 'white' }}>Update</Button>
         </DialogActions>
         
       </Dialog>

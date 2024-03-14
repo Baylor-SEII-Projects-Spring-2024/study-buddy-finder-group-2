@@ -17,4 +17,9 @@ class StudyBuddyApplicationTests {
 	void exampleTest() {
 		assertEquals(2, 1 + 1);
 	}
+
+	@Test
+	void passingTest() {
+		assertEquals(2, 2);
+	}
 }
