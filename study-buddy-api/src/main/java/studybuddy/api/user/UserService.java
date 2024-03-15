@@ -17,12 +17,14 @@ public class UserService {
      * This functions uses findByNameStartingWith in JPA
      *    Repository to query for the user that starts with the given string.
      *
-     * @param startOfName
+     * @param partialName
      *
      * @return a List of Users that matches
      *        empty List if no matches
      */
-    public List<Pair<String, String>> findByNameStartingWith(String startOfName){return userRepository.findByNameStartingWith(startOfName);}
+    public List<User> findByNameOrUsername(String partialName){
+        return userRepository.findByNameOrUsername(partialName);
+    }
     /**
      * findUser
      *

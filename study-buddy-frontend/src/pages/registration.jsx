@@ -19,8 +19,9 @@ function RegistrationPage() {
     // Database looks for attribute name, not column name when assigning attributes to new row
     // emailAddress and userType need no underscores
     const [username, setUsername] = useState(null);
-    const [firstName, setFirstName] = useState(null);
-    const [lastName, setLastName] = useState(null);
+    //const [firstName, setFirstName] = useState(null);
+    //const [lastName, setLastName] = useState(null);
+    const [name, setName] = useState(null);
     const [password, setPassword] = useState(null);
     const [confirmPassword, setConfirmPassword] = useState(null);
     const [emailAddress, setEmail] = useState(null);
@@ -31,8 +32,9 @@ function RegistrationPage() {
     //errors
     const [errUser, setErrUser] = useState(false);
     const [errPwd, setErrPwd] = useState(false);
-    const [errFirstName, setErrFirstName] = useState(false);
-    const [errLastName, setErrLastName] = useState(false);
+    //const [errFirstName, setErrFirstName] = useState(false);
+    //const [errLastName, setErrLastName] = useState(false);
+    const [errName, setErrName] = useState(false);
     const [errEmail, setErrEmail] = useState(false);
     const [errCPwd, setErrCPwd] = useState(false);
     const [errSchool, setErrSchool] = useState(false);
@@ -40,8 +42,8 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        axios.get("http://34.16.169.60:8080/api/request-school-options")
-        //    axios.get("http://localhost:8080/api/request-school-options")
+        //axios.get("http://34.16.169.60:8080/api/request-school-options")
+        axios.get("http://localhost:8080/api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -68,8 +70,9 @@ function RegistrationPage() {
          const verMatch = password === confirmPassword;
 
 
-         setErrFirstName(firstName == null || firstName === '');
-         setErrLastName(lastName === null || lastName === '');
+         //setErrFirstName(firstName == null || firstName === '');
+         //setErrLastName(lastName === null || lastName === '');
+         setErrName(name === null || name === '');
          setErrSchool(school === null);
          setErrEmail(emailAddress === null || emailAddress === '');
          if (school !== null && emailAddress !== null && emailAddress !== '') {
@@ -81,15 +84,15 @@ function RegistrationPage() {
          setErrPwd(!verPwd);
          setErrCPwd(!verMatch);
 
-         axios.get("http://34.16.169.60:8080/api/find-username", username)
-         //axios.get("http://localhost:8080/api/find-username", username)
+         //axios.get("http://34.16.169.60:8080/api/find-username", username)
+         axios.get("http://localhost:8080/api/find-username", username)
              .catch((res) => {
                  window.alert("Username already exists! Find a different one");
                  setErrUser(true);
              })
 
-         axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
-         //axios.get("http://localhost:8080/api/find-email", emailAddress)
+         //axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
+         axios.get("http://localhost:8080/api/find-email", emailAddress)
              .catch((res) => {
                  window.alert("Email already exists!");
                  setErrEmail(true);
@@ -98,12 +101,14 @@ function RegistrationPage() {
 
     const registerUser = () => {
         const user = {
-            username, password, firstName, lastName, emailAddress, userType//, school
+            // firstName, lastName
+            username, password, name, emailAddress, userType//, school
         }
 
         console.log({
-            firstName: firstName,
-            lastName: lastName,
+            //firstName: firstName,
+            //lastName: lastName,
+            name: name,
             emailAddress: emailAddress,
             username: username,
             userType: userType,
@@ -149,7 +154,8 @@ function RegistrationPage() {
         await submitInfo();
         event.preventDefault();
         //check if fields are valid
-        if(errLastName || errFirstName || errSchool || errEmail || errPwd || errCPwd || errUserType || errUser){
+        // errLastName || errFirstName
+        if(errName || errSchool || errEmail || errPwd || errCPwd || errUserType || errUser){
             window.alert("Please fill out all fields");
         }
         else {
@@ -201,11 +207,14 @@ function RegistrationPage() {
                     )}
                 /> <br/>
 
-                <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
+                {/*<TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
                            onChange={(e) => setFirstName(e.target.value)}
                            error={errFirstName} helperText={errFirstName ? 'Please input a first name' : ''}/><br/>
                 <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
                            onChange={(e) => setLastName(e.target.value)}
+                           error={errLastName} helperText={errLastName ? 'Please input a last name' : ''}/><br/>*/}
+                <TextField autoComplete="name" id="name" name="name" label="Name"
+                           onChange={(e) => setName(e.target.value)}
                            error={errLastName} helperText={errLastName ? 'Please input a last name' : ''}/><br/>
                 <TextField autoComplete="email" id="email" name="email" label="Email"
                            onChange={(e) => setEmail(e.target.value)}

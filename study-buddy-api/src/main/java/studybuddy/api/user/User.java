@@ -28,11 +28,14 @@ public class User {
     @Column(name = "USER_ID")
     Long id;
 
-    @Column(name = "FIRSTNAME")
+    /*@Column(name = "FIRSTNAME")
     String firstName;
 
     @Column(name = "LASTNAME")
-    String lastName;
+    String lastName;*/
+
+    @Column(name = "NAME")
+    String name;
 
     @Column(name = "USERNAME")
     String username;
@@ -59,6 +62,13 @@ public class User {
             joinColumns = @JoinColumn(name = "username"),
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     Set<Course> courses;
+
+    /*@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_connections",
+            joinColumns = @JoinColumn(name = "parentUsername", referencedColumnName = "username"),
+            inverseJoinColumns = @JoinColumn(name = "childUsername", referencedColumnName = "username"))
+    Set<User> connections;*/
 
     /*
     @ManyToOne(fetch = FetchType.LAZY)

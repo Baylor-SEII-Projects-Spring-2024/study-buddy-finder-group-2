@@ -31,8 +31,8 @@ function EditCoursePage() {
         setUsername(name);
         console.log(username);
 
-        axios.get(`http://34.16.169.60:8080/users/${name}`)
-        //axios.get(`http://localhost:8080/users/${name}`)
+        //axios.get(`http://34.16.169.60:8080/users/${name}`)
+        axios.get(`http://localhost:8080/users/${name}`)
             .then((res) => {
                 setUser(res.data);
                 axios.get(`http://34.16.169.60:8080/api/get-courses-user/${name}`)

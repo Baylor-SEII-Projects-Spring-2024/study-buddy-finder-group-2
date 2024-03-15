@@ -9,8 +9,8 @@ import studybuddy.api.user.UserService;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
-@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class UserEndpoint {
     @Autowired
     private UserService userService;
