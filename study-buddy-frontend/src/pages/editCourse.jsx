@@ -69,6 +69,15 @@ function EditCoursePage() {
 
     }
 
+    const getCourses = () => {
+        axios.get(`http://34.16.169.60:8080/users/${name}`)
+        //axios.get("http://localhost:8080/api/get-all-courses/")
+            .then((res1) =>{
+                setCourses(res1.data);
+            })
+
+    }
+
     const backToLanding = () => {
         if (user.userType.includes("student")) {
             //temporary fix
@@ -117,8 +126,8 @@ function EditCoursePage() {
         event.preventDefault();
 
         if(course !== null) {
-            axios.post(`http://34.16.169.60:8080/api/add-user-course/${username}`, course)
-            //axios.post(`http://localhost:8080/api/add-user-course/${username}`, course)
+            //axios.post(`http://34.16.169.60:8080/api/add-user-course/${username}`, course)
+            axios.post(`http://localhost:8080/api/add-user-course/${username}`, course)
                 .then((res) => {
                     console.log("yay we did it! Added " + course.coursePrefix + " " + course.courseNumber);
                     setPrefix(null);
@@ -138,7 +147,7 @@ function EditCoursePage() {
           <InputLabel id="coursesLabel">Add Courses</InputLabel>
 
           <Box>
-              <Button onClick={() => backToLanding()}>Back</Button>
+              <Button onSubmit={() => backToLanding()}>Back</Button>
 
               <Autocomplete // pre-existing course selector
               id="courses-select"
@@ -151,6 +160,7 @@ function EditCoursePage() {
                   selectCourse(value);
                   console.log(value);
                   handleCourseAdding(e);
+                  getUsersCourses();
               }}
               renderOption={(props, option) => (
                   <Box component="li" sx={{ display: 'flex'}} {...props}>
@@ -167,6 +177,11 @@ function EditCoursePage() {
                   />
               )}
           /> <br/>
+              <Button onClick={(e) => {
+                  handleCourseAdding(e);
+                  getUsersCourses();
+                  getCourses();
+              }}>Add Course</Button>
           </Box>
 
           <Box component="form" validate="true" onSubmit={handleCourseAdding}>
@@ -190,6 +205,7 @@ function EditCoursePage() {
                               selectUserCourse(value);
                               console.log(`clicked ${value.coursePrefix} ${value.courseNumber}`);
                               removeCourse(value);
+                              getCourses();
                           }}>
                               X
                           </Button>
