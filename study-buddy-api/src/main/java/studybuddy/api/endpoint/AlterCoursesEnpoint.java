@@ -80,6 +80,7 @@ public class AlterCoursesEnpoint{
         user.ifPresent(x -> {
             x.addCourse(course);
             list.addAll(courseService.getCoursesOfUser(x));
+            userService.saveUser(x);
         });
 
         if(user.isEmpty()) return ResponseEntity.badRequest().body(null);
