@@ -84,15 +84,6 @@ function EditCoursePage() {
 
     }
 
-    const getCourses = () => {
-        axios.get(`http://34.16.169.60:8080/users/${name}`)
-        //axios.get("http://localhost:8080/api/get-all-courses/")
-            .then((res1) =>{
-                setCourses(res1.data);
-            })
-
-    }
-
     const backToLanding = () => {
         if (user.userType.includes("student")) {
             //temporary fix
@@ -141,8 +132,8 @@ function EditCoursePage() {
         event.preventDefault();
 
         if(course !== null) {
-            //axios.post(`http://34.16.169.60:8080/api/add-user-course/${username}`, course)
-            axios.post(`http://localhost:8080/api/add-user-course/${username}`, course)
+            axios.post(`http://34.16.169.60:8080/api/add-user-course/${username}`, course)
+            //axios.post(`http://localhost:8080/api/add-user-course/${username}`, course)
                 .then((res) => {
                     console.log("yay we did it! Added " + course.coursePrefix + " " + course.courseNumber);
                     setPrefix(null);
