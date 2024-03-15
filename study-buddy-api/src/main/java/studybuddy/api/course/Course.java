@@ -27,7 +27,7 @@ public class Course {
     @Column(name = "COURSE_PREFIX") //Change to what it should be lol
     private String coursePrefix;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
             joinColumns = @JoinColumn(name = "course_id"),
