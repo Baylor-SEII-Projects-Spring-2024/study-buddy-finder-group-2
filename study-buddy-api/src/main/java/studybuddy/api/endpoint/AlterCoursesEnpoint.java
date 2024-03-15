@@ -79,12 +79,11 @@ public class AlterCoursesEnpoint{
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {
             x.addCourse(course);
-            userService.saveUser(x);
             list.addAll(courseService.getCoursesOfUser(x));
         });
 
         if(user.isEmpty()) return ResponseEntity.badRequest().body(null);
-        return ResponseEntity.ok(list);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     };
 
     @RequestMapping(

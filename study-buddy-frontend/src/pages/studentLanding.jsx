@@ -33,7 +33,7 @@ function StudentLandingPage() {
                     </Card>
 
                     <Stack direction="row">
-                        <Link href="/me" passHref>
+                        <Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> My Profile</Button>
                         </Link>
 

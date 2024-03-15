@@ -42,7 +42,7 @@ function EditCoursePage() {
                         console.log(name);
                         console.log(res1.data);
                     })
-                axios.get(`http://34.16.169.60:8080/users/${name}`)
+                axios.get(`http://34.16.169.60:8080/get-all-courses/`)
                 //axios.get("http://localhost:8080/api/get-all-courses/")
                     .then((res2) => {
                         if(res2.data !== null) setCourses(res2.data);
@@ -65,6 +65,21 @@ function EditCoursePage() {
                 setUsersCourses(res1.data);
                 console.log(username);
                 console.log(res1.data);
+            })
+
+        getCourses();
+
+    }
+
+    const getCourses = () => {
+        axios.get("http://34.16.169.60:8080/api/get-all-courses/")
+        //axios.get("http://localhost:8080/api/get-all-courses/")
+            .then((res2) => {
+                if(res2.data !== null) setCourses(res2.data);
+                else {
+                    setCourses(new Set());
+                }
+                console.log(courses);
             })
 
     }
@@ -95,7 +110,7 @@ function EditCoursePage() {
     }
 
 
-    const createCourse = () => {
+    const createCourse = (event) => {
         if(courseNumber && coursePrefix){
             selectCourse({
                 courseNumber, coursePrefix
