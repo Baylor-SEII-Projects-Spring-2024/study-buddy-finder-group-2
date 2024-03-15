@@ -16,8 +16,8 @@ function MyInfoPage() {
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
-    fetch(`http://localhost:8080/me/${user}`) // use this for local development
-    //fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
+    //fetch(`http://localhost:8080/me/${user}`) // use this for local development
+    fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
       .then(response => response.json())
       .then(data => setUser(data))
       .catch(error => console.error('Error fetching user:', error));
