@@ -68,7 +68,7 @@ function EditCoursePage() {
     }
 
     const getCourses = () => {
-        axios.get(`http://34.16.169.60:8080/get-all-courses/`)
+        axios.get(`http://34.16.169.60:8080/api/get-all-courses/`)
         //    axios.get("http://localhost:8080/api/get-all-courses/")
             .then((res1) =>{
                 setCourses(res1.data);
