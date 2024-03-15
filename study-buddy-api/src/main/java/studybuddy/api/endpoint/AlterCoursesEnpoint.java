@@ -78,9 +78,7 @@ public class AlterCoursesEnpoint{
         Optional<User> user = userService.findByUsername(username);
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {
-            System.out.println(x.getUsername()+x.getId());
             x.addCourse(course);
-            userService.saveUser(x);
             list.addAll(courseService.getCoursesOfUser(x));
         });
 
