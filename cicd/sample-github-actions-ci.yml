@@ -11,9 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Run tests
+        run: cd ../study-buddy-api && ./gradlew test
+
       - name: Build
         # This step builds both the frontend and backend docker images using
-        # Docker Compose. To change how the images are built or their actual
+        # Docer Compose. To change how the images are built or their actual
         # buildscripts, modify the corresponding files in the docker/ directory.
         #
         # You will need to point this command to the correct Docker Compose file.
@@ -44,3 +53,4 @@ jobs:
           docker compose -f docker/production.docker-compose.yml down
           docker compose -f docker/production.docker-compose.yml up -d --build
           docker image prune -af
+          docker system prune -f

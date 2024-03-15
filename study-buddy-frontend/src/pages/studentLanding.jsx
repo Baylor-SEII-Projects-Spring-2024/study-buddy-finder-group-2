@@ -10,7 +10,8 @@ function StudentLandingPage() {
         console.log(window.location.search);
         const params = new URLSearchParams(window.location.search),
             user = params.get("username");
-        setUsername(user);
+
+            setUsername(user);
     }, []);
     console.log("hi " + username);
 
@@ -32,15 +33,18 @@ function StudentLandingPage() {
                     </Card>
 
                     <Stack direction="row">
-                        <Link href="/me" passHref>
+                        <Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> My Profile</Button>
                         </Link>
 
                         <Link href="/invitations" passHref>
                             <Button variant='contained' color="primary"> Invitations</Button>
                         </Link>
+                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
+                            <Button variant='contained' color="primary"> View Courses</Button>
+                        </Link>
 
-                        <Link href="/viewMeetups" passHref>
+                        <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> View Meetups</Button>
                         </Link>
 

@@ -39,9 +39,9 @@ function TutorLandingPage() {
                   </Card>
 
                   <Stack direction="row">
-                      <Link href="/me" passHref>
-                          <Button variant='contained' color="primary"> My Profile</Button>
-                      </Link>
+                        <Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
+                            <Button variant='contained' color="primary"> My Profile</Button>
+                        </Link>
 
                       <Link href="/invitations" passHref>
                           <Button variant='contained' color="primary"> Invitations</Button>
