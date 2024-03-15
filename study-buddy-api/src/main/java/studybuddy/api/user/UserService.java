@@ -1,5 +1,6 @@
 package studybuddy.api.user;
 
+import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import studybuddy.api.course.Course;
@@ -11,7 +12,17 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
+    /**
+     * findByNameStartingWith
+     * This functions uses findByNameStartingWith in JPA
+     *    Repository to query for the user that starts with the given string.
+     *
+     * @param startOfName
+     *
+     * @return a List of Users that matches
+     *        empty List if no matches
+     */
+    public List<Pair<String, String>> findByNameStartingWith(String startOfName){return userRepository.findByNameStartingWith(startOfName);}
     /**
      * findUser
      *
