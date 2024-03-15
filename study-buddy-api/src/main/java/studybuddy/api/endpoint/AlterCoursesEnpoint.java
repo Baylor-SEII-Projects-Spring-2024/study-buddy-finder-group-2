@@ -93,7 +93,7 @@ public class AlterCoursesEnpoint{
             produces = "application/json"
     )
     public ResponseEntity<Set<Course>> getAllCourses(){
-        return new ResponseEntity<>(courseService.findAllCourses(), HttpStatus.OK);
+        return ResponseEntity.ok(courseService.findAllCourses());
     }
 
 
