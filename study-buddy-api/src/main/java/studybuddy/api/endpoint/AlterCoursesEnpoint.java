@@ -18,8 +18,8 @@ import java.util.Set;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
-@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class AlterCoursesEnpoint{
     @Autowired
     CourseService courseService = new CourseService();
@@ -78,13 +78,14 @@ public class AlterCoursesEnpoint{
         Optional<User> user = userService.findByUsername(username);
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {
+            System.out.println(x.getUsername()+x.getId());
             x.addCourse(course);
             userService.saveUser(x);
             list.addAll(courseService.getCoursesOfUser(x));
         });
 
         if(user.isEmpty()) return ResponseEntity.badRequest().body(null);
-        return ResponseEntity.ok(list);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     };
 
     @RequestMapping(

@@ -40,8 +40,8 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        axios.get("http://34.16.169.60:8080/api/request-school-options")
-        //    axios.get("http://localhost:8080/api/request-school-options")
+        //axios.get("http://34.16.169.60:8080/api/request-school-options")
+            axios.get("http://localhost:8080/api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -56,7 +56,8 @@ function RegistrationPage() {
     const USER_REGEX = /^[A-z,0-9]{3,23}$/;
     // handles submission of form
 
-     const submitInfo = () => {
+     const submitInfo = (event) => {
+         let right = true;
          //TODO: verify that username is valid
          console.log(USER_REGEX.test(username));
          const verUser = USER_REGEX.test(username) && username !== null;
@@ -73,7 +74,7 @@ function RegistrationPage() {
          setErrSchool(school === null);
          setErrEmail(emailAddress === null || emailAddress === '');
          if (school !== null && emailAddress !== null && emailAddress !== '') {
-             //console.log(emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length));
+             console.log(emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length));
              setErrEmail(emailAddress.length < school.emailDomain.length && emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain);
          }
          setErrUserType(userType === null);
@@ -81,19 +82,32 @@ function RegistrationPage() {
          setErrPwd(!verPwd);
          setErrCPwd(!verMatch);
 
-         axios.get("http://34.16.169.60:8080/api/find-username", username)
-         //axios.get("http://localhost:8080/api/find-username", username)
+         //axios.get("http://34.16.169.60:8080/api/find-username", username)
+         axios.get(`http://localhost:8080/api/find-username/${username}`)
+             .then(() => {
+                 setErrUser(false);
+             })
              .catch((res) => {
                  window.alert("Username already exists! Find a different one");
                  setErrUser(true);
+                 right = false;
              })
 
-         axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
-         //axios.get("http://localhost:8080/api/find-email", emailAddress)
+         //axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
+         axios.get(`http://localhost:8080/api/find-email/${emailAddress}`)
+             .then(()=>{
+                 setErrEmail(false);
+
+             })
              .catch((res) => {
                  window.alert("Email already exists!");
                  setErrEmail(true);
+                 right = false;
              })
+
+         if(right){
+             handleSubmit();
+         }
      }
 
     const registerUser = () => {
@@ -112,29 +126,26 @@ function RegistrationPage() {
         });
 
         axios.post("http://localhost:8080/api/register", user) // for local testing
-            //axios.post("http://34.16.169.60:8080/api/register", user)
+        //    axios.post("http://34.16.169.60:8080/api/register", user)
             .then((res) => {
-                if (res.status === 200) {
-                    console.log('No Existing User! User is now registered!')
-                    //TODO: Redirect
-                    if (res.data.userType.includes("student")) {
+                console.log('No Existing User! User is now registered!')
+                if (res.data.userType.includes("student")) {
 
-                        console.log(res.data);
-                        //temporary fix
-                        var params = new URLSearchParams();
-                        params.append("username", res.data.get("username").toString());
-                        console.log("going to /studentLanding?" + params.toString())
-                        location.href = "/studentLanding?" + params.toString();
+                    console.log(res.data);
+                    //temporary fix
+                    var params = new URLSearchParams();
+                    console.log(1);
+                    params.append("username", res.data.username.toString());
+                    console.log(2);
+                    console.log("going to /studentLanding?" + params.toString());
+                    console.log(3);
+                    location.href = "/studentLanding?" + params.toString();
 
-                    } else if (res.data.userType.includes("tutor")) {
-                        var params = new URLSearchParams();
-                        params.append("username", data.get("username"));
-                        console.log("going to /tutorLanding?" + params.toString());
-                        location.href = "/tutorLanding?" + params.toString();
-                    }
-                } else if (res.status.valueOf() === 400) { //if username + email already exists
-                    console.log('Username or email already exists!');
-                    window.alert("Username or email already exists!")
+                } else if (res.data.userType.includes("tutor")) {
+                    var params = new URLSearchParams();
+                    params.append("username", res.data.username);
+                    console.log("going to /tutorLanding?" + params.toString());
+                    location.href = "/tutorLanding?" + params.toString();
                 }
             })
             .catch((err) => {
@@ -145,9 +156,7 @@ function RegistrationPage() {
 
     }
 
-    const handleSubmit = async (event) => {
-        await submitInfo();
-        event.preventDefault();
+    const handleSubmit =  () => {
         //check if fields are valid
         if(errLastName || errFirstName || errSchool || errEmail || errPwd || errCPwd || errUserType || errUser){
             window.alert("Please fill out all fields");
@@ -164,7 +173,7 @@ function RegistrationPage() {
 
     return (
         <Box>
-            <Box component="form" validate="true" onSubmit={handleSubmit}
+            <Box component="form" validate="true"
                  sx={{
                      marginTop: 5,
                      display: 'flex',
@@ -230,7 +239,10 @@ function RegistrationPage() {
                 </RadioGroup>
                 <Box row>
                     <Button id="cancel" variant="outlined" color="error" href="/">Cancel</Button>
-                    <Button id="register" variant="contained" type="submit" >Next</Button>
+                    <Button id="register" variant="contained" onClick={ () => {
+                        submitInfo();
+                        //handleSubmit();
+                    }} >Next</Button>
                 </Box>
             </Box>
         </Box>
