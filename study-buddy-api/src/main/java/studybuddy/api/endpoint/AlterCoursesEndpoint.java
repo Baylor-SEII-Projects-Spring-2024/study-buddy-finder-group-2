@@ -77,12 +77,12 @@ public class AlterCoursesEndpoint{
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {
             x.addCourse(course);
-            userService.saveUser(x);
             list.addAll(courseService.getCoursesOfUser(x));
+            userService.saveUser(x);
         });
 
         if(user.isEmpty()) return ResponseEntity.badRequest().body(null);
-        return ResponseEntity.ok(list);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     };
 
     @RequestMapping(
@@ -91,7 +91,7 @@ public class AlterCoursesEndpoint{
             produces = "application/json"
     )
     public ResponseEntity<Set<Course>> getAllCourses(){
-        return new ResponseEntity<>(courseService.findAllCourses(), HttpStatus.OK);
+        return ResponseEntity.ok(courseService.findAllCourses());
     }
 
 

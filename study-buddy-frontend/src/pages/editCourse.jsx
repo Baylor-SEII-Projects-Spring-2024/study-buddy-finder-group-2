@@ -42,8 +42,8 @@ function EditCoursePage() {
                         console.log(name);
                         console.log(res1.data);
                     })
-                axios.get(`http://34.16.169.60:8080/users/${name}`)
-                //axios.get("http://localhost:8080/api/get-all-courses/")
+                axios.get(`http://34.16.169.60:8080/api/get-all-courses/`)
+                //    axios.get("http://localhost:8080/api/get-all-courses/")
                     .then((res2) => {
                         if(res2.data !== null) setCourses(res2.data);
                         else {
@@ -55,12 +55,10 @@ function EditCoursePage() {
             .catch((err) => {
                 window.alert("User not found");
             })
-
     }, [])
-
     const getUsersCourses = () => {
         axios.get(`http://34.16.169.60:8080/api/get-courses-user/${username}`)
-        //axios.get(`http://localhost:8080/api/get-courses-user/${username}`)
+        //    axios.get(`http://localhost:8080/api/get-courses-user/${username}`)
             .then((res1) =>{
                 setUsersCourses(res1.data);
                 console.log(username);
@@ -69,6 +67,13 @@ function EditCoursePage() {
 
     }
 
+    const getCourses = () => {
+        axios.get(`http://34.16.169.60:8080/api/get-all-courses/`)
+        //    axios.get("http://localhost:8080/api/get-all-courses/")
+            .then((res1) =>{
+                setCourses(res1.data);
+            })
+    }
     const backToLanding = () => {
         if (user.userType.includes("student")) {
             //temporary fix
@@ -76,7 +81,6 @@ function EditCoursePage() {
             params.append("username", user.username.toString());
             console.log("going to /studentLanding?" + params.toString())
             location.href = "/studentLanding?" + params.toString();
-
         } else if (user.userType.includes("tutor")) {
             var params = new URLSearchParams();
             params.append("username", user.username);
@@ -95,27 +99,22 @@ function EditCoursePage() {
         else{
             selectCourse(null);
         }
-
-
         console.log({
             coursePrefix: coursePrefix,
             courseNumber: courseNumber,
             users: null,
         });
     }
-
     const removeCourse = (event) => {
         console.log(`TIME TO REMOVE `+event.coursePrefix+" "+event.courseNumber);
         axios.post(`http://34.16.169.60:8080/api/remove-course/${username}`, event)
-        //axios.post(`http://localhost:8080/api/remove-course/${username}`, event)
+        //    axios.post(`http://localhost:8080/api/remove-course/${username}`, event)
             .then(() => {
                 getUsersCourses();
             })
     }
-
     const handleCourseAdding = (event) => {
         event.preventDefault();
-
         if(course !== null) {
             axios.post(`http://34.16.169.60:8080/api/add-user-course/${username}`, course)
             //axios.post(`http://localhost:8080/api/add-user-course/${username}`, course)
@@ -130,77 +129,77 @@ function EditCoursePage() {
                     console.log("aww didn't work for " + username + " " + course.coursePrefix + " " + course.courseNumber);
                 })
         }
+        getUsersCourses();
     }
-
-
-  return (
-      <Box>
-          <InputLabel id="coursesLabel">Add Courses</InputLabel>
-
-          <Box>
-              <Button onClick={() => backToLanding()}>Back</Button>
-
-              <Autocomplete // pre-existing course selector
-              id="courses-select"
-              options={courses}
-              sx={{ width: 200}}
-              autoSelect
-              getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber }
-              isOptionEqualToValue={(option,value) => option.id === value.id}
-              onChange={(e, value) => {
-                  selectCourse(value);
-                  console.log(value);
-                  handleCourseAdding(e);
-              }}
-              renderOption={(props, option) => (
-                  <Box component="li" sx={{ display: 'flex'}} {...props}>
-                      {option.coursePrefix} {option.courseNumber}
-                  </Box>
-              )}
-              renderInput={(params) => (
-                  <TextField
-                      {...params}
-                      label="Select a Course"
-                      inputProps={{
-                          ...params.inputProps,
-                      }}
-                  />
-              )}
-          /> <br/>
-          </Box>
-
-          <Box component="form" validate="true" onSubmit={handleCourseAdding}>
-              <TextField onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
-              <br/>
-              <Input onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
-              <br/>
-              <Button variant="outlined" type="submit" onClick={() => createCourse()}>Add Course</Button>
-          </Box>
-          <Box>
-              <List component="users-courses" aria-label="users-courses">
-                  {usersCourses === null ? () => console.log("empty") : usersCourses.map((value) => {
-                      const labelId = `checkbox-list-label-${value.coursePrefix} ${value.courseNumber}`;
-                      return (
-
-                      <ListItemButton
-                          selected={ selectedUserCourse === value}
-                      >
-                          <ListItemText id={labelId} primary={`${value.coursePrefix} ${value.courseNumber}`} />
-                          <Button size="small" onClick={() => {
-                              selectUserCourse(value);
-                              console.log(`clicked ${value.coursePrefix} ${value.courseNumber}`);
-                              removeCourse(value);
-                          }}>
-                              X
-                          </Button>
-                      </ListItemButton>
-                          );
-                  })}
-              </List>
-          </Box>
-
-      </Box>
-  );
+    return (
+        <Box>
+            <InputLabel id="coursesLabel">Add Courses</InputLabel>
+            <Box>
+                <Button onSubmit={() => backToLanding()}>Back</Button>
+                <Autocomplete // pre-existing course selector
+                    id="courses-select"
+                    options={courses}
+                    sx={{ width: 200}}
+                    autoSelect
+                    getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber }
+                    isOptionEqualToValue={(option,value) => option.id === value.id}
+                    onChange={(e, value) => {
+                        selectCourse(value);
+                        console.log(value);
+                        handleCourseAdding(e);
+                    }}
+                    renderOption={(props, option) => (
+                        <Box component="li" sx={{ display: 'flex'}} {...props}>
+                            {option.coursePrefix} {option.courseNumber}
+                        </Box>
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Select a Course"
+                            inputProps={{
+                                ...params.inputProps,
+                            }}
+                        />
+                    )}
+                /> <br/>
+                <Button onClick={(e) => {
+                    handleCourseAdding(e);
+                    getUsersCourses();
+                    getCourses();
+                }}>Add Course</Button>
+            </Box>
+            <Box component="form" validate="true" onSubmit={handleCourseAdding}>
+                <TextField onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
+                <br/>
+                <Input onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
+                <br/>
+                <Button variant="outlined" type="submit" onClick={() => createCourse()}>Add Course</Button>
+            </Box>
+            <Box>
+                <List component="users-courses" aria-label="users-courses">
+                    {usersCourses === null ? () => console.log("empty") : usersCourses.map((value) => {
+                        const labelId = `checkbox-list-label-${value.coursePrefix} ${value.courseNumber}`;
+                        return (
+                            <ListItemButton
+                                selected={ selectedUserCourse === value}
+                            >
+                                <ListItemText id={labelId} primary={`${value.coursePrefix} ${value.courseNumber}`} />
+                                <Button size="small" onClick={() => {
+                                    selectUserCourse(value);
+                                    console.log(`clicked ${value.coursePrefix} ${value.courseNumber}`);
+                                    removeCourse(value);
+                                    getCourses();
+                                    getUsersCourses();
+                                }}>
+                                    X
+                                </Button>
+                            </ListItemButton>
+                        );
+                    })}
+                </List>
+            </Box>
+        </Box>
+    );
 }
-
 export default EditCoursePage;
