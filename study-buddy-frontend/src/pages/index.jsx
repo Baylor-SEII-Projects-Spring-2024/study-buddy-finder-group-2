@@ -24,6 +24,7 @@ export default function HomePage() {
   }, []);
 
   const goldColor = '#FFD700'; // Gold
+  const backgroundColor = '#339966'; // Right side background color
 
   return (
     <>
@@ -47,9 +48,18 @@ export default function HomePage() {
               }}
             />
           ))}
+          {/* Gradient overlay */}
+          <div style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: '20%',
+            background: `linear-gradient(to right, ${backgroundColor}00, ${backgroundColor}ff)`
+          }}></div>
         </div>
 
-        <div style={{ width: '50%', backgroundColor: '#339966' }}>
+        <div style={{ width: '50%', backgroundColor }}>
           <Grid container alignItems="center" justifyContent="center" style={{ height: '100vh' }}>
             <Grid item>
               <Stack direction="column" spacing={2} alignItems="center">
