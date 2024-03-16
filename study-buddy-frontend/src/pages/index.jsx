@@ -6,8 +6,10 @@ import LoginIcon from '@mui/icons-material/Login';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 const images = [
-  '/1.jpg',
-  '/2.jpg'
+  '/1.png',
+  '/2.png',
+  '/3.png',
+  '/4.png'
 ];
 
 export default function HomePage() {
