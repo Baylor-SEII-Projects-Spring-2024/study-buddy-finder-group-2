@@ -22,7 +22,7 @@ public class UserService {
      * @return a List of Users that matches
      *        empty List if no matches
      */
-    public List<Pair<String, String>> findByNameStartingWith(String startOfName){return userRepository.findByNameStartingWith(startOfName);}
+    public List<User> findByNameStartingWith(String startOfName){return userRepository.findByNameStartingWith(startOfName);}
     /**
      * findUser
      *

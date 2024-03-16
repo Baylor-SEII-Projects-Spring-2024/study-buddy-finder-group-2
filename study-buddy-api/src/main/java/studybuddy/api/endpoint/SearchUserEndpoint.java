@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.course.Course;
+import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
 import java.util.List;
@@ -28,9 +29,21 @@ public class SearchUserEndpoint {
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<List<Pair<String, String>>> searchUsers(@PathVariable String searchWord){
-        return new ResponseEntity<>(userService.findByNameStartingWith(searchWord), HttpStatus.OK);
+    public ResponseEntity<List<User>> searchUsers(@PathVariable String searchWord){
+        return ResponseEntity.ok(userService.findByNameStartingWith(searchWord));
     }
+    //TODO: figure out if addConnection should be own service.
+    // Remember we have recommendations as an upcoming feature
+    /*
+    @RequestMapping(
+            value = "/api/searchUsers/addConnection/{username}",
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<Course> addConnection(@PathVariable String username){
 
+        return ResponseEntity.ok(userService);
+    }*/
 
 }

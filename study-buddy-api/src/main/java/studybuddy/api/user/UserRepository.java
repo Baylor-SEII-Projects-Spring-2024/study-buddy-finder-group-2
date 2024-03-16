@@ -23,8 +23,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return List of Users that start with namePrefix
      *          empty List if no matches
      */
-    @Query(value = "SELECT name, username FROM users u WHERE u.name LIKE ?1%", nativeQuery = true)
-    List<Pair<String, String>> findByNameStartingWith(String namePrefix);
+    @Query(value = "SELECT * FROM users u WHERE u.name LIKE ?1%", nativeQuery = true)
+    List<User> findByNameStartingWith(String namePrefix);
 
     /**
      * findByUsernamePassword
