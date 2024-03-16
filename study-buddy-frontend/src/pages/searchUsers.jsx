@@ -5,7 +5,7 @@ import {
     Box,
     Button,
     Card,
-    CardContent, Dialog, DialogActions, DialogContent, DialogTitle,
+    CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, List, Radio, RadioGroup,
     Stack,
     TextField,
     Typography
@@ -22,7 +22,8 @@ function SearchUsersPage() {
     const [school, setSchool] = useState(null);
 
     const [users, setUsers] = useState([]);
-    const [searchStr, setSearchStr] = useState(null);
+    //const [searchStr, setSearchStr] = useState(null);
+    //const [searchType, setSearchType] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
 
     const handleSubmit = (event) => {
@@ -33,16 +34,12 @@ function SearchUsersPage() {
             username, name, emailAddress, userType, school
         }
 
-        const searchWord = {
-            searchStr
-        }
+        console.log(user.userType);
 
         // TODO: set error for empty search
-        axios.post('http://localhost:8080/api/searchUsers', searchWord.searchStr) // for local testing
+        axios.post('http://localhost:8080/api/searchUsers', user) // for local testing
         //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
-                console.log("entered");
-
                 if(res.status === 200){
                     setUsers(res.data);
                     //fetchUsers(searchStr);
@@ -95,26 +92,37 @@ function SearchUsersPage() {
         setOpenProfile(false);
     };
 
+    const handleSearch = (str) => {
+        setName(str);
+        setUsername(str);
+    };
+
     return (
         <div>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
-                <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
+                <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
                     <CardContent>
                         <Typography variant='h4' align='center'>Search Users</Typography>
                     </CardContent>
                 </ Card>
 
                 <Box component="form" noValidate onSubmit={handleSubmit}
-                     sx={{ paddingTop: 3, width: 400, margin: 'auto' }}>
+                     sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
                     <Stack spacing={4} direction="row" justifyContent="center">
                         <TextField
                             required
                             id="search"
                             name="search"
-                            label="Search Here"
+                            label="Name or Username"
                             variant="outlined"
-                            onChange={(e) => setSearchStr(e.target.value)}
+                            onChange={(e) => handleSearch(e.target.value)}
                         />
+
+                        <RadioGroup id="user_type" row
+                                    onChange={(e) => setType(e.target.value)}>
+                            <FormControlLabel value="student" control={<Radio/>} id="user_student" label="Student"/>
+                            <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
+                        </RadioGroup>
 
                         <Button
                             variant='contained'
@@ -127,17 +135,31 @@ function SearchUsersPage() {
 
                 {users.map((user, index) => (
                     <Card key={index}
-                          sx={{ width: 500, margin: 'auto', marginTop: 1, cursor: 'pointer'}}
-                          elevation={6} onClick={() => handleClickOpenProfile(user)}>
+                          sx={{ width: 520, margin: 'auto', marginTop: 1, cursor: 'pointer' }}
+                          elevation={6}>
                         <CardContent>
-                            <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
-                                <li>
-                                    <strong>Username: </strong> {user.username}
-                                    <br />
-                                    <strong>Name: </strong> {user.name}
-                                    <br />
-                                </li>
-                            </ul>
+                            <Box sx={{ paddingTop: 3, width: 400, margin: 'auto' }}>
+                                <Stack spacing={13} direction="row" justifyContent="space-evenly">
+                                    <Box sx={{ width: 200 }}>
+                                        <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
+                                            <li>
+                                                <strong>Username: </strong> {user.username}
+                                                <br />
+                                                <strong>Name: </strong> {user.name}
+                                                <br />
+                                            </li>
+                                        </ul>
+                                    </Box>
+
+                                    <Button
+                                        variant='contained'
+                                        color="primary"
+                                        size="small"
+                                        onClick={() => handleClickOpenProfile(user)}
+                                    >
+                                        View Profile</Button>
+                                </Stack>
+                            </Box>
                         </CardContent>
                     </Card>
                 ))}
@@ -155,7 +177,7 @@ function SearchUsersPage() {
             <Dialog
                 open={openProfile}
                 onClose={handleCloseProfile}
-                fullWidth="md"
+                fullWidth
                 component="form"
                 validate="true"
             >

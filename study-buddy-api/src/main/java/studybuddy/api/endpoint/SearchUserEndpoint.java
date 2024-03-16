@@ -22,8 +22,14 @@ public class SearchUserEndpoint {
             value = "/api/searchUsers",
             method = RequestMethod.POST
     )
-    public ResponseEntity<List<User>> searchResults(@RequestBody String searchWord) {
-        return ResponseEntity.ok(userService.findByNameOrUsername(searchWord));
+    public ResponseEntity<List<User>> searchResults(@RequestBody User userSearch) {
+        System.out.println(userSearch.getUserType());
+        if(userSearch.getUserType() == null) {
+            return ResponseEntity.ok(userService.findByNameOrUsername(userSearch.getUsername()));
+        }
+        else {
+            return ResponseEntity.ok(userService.findByNameOrUsernameAndUserType(userSearch.getUsername(), userSearch.getUserType()));
+        }
     }
 
     /*@RequestMapping(
