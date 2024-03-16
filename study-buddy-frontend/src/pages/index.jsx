@@ -50,20 +50,23 @@ export default function HomePage() {
         </div>
 
         <div style={{ width: '50%', backgroundColor: '#339966' }}>
-          <Grid container sx={{ height: '100vh' }} alignItems="center" justifyContent="center">
-            <Card sx={{ maxWidth: 450, boxShadow: 3, backgroundColor: '#ccffcc' }}>
-              <CardContent>
-                <Typography variant='h4' align='center' gutterBottom>Welcome to Study Buddies!</Typography>
-                <Typography variant='body1' align='center'>Connect with peers to enhance your learning journey. Please login or register to continue.</Typography>
-              </CardContent>
-            </Card>
+          <Grid container direction="column" sx={{ height: '100vh' }} alignItems="center" justifyContent="center" spacing={1}>
+            <Grid item>
+              <Card sx={{ maxWidth: 450, boxShadow: 3, backgroundColor: '#ccffcc' }}>
+                <CardContent>
+                  <Typography variant='h4' align='center' gutterBottom>Welcome to Study Buddies!</Typography>
+                  <Typography variant='body1' align='center'>Connect with peers to enhance your learning journey. Please login or register to continue.</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
 
-            <Grid container direction="column" alignItems="center" spacing={2} sx={{ mt: 2 }}>
+            <Grid item>
               <Link href="/login" passHref>
-                <Button variant='contained' style={{ backgroundColor: goldColor, color: '#000' }} startIcon={<LoginIcon />}>
+                <Button variant='contained' style={{ backgroundColor: goldColor, color: '#000', marginBottom: '8px' }} startIcon={<LoginIcon />}>
                   Login
                 </Button>
               </Link>
+              <br />
               <Link href="/registration" passHref>
                 <Button variant='contained' style={{ backgroundColor: goldColor, color: '#000' }} startIcon={<AppRegistrationIcon />}>
                   Register
