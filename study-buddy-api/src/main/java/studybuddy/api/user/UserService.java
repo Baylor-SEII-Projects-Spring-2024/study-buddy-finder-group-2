@@ -2,7 +2,9 @@ package studybuddy.api.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import studybuddy.api.course.Course;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -95,5 +97,21 @@ public class UserService {
      */
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    /**
+     *
+     * @param c
+     * @return
+     */
+    public List<User> getUsersByCourse(Course c) {return userRepository.findByCoursesCourseId(c.getCourseId());}
+
+    /**
+     *
+     * @param c
+     * @param u
+     */
+    public void deleteCourseFromUser(Course c, User u){
+        userRepository.deleteCourseByCourseId(c.getCourseId(), u.id);
     }
 }

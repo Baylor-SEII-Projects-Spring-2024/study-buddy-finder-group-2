@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-//import java.time.ZonedDateTime;
 
 @Data
 @Entity
@@ -20,6 +19,9 @@ public class Meeting {
     )
     @Column(name = "MEETING_ID")
     Long id;
+
+    @Column(name = "USERNAME")
+    String username;
 
     @Column(name = "TITLE")
     String title;
