@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Button, Card, CardContent, Grid, Typography } from '@mui/material';
+import { Button, Card, CardContent, Grid, Typography, Stack } from '@mui/material';
 import Link from 'next/link';
 import LoginIcon from '@mui/icons-material/Login';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
@@ -50,28 +50,29 @@ export default function HomePage() {
         </div>
 
         <div style={{ width: '50%', backgroundColor: '#339966' }}>
-          <Grid container direction="column" sx={{ height: '100vh' }} alignItems="center" justifyContent="center" spacing={1}>
+          <Grid container alignItems="center" justifyContent="center" style={{ height: '100vh' }}>
             <Grid item>
-              <Card sx={{ maxWidth: 450, boxShadow: 3, backgroundColor: '#ccffcc' }}>
-                <CardContent>
-                  <Typography variant='h4' align='center' gutterBottom>Welcome to Study Buddies!</Typography>
-                  <Typography variant='body1' align='center'>Connect with peers to enhance your learning journey. Please login or register to continue.</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+              <Stack direction="column" spacing={2} alignItems="center">
+                <Card sx={{ maxWidth: 450, boxShadow: 3, backgroundColor: '#ccffcc', mb: 2 }}>
+                  <CardContent>
+                    <Typography variant='h4' align='center' gutterBottom>Welcome to Study Buddies!</Typography>
+                    <Typography variant='body1' align='center'>Connect with peers to enhance your learning journey. Please login or register to continue.</Typography>
+                  </CardContent>
+                </Card>
 
-            <Grid item>
-              <Link href="/login" passHref>
-                <Button variant='contained' style={{ backgroundColor: goldColor, color: '#000', marginBottom: '8px' }} startIcon={<LoginIcon />}>
-                  Login
-                </Button>
-              </Link>
-              <br />
-              <Link href="/registration" passHref>
-                <Button variant='contained' style={{ backgroundColor: goldColor, color: '#000' }} startIcon={<AppRegistrationIcon />}>
-                  Register
-                </Button>
-              </Link>
+                <Stack direction="row" spacing={2}>
+                  <Link href="/login" passHref>
+                    <Button variant='contained' style={{ backgroundColor: goldColor, color: '#000' }} startIcon={<LoginIcon />}>
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/registration" passHref>
+                    <Button variant='contained' style={{ backgroundColor: goldColor, color: '#000' }} startIcon={<AppRegistrationIcon />}>
+                      Register
+                    </Button>
+                  </Link>
+                </Stack>
+              </Stack>
             </Grid>
           </Grid>
         </div>
