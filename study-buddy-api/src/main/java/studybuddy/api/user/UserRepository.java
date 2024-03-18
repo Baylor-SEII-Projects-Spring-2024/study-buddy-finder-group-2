@@ -27,6 +27,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public List<User> findByNameOrUsername(String partialName);
 
     /**
+     * FIXME comments
+     * findByNameStartingWith
+     * This function queries for all the users information with the given
+     * part of the name
+     * @param partialName
+     *
+     * @return List of Users that start with namePrefix
+     *          empty List if no matches
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.user_type = ?2 AND u.user_id IN(SELECT b.user_id FROM users b WHERE b.name LIKE %?1% OR b.username LIKE %?1%)", nativeQuery = true)
+    public List<User> findByNameOrUsernameAndUserType(String partialName, String type);
+
+    /**
      * findByUsernamePassword
      *
      * This function queries for all the user information with the given

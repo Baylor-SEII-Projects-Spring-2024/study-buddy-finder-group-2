@@ -41,6 +41,7 @@ function SearchUsersPage() {
         //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200){
+                    console.log(res.data[0])
                     setUsers(res.data);
                     //fetchUsers(searchStr);
                 }

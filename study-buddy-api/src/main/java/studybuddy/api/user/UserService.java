@@ -25,6 +25,22 @@ public class UserService {
     public List<User> findByNameOrUsername(String partialName){
         return userRepository.findByNameOrUsername(partialName);
     }
+
+    /**
+     * FIXME comments
+     * findByNameStartingWith
+     * This functions uses findByNameStartingWith in JPA
+     *    Repository to query for the user that starts with the given string.
+     *
+     * @param partialName
+     *
+     * @return a List of Users that matches
+     *        empty List if no matches
+     */
+    public List<User> findByNameOrUsernameAndUserType(String partialName, String type){
+        return userRepository.findByNameOrUsernameAndUserType(partialName, type);
+    }
+
     /**
      * findUser
      *
