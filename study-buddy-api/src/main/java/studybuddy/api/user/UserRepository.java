@@ -14,6 +14,7 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
     /**
      * findByNameStartingWith
      * This function queries for all the users information with the given
@@ -24,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      *          empty List if no matches
      */
     @Query(value = "SELECT * FROM users u WHERE u.name LIKE ?1%", nativeQuery = true)
-    List<User> findByNameStartingWith(String namePrefix);
+    public List<User> findByNameStartingWith(String namePrefix);
 
     /**
      * findByUsernamePassword

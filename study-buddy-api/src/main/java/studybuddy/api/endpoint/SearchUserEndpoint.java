@@ -15,14 +15,14 @@ import java.util.Set;
 
 @Log4j2
 @RestController
-
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class SearchUserEndpoint {
 
     @Autowired
     private UserService userService;
 
-    //@CrossOrigin(origins = "http://localhost:3000") // for local testing
-    @CrossOrigin(origins = "http://34.16.169.60:3000")
+
     @RequestMapping (
             value = "/api/searchUsers",
             method = RequestMethod.GET,

@@ -12,6 +12,7 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
     /**
      * findByNameStartingWith
      * This functions uses findByNameStartingWith in JPA
