@@ -12,6 +12,36 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    /**
+     * findByNameOrUsername
+     *
+     * This function queries for all the users information with the given
+     * part of the name or username
+     *
+     * @param partialName
+     *
+     * @return List of Users that contain the partialName in their
+     *         username, first name, or last name
+     *         empty List if no matches
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.firstName LIKE %?1% OR u.lastName LIKE %?1% OR u.username LIKE %?1%", nativeQuery = true)
+    public List<User> findByNameOrUsername(String partialName);
+
+    /**
+     * findByNameOrUsernameAndUserType
+     *
+     * This function queries for all the users information with the given
+     * part of the name or username and the user type
+     *
+     * @param partialName
+     * @param type
+     *
+     * @return List of Users that contain the partialName in their
+     *      *  username, first name, or last name and natches the user type
+     *      *  empty List if no matches
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.user_type = ?2 AND u.user_id IN(SELECT b.user_id FROM users b WHERE b.firstName LIKE %?1% OR b.lastName LIKE %?1% OR b.username LIKE %?1%)", nativeQuery = true)
+    public List<User> findByNameOrUsernameAndUserType(String partialName, String type);
 
     /**
      * findByUsernamePassword
