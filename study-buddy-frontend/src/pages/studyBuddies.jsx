@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 
 
-function SearchUsersPage() {
+function ConnectionsPage() {
     const [username, setUsername] = useState(null);
     //const [firstName, setFirstName] = useState(null);
     //const [lastName, setLastName] = useState(null);
@@ -37,20 +37,6 @@ function SearchUsersPage() {
             searchStr
         }
 
-        // TODO: set error for empty search
-        //Question: do we need error for empty search?
-        axios.post('http://localhost:8080/api/searchUsers', searchWord.searchStr) // for local testing
-            .then((res) => {
-                console.log("entered");
-
-                if(res.status === 200){
-                    setUsers(res.data);
-                    //fetchUsers(searchStr);
-                }
-            })
-            .catch((err) => {
-                console.log(err.value);
-            });
     }
 
     const handleAddConnection = (event) => {
@@ -77,7 +63,6 @@ function SearchUsersPage() {
     //DIALOG 2 (Add connection)
     const [openProfile, setOpenProfile] = React.useState(false);
 
-    // takes in selected meeting to display content of that meeting
     const handleClickOpenProfile = (user) => {
         setSelectedUser(user);
 
