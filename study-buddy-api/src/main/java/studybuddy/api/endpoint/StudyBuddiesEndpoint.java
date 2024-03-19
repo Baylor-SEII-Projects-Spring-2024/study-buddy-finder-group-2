@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import studybuddy.api.meetings.Meeting;
 import studybuddy.api.studyBuddy.StudyBuddy;
 import studybuddy.api.studyBuddy.StudyBuddyService;
 
@@ -17,7 +18,15 @@ import java.util.List;
 public class StudyBuddiesEndpoint {
     @Autowired
     StudyBuddyService studyBuddyService = new StudyBuddyService();
-
+    @RequestMapping(
+            value = "/studyBuddies/{username}",
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<StudyBuddy> createConnectionRequest(@RequestBody StudyBuddy request) {
+        return ResponseEntity.ok(studyBuddyService.save(request));
+    }
     @RequestMapping (
             value = "/studyBuddies/{username}",
             method = RequestMethod.GET,
@@ -28,7 +37,7 @@ public class StudyBuddiesEndpoint {
         return ResponseEntity.ok(studyBuddyService.getStudyBuddies(thisUser));
     }
     @RequestMapping (
-            value = "/studyBuddies/{username}",
+            value = "/studyBuddyRequests/{username}",
             method = RequestMethod.GET,
             consumes = "application/json",
             produces = "application/json"
@@ -37,7 +46,7 @@ public class StudyBuddiesEndpoint {
         return ResponseEntity.ok(studyBuddyService.getStudyBuddyRequests(thisUser));
     }
     @RequestMapping (
-            value = "/studyBuddies/{username}",
+            value = "/studyBuddyRequesters/{username}",
             method = RequestMethod.GET,
             consumes = "application/json",
             produces = "application/json"
@@ -45,4 +54,5 @@ public class StudyBuddiesEndpoint {
     public ResponseEntity<List<String>> getStudyBuddyRequesters(@PathVariable String thisUser){
         return ResponseEntity.ok(studyBuddyService.getStudyBuddyRequesters(thisUser));
     }
+
 }

@@ -2,10 +2,8 @@ package studybuddy.api.studyBuddy;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import studybuddy.api.course.Course;
 
-import java.util.HashSet;
-import java.util.Set;
+
 
 @Data
 @Entity
@@ -22,10 +20,19 @@ public class StudyBuddy {
     @Column(name = "REQUESTER")
     String requester;
 
-    @Column(name = "TO")
-    String to;
+    @Column(name = "RECEIVER")
+    String receiver;
 
-
-
-
+    public StudyBuddy(String requester, String receiver){
+        this.requester = requester;
+        this.receiver = receiver;
+    }
+    public StudyBuddy() {
+    }
+    void setRequester(String requester){
+        this.requester = requester;
+    }
+    void setReceiver(String receiver){
+        this.receiver = receiver;
+    }
 }

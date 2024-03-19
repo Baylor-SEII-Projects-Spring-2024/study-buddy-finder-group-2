@@ -13,25 +13,25 @@ import java.util.List;
 public interface StudyBuddyRepository  extends JpaRepository<StudyBuddy, Long> {
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM studyBuddies WHERE (requester = ?1 AND to = ?2) OR (requester = ?2 AND to = ?1)", nativeQuery = true)
+    @Query(value = "DELETE FROM studyBuddies WHERE (requester = ?1 AND receiver = ?2) OR (requester = ?2 AND receiver = ?1)", nativeQuery = true)
     public void deleteStudyBuddy(String thisUser, String otherUser);
 
 
     @Query(value = "SELECT s1.requester FROM studyBuddies s1 WHERE " +
-            "s1.to = ?1 AND EXISTS (SELECT * FROM studyBuddies s2 WHERE " +
-            "s1.requester = s2.to AND s1.to = s2.requester",
+            "s1.receiver = ?1 AND EXISTS (SELECT * FROM studyBuddies s2 WHERE " +
+            "s1.requester = s2.receiver AND s1.receiver = s2.requester",
             nativeQuery = true)
     public List<String> getStudyBuddies(String thisUser);
 
-    @Query(value = "SELECT s1.requester FROM studyBuddies WHERE s1.to = ?1" +
+    @Query(value = "SELECT s1.requester FROM studyBuddies WHERE s1.receiver = ?1" +
             " AND NOT EXISTS SELECT * FROM studyBuddies s2" +
-            " WHERE s1.requester = s2.to" +
-            " AND s1.to = s2.requester", nativeQuery = true)
+            " WHERE s1.requester = s2.receiver" +
+            " AND s1.receiver = s2.requester", nativeQuery = true)
     public List<String> getStudyBuddyRequesters(String thisUser);
 
-    @Query(value = "SELECT s1.to FROM studyBuddies s1 WHERE NOT EXISTS SELECT " +
-            "* FROM studyBuddies s2 WHERE s1.to = s2.requester AND s1.requester = " +
-            "s2.to", nativeQuery = true)
+    @Query(value = "SELECT s1.receiver FROM studyBuddies s1 WHERE NOT EXISTS SELECT " +
+            "* FROM studyBuddies s2 WHERE s1.receiver = s2.requester AND s1.requester = " +
+            "s2.receiver", nativeQuery = true)
     public List<String> getStudyBuddyRequests(String thisUser);
 
 }
