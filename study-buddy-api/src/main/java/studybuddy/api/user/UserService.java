@@ -12,6 +12,38 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    /**
+     * findByNameOrUsername
+     *
+     * This function queries for all the users information with the given
+     * part of the name or username
+     *
+     * @param partialName
+     *
+     * @return List of Users that contain the partialName in their
+     *         username, first name, or last name
+     *         empty List if no matches
+     */
+    public List<User> findByNameOrUsername(String partialName){
+        return userRepository.findByNameOrUsername(partialName);
+    }
+
+    /**
+     * findByNameOrUsernameAndUserType
+     *
+     * This function queries for all the users information with the given
+     * part of the name or username and the user type
+     *
+     * @param partialName
+     * @param type
+     *
+     * @return List of Users that contain the partialName in their
+     *      *  username, first name, or last name and natches the user type
+     *      *  empty List if no matches
+     */
+    public List<User> findByNameOrUsernameAndUserType(String partialName, String type){
+        return userRepository.findByNameOrUsernameAndUserType(partialName, type);
+    }
 
     /**
      * findByNameStartingWith
