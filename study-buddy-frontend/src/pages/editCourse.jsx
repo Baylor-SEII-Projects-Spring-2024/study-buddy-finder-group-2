@@ -31,19 +31,19 @@ function EditCoursePage() {
         setUsername(name);
         console.log(username);
 
-        //axios.get(`http://34.16.169.60:8080/users/${name}`)
-        axios.get(`http://localhost:8080/users/${name}`)
+        axios.get(`http://34.16.169.60:8080/users/${name}`)
+        //axios.get(`http://localhost:8080/users/${name}`)
             .then((res) => {
                 setUser(res.data);
-                //axios.get(`http://34.16.169.60:8080/api/get-courses-user/${name}`)
-                axios.get(`http://localhost:8080/api/get-courses-user/${name}`)
+                axios.get(`http://34.16.169.60:8080/api/get-courses-user/${name}`)
+                //axios.get(`http://localhost:8080/api/get-courses-user/${name}`)
                     .then((res1) =>{
                         setUsersCourses(res1.data);
                         console.log(name);
                         console.log(res1.data);
                     })
-                //axios.get(`http://34.16.169.60:8080/api/get-all-courses/`)
-                axios.get("http://localhost:8080/api/get-all-courses/")
+                axios.get(`http://34.16.169.60:8080/api/get-all-courses/`)
+                //axios.get("http://localhost:8080/api/get-all-courses/")
                     .then((res2) => {
                         if(res2.data !== null) setCourses(res2.data);
                         else {
@@ -68,8 +68,8 @@ function EditCoursePage() {
     }
 
     const getCourses = () => {
-        //axios.get(`http://34.16.169.60:8080/api/get-all-courses/`)
-        axios.get("http://localhost:8080/api/get-all-courses/")
+        axios.get(`http://34.16.169.60:8080/api/get-all-courses/`)
+        //axios.get("http://localhost:8080/api/get-all-courses/")
             .then((res1) =>{
                 setCourses(res1.data);
             })
