@@ -130,9 +130,9 @@ function EditCoursePage() {
         }
     }
     return (
-        <Box>
+        <Box sx={{ margin: 5 }}>
             <Typography type="h1" variant="h5" id="coursesLabel">Add Courses</Typography>
-            <Button variant="contained" onSubmit={() => backToLanding()}>Back</Button>
+            <Button variant="contained" onClick={() => backToLanding()}>Back</Button>
 
             <Box sx={{ marginTop: 5,
                 display: 'flex',
