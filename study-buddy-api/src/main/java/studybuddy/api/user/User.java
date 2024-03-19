@@ -43,7 +43,7 @@ public class User {
     @Column(name = "USER_TYPE")
     String userType;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
             joinColumns = @JoinColumn(name = "username"),
