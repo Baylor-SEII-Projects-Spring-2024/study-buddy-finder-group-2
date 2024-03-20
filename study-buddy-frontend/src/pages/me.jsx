@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
+import axios from 'axios';
 
 //This is the page that the user themself sees (able to edit and such)
 
-//TODO: Display username, name, courses, links, and a bio
-//TODO: Add a settings panel (dialog)
-//TODO: Use userID instead of username
+//TODO: Display courses, links
 
 function MyInfoPage() {
-  const [text, setText] = useState('');
-  const [realText, setRealText] = useState('');
-  const [username, setUsername] = useState(null);
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [id, setId] = useState(null);
+  const [bio, setBio] = useState('');
+  const [username, setUsername] = useState(null);
 
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
@@ -23,6 +23,16 @@ function MyInfoPage() {
       .catch(error => console.error('Error fetching user:', error));
   };
 
+  const fetchProfile = (user) => {
+    console.log("Profile to fetch for: " + user);
+
+    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
+    fetch(`http://34.16.169.60:8080/profile/${user}`)
+      .then(response => response.json())
+      .then(data => setProfile(data))
+      .catch(error => console.error('Error fetching profile:', error));
+  };
+
   useEffect(() => {
         const params = new URLSearchParams(window.location.search),
         user = params.get("username");
@@ -30,20 +40,36 @@ function MyInfoPage() {
         setUsername(user);
 
         fetchUser(user);
+        fetchProfile(user);
+
+        
     }, []);
 
-  const handleText = (event) =>{
-    //event.preventDefault();
-    //handleSettingsClose();
-    setText(event.target.value);
-    console.log("BIO TEXT: " + event.target.value);
-  }
-
-  const handleSubmit = () =>{
+  const handleSubmit = (event) =>{
+    // prevents page reload
     event.preventDefault();
-    setRealText(text);
+    const data = new FormData(event.currentTarget);
 
-    handleSettingsClose();
+    const profile = {
+        id, username, bio
+    }
+
+    console.log("id: " + id);
+    console.log("username: " + username);
+    console.log("bio: " + bio);
+
+    //axios.put("http://localhost:8080/me", profile) // for local testing
+       axios.post("http://34.16.169.60:8080/me", profile)
+          .then((res) => {
+              if(res.status === 200) {
+                  handleSettingsClose();
+                  fetchProfile(username);
+              }
+          })
+          .catch((err) => {
+              console.log("ERROR UPDATING PROFILE.");
+              console.log(err);
+          });
   }
 
   //DIALOG (Settings)
@@ -51,11 +77,12 @@ function MyInfoPage() {
 
   const handleSettingsOpen = () => {
       setSettingsOpen(true);
+      setId(profile.id);
+        setBio(profile.bio);
   };
 
   const handleSettingsClose = () => {
       setSettingsOpen(false);
-      setText(realText);
   };
 
   return (
@@ -68,7 +95,7 @@ function MyInfoPage() {
         </ Card>
       </Stack>
 
-      {user ? (
+      {user && profile ? (
         <Card sx={{ width: 1200, margin: 'auto', height: 400, marginBottom: '10px'}} elevation={4}>
           <CardContent>
             {/* Name and username */}
@@ -85,7 +112,7 @@ function MyInfoPage() {
             <br />
 
             <Typography variant="body1" style={{ marginLeft: '100px'}}>
-              {realText}
+              {profile.bio}
             </Typography>
           </CardContent>
         </Card>
@@ -120,8 +147,8 @@ function MyInfoPage() {
             type="string"
             fullWidth
             variant="standard"
-            defaultValue={realText}
-            onChange={(e) => setText(e.target.value)}
+            defaultValue={profile?.bio || ''}
+            onChange={(e) => setBio(e.target.value)}
           />
 
         </DialogContent>
