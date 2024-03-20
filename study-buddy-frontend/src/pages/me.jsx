@@ -59,7 +59,7 @@ function MyInfoPage() {
     console.log("bio: " + bio);
 
     //axios.put("http://localhost:8080/me", profile) // for local testing
-       axios.post("http://34.16.169.60:8080/me", profile)
+       axios.put("http://34.16.169.60:8080/me", profile)
           .then((res) => {
               if(res.status === 200) {
                   handleSettingsClose();
