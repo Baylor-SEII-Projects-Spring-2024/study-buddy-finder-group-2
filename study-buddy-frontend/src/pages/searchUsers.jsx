@@ -20,6 +20,7 @@ import {
 
 
 function SearchUsersPage() {
+    const [actualUser, setUser] = useState(null);
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
@@ -270,7 +271,7 @@ function SearchUsersPage() {
                         Connect</Button>
                 </DialogActions>
             </Dialog>
-            =        </div>
+        </div>
     );
 }
 
