@@ -48,6 +48,10 @@ function StudentLandingPage() {
                             <Button variant='contained' color="primary"> View Meetups</Button>
                         </Link>
 
+                        <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
+                            <Button variant='contained' color="primary"> Search Users</Button>
+                        </Link>
+
                         <Link href="/" passHref>
                             <Button variant='contained' color="secondary"> Log Out</Button>
                         </Link>
