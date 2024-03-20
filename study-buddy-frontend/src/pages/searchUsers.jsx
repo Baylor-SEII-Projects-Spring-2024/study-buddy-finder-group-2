@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from "axios";
 
 import {
@@ -20,6 +20,7 @@ import {
 
 
 function SearchUsersPage() {
+    const [actualUser, setUser] = useState(null);
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
@@ -31,6 +32,17 @@ function SearchUsersPage() {
 
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
+
+
+    useEffect( ()  => {
+        const params = new URLSearchParams(window.location.search),
+            name = params.get("username");
+        axios.get(`http://34.16.169.60:8080/users/${name}`)
+        //    axios.get(`http://localhost:8080/users/${name}`)
+            .then((res) => {
+                setUser(res.data);
+            });
+    }, [])
 
     const handleSubmit = (event) => {
         // prevents page reload
@@ -250,7 +262,7 @@ function SearchUsersPage() {
                         Connect</Button>
                 </DialogActions>
             </Dialog>
-            =        </div>
+        </div>
     );
 }
 
