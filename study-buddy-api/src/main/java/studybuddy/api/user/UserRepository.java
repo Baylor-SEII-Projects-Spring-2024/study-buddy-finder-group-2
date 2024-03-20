@@ -72,6 +72,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public Optional<User> findByUsername(String username);
 
     /**
+     * findByUsernameExists
+     *
+     * This function queries if any accounts have the same username
+     *
+     * @param username
+     *
+     * @return user if user with username exists,
+     *         NULL if not
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
+    public User findByUsernameExists(String username);
+
+    /**
      * findByEmail
      *
      * This function queries if any accounts have the same email

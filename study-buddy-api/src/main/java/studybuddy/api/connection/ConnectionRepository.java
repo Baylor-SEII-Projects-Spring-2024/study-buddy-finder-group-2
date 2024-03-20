@@ -38,6 +38,7 @@ public interface ConnectionRepository  extends JpaRepository<Connection, Long> {
             "OR (c.requester = ?2 AND c.requested = ?1)", nativeQuery = true)
     public Optional<Connection> findConnection(String requester, String requested);
 
-    @Query(value = "SELECT * FROM connection c WHERE (c.requester = ?1 OR c.requested = ?1) AND c.isConnected = true", nativeQuery = true)
+    @Query(value = "SELECT * FROM connection c WHERE (c.requester = ?1 OR c.requested = ?1) AND c.is_connected = true", nativeQuery = true)
     public List<Connection> getConnections(String username);
+
 }

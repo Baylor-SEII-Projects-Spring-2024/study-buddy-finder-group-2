@@ -2,7 +2,6 @@ package studybuddy.api.connection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import studybuddy.api.meetings.Meeting;
 
 import java.util.List;
 import java.util.Optional;

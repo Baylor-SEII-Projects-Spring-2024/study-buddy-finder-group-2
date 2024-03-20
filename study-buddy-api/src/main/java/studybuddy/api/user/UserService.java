@@ -89,6 +89,19 @@ public class UserService {
     }
 
     /**
+     * findByUsername
+     *
+     * This function queries if any accounts have the same username
+     *
+     * @param username
+     *
+     * @return user if user with username exists, NULL if not
+     * */
+    public User findByUsernameExists(String username) {
+        return userRepository.findByUsernameExists(username);
+    }
+
+    /**
      * findByEmail
      *
      * This function queries if any accounts have the same email
