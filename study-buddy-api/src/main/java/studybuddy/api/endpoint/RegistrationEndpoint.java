@@ -3,21 +3,16 @@ package studybuddy.api.endpoint;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.school.School;
-import studybuddy.api.school.SchoolRepository;
 import studybuddy.api.school.SchoolService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Log4j2
 @RestController

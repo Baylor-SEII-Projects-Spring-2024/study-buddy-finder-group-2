@@ -2,7 +2,6 @@ package studybuddy.api.course;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import studybuddy.api.school.School;
 import studybuddy.api.user.User;
 
 import java.util.Set;
