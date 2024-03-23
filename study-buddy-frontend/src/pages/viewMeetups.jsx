@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
+import { Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -21,8 +21,8 @@ function MeetupsPage() {
     const [location, setLocation] = useState(null);
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
-    //GET MEETUPS (runs after every render) and set user
     const [meetups, setMeetups] = useState([]);
+    const [courses, setCourses] = useState([]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search),
@@ -30,6 +30,7 @@ function MeetupsPage() {
 
         setUsername(user);
         fetchMeetups(user);
+        fetchCourses();
     }, [])
 
     const fetchMeetups = async (user) => {
@@ -52,6 +53,17 @@ function MeetupsPage() {
           .then(response => response.json())
           .then(data => setMeetups(data))
           .catch(error => console.error('Error fetching meetings:', error));
+    };
+
+    const fetchCourses = () => {
+        fetch(`http://localhost:8080/api/get-all-courses/`)
+        // fetch(`http://localhost:8080/api/get-all-courses/`)
+          .then(response => response.json())
+          .then(data =>{
+            setCourses(Array.from(data))   
+            console.log(data);}
+            )
+          .catch(error => console.error('Error fetching courses:', error));
     };
 
     // CREATE
@@ -116,7 +128,7 @@ function MeetupsPage() {
                   }
               })
               .catch((err) => {
-                  console.log("ERROR UPDATING MEETING. TIMEZONE: " + timezone);
+                  console.log("ERROR UPDATING MEETING.");
                   console.log(err.value);
               });
       }
@@ -146,6 +158,7 @@ function MeetupsPage() {
 
     const handleClickOpen = () => {
         setId(null);
+        setSubject("");
         setOpen(true);
         document.body.style.overflow = 'hidden';
     };
@@ -154,7 +167,6 @@ function MeetupsPage() {
         setOpen(false);
         document.body.style.overflow = 'auto';
     };
-
 
     //DIALOG 2 (EDIT MEETUP)
     const [openEdit, setOpenEdit] = React.useState(false);
@@ -260,19 +272,27 @@ function MeetupsPage() {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-        {/* TODO: MAKE DROPDOWN MENU OF ALL THE USERS COURSES INSTEAD */}
-        <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="subject"
-            name="subject"
-            label="Subject"
-            type="string"
-            fullWidth
-            variant="standard"
+        <FormControl fullWidth required>
+            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
+            <Select
+            labelId="courses"
+            id="dropdown"
+            sx={{ marginTop: '20px' }}
+            value={subject}
             onChange={(e) => setSubject(e.target.value)}
-          />
+            label="Select a Course"
+            >
+
+            {courses.map(course => {
+                return (
+                    <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                    {course.coursePrefix} {course.courseNumber}
+                    </MenuItem>
+                )
+            })}
+
+            </Select>
+        </FormControl>
 
         <DateTimePicker
             label="Date"
@@ -282,7 +302,7 @@ function MeetupsPage() {
             slotProps={{
                 textField: {
                 required: true,
-                style: { marginTop: '10px' }
+                style: { marginTop: '20px' }
                 }
             }}
 
@@ -358,7 +378,7 @@ function MeetupsPage() {
           />
 
         {/* TODO: MAKE DROPDOWN MENU OF ALL THE USERS COURSES INSTEAD */}
-        <TextField
+        {/* <TextField
             autoFocus
             required
             margin="dense"
@@ -370,7 +390,29 @@ function MeetupsPage() {
             variant="standard"
             defaultValue={selectedMeeting?.subject || ''}
             onChange={(e) => setSubject(e.target.value)}
-          />
+          /> */}
+
+        <FormControl fullWidth required>
+            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
+            <Select
+            labelId="courses"
+            id="dropdown"
+            sx={{ marginTop: '20px' }}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            label="Select a Course"
+            >
+
+            {courses.map(course => {
+                return (
+                    <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                    {course.coursePrefix} {course.courseNumber}
+                    </MenuItem>
+                )
+            })}
+
+            </Select>
+        </FormControl>
 
         <DateTimePicker
             label="Date"
