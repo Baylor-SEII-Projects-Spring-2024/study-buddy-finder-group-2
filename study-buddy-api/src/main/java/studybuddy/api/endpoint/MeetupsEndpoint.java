@@ -8,21 +8,30 @@ import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://34.16.169.60:3000")
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
     private MeetingService meetingService;
 
     @GetMapping("/viewMeetups/{username}")
-    public List<Meeting> getMeetups(@PathVariable String username) {
-        return meetingService.findByUsername(username);
+    public List<Meeting> getMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone) {
+        List<Meeting> meetings = meetingService.findByUsername(username);
+
+        // convert each meeting to the users local time
+        ZoneId timeZoneId = ZoneId.of(timeZone);
+        meetings.forEach(meeting -> {
+            meeting.setDate(meeting.getDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+        });
+
+        return meetings;
     }
 
     @RequestMapping(
@@ -46,10 +55,30 @@ public class MeetupsEndpoint {
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<Meeting> updateMeeting(@RequestBody Meeting meeting) {
-        Optional<Meeting> oldMeeting = meetingService.findById(meeting.getId());
+    public ResponseEntity<Meeting> updateMeeting(@RequestBody Meeting meeting, @RequestHeader("timezone") String timeZone) {
+        Optional<Meeting> oldMeetingOpt = meetingService.findById(meeting.getId());
 
-        if(oldMeeting.isPresent()){
+        // check if meeting already exists to update
+        if(oldMeetingOpt.isPresent()){
+            Meeting oldMeeting = oldMeetingOpt.get();
+
+            ZoneId timeZoneUTC = ZoneId.of("UTC");
+            ZoneId timeZoneId = ZoneId.of(timeZone);
+
+            // set timezone of old meeting to new meeting to check against
+            oldMeeting.setDate(oldMeeting.getDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+
+//            System.out.println("OLD: " + oldMeeting.getDate());
+//            System.out.println("NEW: " + meeting.getDate());
+
+            // if user didnt update time then convert the time to UTC
+            // if user did update time then do not convert to UTC
+            if(oldMeeting.getDate().isEqual(meeting.getDate())) {
+                //System.out.println("******BEFORE CONVERT: " + meeting.getDate());
+                meeting.setDate(meeting.getDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+                //System.out.println("AFTER CONVERT: " + meeting.getDate());
+            }
+
             return ResponseEntity.ok(meetingService.save(meeting));
         }
         else{

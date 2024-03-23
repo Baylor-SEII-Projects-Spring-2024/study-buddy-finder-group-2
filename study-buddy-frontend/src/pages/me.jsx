@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
 import axios from 'axios';
+import SettingsIcon from '@mui/icons-material/Settings';
+import Avatar from '@mui/material/Avatar';
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -12,12 +14,13 @@ function MyInfoPage() {
   const [id, setId] = useState(null);
   const [bio, setBio] = useState('');
   const [username, setUsername] = useState(null);
+  const [profilePic, setProfilePic] = useState(null);
 
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/me/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/me/${user}`)
+    fetch(`http://localhost:8080/me/${user}`) // use this for local development
+    //fetch(`http://34.16.169.60:8080/me/${user}`)
       .then(response => response.json())
       .then(data => setUser(data))
       .catch(error => console.error('Error fetching user:', error));
@@ -26,8 +29,8 @@ function MyInfoPage() {
   const fetchProfile = (user) => {
     console.log("Profile to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/profile/${user}`)
+    fetch(`http://localhost:8080/profile/${user}`) // use this for local development
+    //fetch(`http://34.16.169.60:8080/profile/${user}`)
       .then(response => response.json())
       .then(data => setProfile(data))
       .catch(error => console.error('Error fetching profile:', error));
@@ -41,36 +44,31 @@ function MyInfoPage() {
 
         fetchUser(user);
         fetchProfile(user);
-
-        
     }, []);
 
-  const handleSubmit = (event) =>{
-    // prevents page reload
+
+  const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     const profile = {
-        id, username, bio
+      id, username, bio
     }
-
-    console.log("id: " + id);
-    console.log("username: " + username);
-    console.log("bio: " + bio);
-
-    //axios.put("http://localhost:8080/me", profile) // for local testing
-       axios.put("http://34.16.169.60:8080/me", profile)
-          .then((res) => {
-              if(res.status === 200) {
-                  handleSettingsClose();
-                  fetchProfile(username);
-              }
-          })
-          .catch((err) => {
-              console.log("ERROR UPDATING PROFILE.");
-              console.log(err);
-          });
+  
+    axios.put("http://localhost:8080/me", profile)
+      .then((res) => {
+        if (res.status === 200) {
+          handleSettingsClose();
+          fetchProfile(username);
+        }
+      })
+      .catch((err) => {
+        console.log("ERROR UPDATING PROFILE.");
+        console.log(err);
+      });
   }
+  
+
 
   //DIALOG (Settings)
   const [settingsOpen, setSettingsOpen] = React.useState(false);
@@ -78,26 +76,22 @@ function MyInfoPage() {
   const handleSettingsOpen = () => {
       setSettingsOpen(true);
       setId(profile.id);
-        setBio(profile.bio);
+      setBio(profile.bio);
+      setProfilePic(profile.profilePic);
   };
 
   const handleSettingsClose = () => {
       setSettingsOpen(false);
   };
+  
 
   return (
     <div>
-      <Stack sx={{ paddingTop: 4 , paddingBottom: 4}} alignItems='center' gap={2}>
-        <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
-          <CardContent>
-            <Typography variant='h4' align='center'>My Profile</Typography>
-          </CardContent>
-        </ Card>
-      </Stack>
 
       {user && profile ? (
-        <Card sx={{ width: 1200, margin: 'auto', height: 400, marginBottom: '10px'}} elevation={4}>
+        <Card sx={{ width: 1200, margin: 'auto', height: 400, marginTop: '125px', marginBottom: '10px'}} elevation={4}>
           <CardContent>
+
             {/* Name and username */}
             <Grid container alignItems="center">
               <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
@@ -106,7 +100,8 @@ function MyInfoPage() {
               </Grid>
 
               <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px'}}>
-                <Button variant='contained' color="primary" onClick={handleSettingsOpen}>Edit Profile</Button>
+                {/* <Button variant='contained' color="primary" onClick={handleSettingsOpen}>Edit Profile</Button> */}
+                <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
               </Grid>
             </Grid>
             <br />
@@ -118,9 +113,6 @@ function MyInfoPage() {
         </Card>
 
       ) : null}
-
-
-
 
 
 

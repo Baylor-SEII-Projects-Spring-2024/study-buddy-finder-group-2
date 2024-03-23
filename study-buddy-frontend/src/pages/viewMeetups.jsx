@@ -5,11 +5,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import AddIcon from '@mui/icons-material/Add';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 //TODO: Be able to choose people from connections to add to meeting
 //TODO: Bug where user able to input a bit of the date and it goes through
-//TODO: Convert timezones from UTC
-//TODO: Convert from military time to AM/PM
 
 function MeetupsPage() {
     const [id, setId] = useState(null);
@@ -19,7 +19,6 @@ function MeetupsPage() {
     const [subject, setSubject] = useState(null);
     const [date, setDate] = useState(null);
     const [location, setLocation] = useState(null);
-
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
     //GET MEETUPS (runs after every render) and set user
@@ -30,15 +29,26 @@ function MeetupsPage() {
         user = params.get("username");
 
         setUsername(user);
-
         fetchMeetups(user);
     }, [])
 
-    const fetchMeetups = (user) => {
+    const fetchMeetups = async (user) => {
         console.log("User to fetch for: " + user);
 
-        //fetch(`http://localhost:8080/viewMeetups/${user}`) // use this for local development
-         fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
+        // get user local time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+
+        fetch(`http://localhost:8080/viewMeetups/${user}`, {
+            headers: {
+            'timezone': timezone
+            }
+        })
+        // fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        //     headers: {
+        //     'timezone': timezone
+        //     }
+        // })
           .then(response => response.json())
           .then(data => setMeetups(data))
           .catch(error => console.error('Error fetching meetings:', error));
@@ -54,8 +64,8 @@ function MeetupsPage() {
           id, username, title, description, subject, date, location
       }
 
-      //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-         axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+      axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+         //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -68,10 +78,14 @@ function MeetupsPage() {
             });
     }
 
-    const handleSubmitUpdate = (event) => {
+    const handleSubmitUpdate = async (event) => {
         // prevents page reload
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+
+        // get user local time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
 
         const meeting = {
             id, username, title, description, subject, date, location
@@ -85,8 +99,16 @@ function MeetupsPage() {
         console.log("sub: " + subject);
         console.log("location: " + location);
   
-        //axios.put("http://localhost:8080/viewMeetups", meeting) // for local testing
-           axios.put("http://34.16.169.60:8080/viewMeetups", meeting)
+        axios.put("http://localhost:8080/viewMeetups", meeting, {
+            headers: {
+            'timezone': timezone
+            }
+        })
+        // axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        //     headers: {
+        //     'timezone': timezone
+        //     }
+        // })
               .then((res) => {
                   if(res.status === 200) {
                       handleCloseEdit();
@@ -94,7 +116,7 @@ function MeetupsPage() {
                   }
               })
               .catch((err) => {
-                  console.log("ERROR UPDATING MEETING.");
+                  console.log("ERROR UPDATING MEETING. TIMEZONE: " + timezone);
                   console.log(err.value);
               });
       }
@@ -103,8 +125,8 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-      //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+      axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+        //axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -125,10 +147,12 @@ function MeetupsPage() {
     const handleClickOpen = () => {
         setId(null);
         setOpen(true);
+        document.body.style.overflow = 'hidden';
     };
 
     const handleClose = () => {
         setOpen(false);
+        document.body.style.overflow = 'auto';
     };
 
 
@@ -158,7 +182,8 @@ function MeetupsPage() {
         <div>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
-                    <CardContent>
+                    <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <SupervisorAccountIcon sx={{fontSize: 40, marginRight: '10px'}}/>
                         <Typography variant='h4' align='center'>Your Meetups</Typography>
                     </CardContent>
                 </ Card>
@@ -179,7 +204,7 @@ function MeetupsPage() {
                                 <br />
                                 <strong>Subject: </strong> {meetup.subject}
                                 <br />
-                                <strong>Date: </strong> {meetup.date}
+                                <strong>Date: </strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}
                                 <br />
                                 <strong>Location: </strong> {meetup.location}
                                 <br />
@@ -189,7 +214,7 @@ function MeetupsPage() {
                     </Card>
                 ))}
 
-                <Button variant='contained' color="primary" onClick={handleClickOpen}>Create Meetup</Button>
+                <Button  startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
             </Stack>
 
         
@@ -200,6 +225,7 @@ function MeetupsPage() {
                 open={open}
                 onClose={handleClose}
                 component="form" validate="true" onSubmit={handleSubmit}
+                disableScrollLock={true}
             >
         <DialogTitle>Create Meetup</DialogTitle>
         <DialogContent>
@@ -259,6 +285,8 @@ function MeetupsPage() {
                 style: { marginTop: '10px' }
                 }
             }}
+
+            disablePast
         />
 
         <TextField
@@ -291,8 +319,8 @@ function MeetupsPage() {
             <Dialog
             open={openEdit}
             onClose={handleCloseEdit}
-
-             component="form" validate="true" onSubmit={handleSubmitUpdate}
+            component="form" validate="true" onSubmit={handleSubmitUpdate}
+            disableScrollLock={true}
       >
         <DialogTitle>Edit Meetup</DialogTitle>
         <DialogContent>
@@ -356,6 +384,7 @@ function MeetupsPage() {
                 }
             }}
 
+            disablePast
             onChange={(e) => setDate(e)}
         />
 
