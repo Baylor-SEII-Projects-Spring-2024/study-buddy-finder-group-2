@@ -40,6 +40,9 @@ public class User {
     @Column(name = "USER_TYPE")
     String userType;
 
+    @Column(name = "SCHOOL_ID")
+    Long schoolId;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
@@ -47,10 +50,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     Set<Course> courses;
 
-    /*
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id", referencedColumnName = "school_id")
-    School school; */
 
     public void addCourse(Course c){
         if(courses  == null){

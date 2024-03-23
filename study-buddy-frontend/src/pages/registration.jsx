@@ -56,63 +56,64 @@ function RegistrationPage() {
     const USER_REGEX = /^[A-z,0-9]{3,23}$/;
     // handles submission of form
 
-     const submitInfo = (event) => {
-         let right = true;
-         //TODO: verify that username is valid
-         console.log(USER_REGEX.test(username));
-         const verUser = USER_REGEX.test(username) && username !== null;
-         //TODO: verify that password is valid
-         const verPwd = PWD_REGEX.test(password) && password !== null;
-         console.log(PWD_REGEX.test(password));
-         console.log(verPwd);
-         //verify that password is equal to confirm password
-         const verMatch = password === confirmPassword;
+    const submitInfo = (event) => {
+        let right = true;
+        //TODO: verify that username is valid
+        console.log(USER_REGEX.test(username));
+        const verUser = USER_REGEX.test(username) && username !== null;
+        //TODO: verify that password is valid
+        const verPwd = PWD_REGEX.test(password) && password !== null;
+        console.log(PWD_REGEX.test(password));
+        console.log(verPwd);
+        //verify that password is equal to confirm password
+        const verMatch = password === confirmPassword;
 
 
-         setErrFirstName(firstName == null || firstName === '');
-         setErrLastName(lastName === null || lastName === '');
-         setErrSchool(school === null);
-         setErrEmail(emailAddress === null || emailAddress === '');
-         if (school !== null && emailAddress !== null && emailAddress !== '') {
-             console.log(emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length));
-             setErrEmail(emailAddress.length < school.emailDomain.length && emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain);
-         }
-         setErrUserType(userType === null);
-         setErrUser(!verUser);
-         setErrPwd(!verPwd);
-         setErrCPwd(!verMatch);
+        setErrFirstName(firstName == null || firstName === '');
+        setErrLastName(lastName === null || lastName === '');
+        setErrSchool(school === null);
+        setErrEmail(emailAddress === null || emailAddress === '');
+        if (school !== null && emailAddress !== null && emailAddress !== '') {
+            console.log(emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length));
+            setErrEmail(emailAddress.length < school.emailDomain.length && emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain);
+        }
+        setErrUserType(userType === null);
+        setErrUser(!verUser);
+        setErrPwd(!verPwd);
+        setErrCPwd(!verMatch);
 
-         axios.get(`http://34.16.169.60:8080/api/find-username/${username}`)
-         //axios.get(`http://localhost:8080/api/find-username/${username}`)
-             .then(() => {
-                 setErrUser(false);
-             })
-             .catch((res) => {
-                 window.alert("Username already exists! Find a different one");
-                 setErrUser(true);
-                 right = false;
-             })
+        axios.get(`http://34.16.169.60:8080/api/find-username/${username}`)
+            //axios.get(`http://localhost:8080/api/find-username/${username}`)
+            .then(() => {
+                setErrUser(false);
+            })
+            .catch((res) => {
+                window.alert("Username already exists! Find a different one");
+                setErrUser(true);
+                right = false;
+            })
 
-         axios.get(`http://34.16.169.60:8080/api/find-email/${emailAddress}`)
-         //axios.get(`http://localhost:8080/api/find-email/${emailAddress}`)
-             .then(()=>{
-                 setErrEmail(false);
+        axios.get(`http://34.16.169.60:8080/api/find-email/${emailAddress}`)
+            //axios.get(`http://localhost:8080/api/find-email/${emailAddress}`)
+            .then(()=>{
+                setErrEmail(false);
 
-             })
-             .catch((res) => {
-                 window.alert("Email already exists!");
-                 setErrEmail(true);
-                 right = false;
-             })
+            })
+            .catch((res) => {
+                window.alert("Email already exists!");
+                setErrEmail(true);
+                right = false;
+            })
 
-         if(right){
-             handleSubmit();
-         }
-     }
+        if(right){
+            handleSubmit();
+        }
+    }
 
     const registerUser = () => {
+
         const user = {
-            username, password, firstName, lastName, emailAddress, userType//, school
+            username, password, firstName, lastName, emailAddress, userType, schoolId: school ? school.id : null
         }
 
         console.log({
@@ -121,7 +122,6 @@ function RegistrationPage() {
             emailAddress: emailAddress,
             username: username,
             userType: userType,
-            school: school,
             password: password
         });
 
@@ -186,15 +186,16 @@ function RegistrationPage() {
                 <Autocomplete // school selector
                     id="school-select"
                     options={schools}
-                    sx={{ width: 200}}
-                    autoHighlight
                     getOptionLabel={(option) => option.schoolName}
-                    isOptionEqualToValue={(option,value) => option.id === value.id}
-                    onChange={(e,v) => setSchool(v)}
-                    renderOption={(props, option) => (
-                        <Box component="li" sx={{ display: 'flex'}} {...props}>
-                            {option.schoolName}
-                        </Box>
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    onChange={(event, value) => setSchool(value)}  // Store the whole school object
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Choose a School"
+                            error={errSchool}
+                            helperText={errSchool ? 'Please input your school' : ''}
+                        />
                     )}
                     renderInput={(params) => (
                         <TextField
