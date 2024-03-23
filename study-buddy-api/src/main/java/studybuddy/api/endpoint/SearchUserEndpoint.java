@@ -3,10 +3,14 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import studybuddy.api.connection.Connection;
+import studybuddy.api.connection.ConnectionService;
+import studybuddy.api.meetings.Meeting;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Log4j2
@@ -17,6 +21,9 @@ public class SearchUserEndpoint {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ConnectionService connectionService;
 
     @RequestMapping(
             value = "/api/searchUsers",
@@ -32,13 +39,25 @@ public class SearchUserEndpoint {
         }
     }
 
-    /*@RequestMapping(
-            value = "/api/searchUsers/addConnection/{username}",
+    @RequestMapping(
+            value = "/api/searchUsers/addConnection",
             method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<Course> addConnection(@PathVariable String username){
-        return ResponseEntity.ok(userService);
-    }*/
+    public ResponseEntity<Connection> addConnection(@RequestBody Connection connection){
+        Optional<Connection> existingConnection = connectionService.findConnection(connection.getRequester(), connection.getRequested());
+
+        // TODO: something to show user that connection exists (requests??)
+        // TODO: prevent user from connecting with self
+        if(existingConnection.isPresent()) {
+            connection.setId(existingConnection.get().getId());
+            connection.setIsConnected(true);
+            return ResponseEntity.ok(connectionService.saveConnection(connection));
+        }
+        else {
+
+            return ResponseEntity.ok(connectionService.saveConnection(connection));
+        }
+    }
 }

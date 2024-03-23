@@ -1,26 +1,15 @@
-import React, {useEffect, useState} from 'react';
-import axios from "axios";
-
+import React, {useEffect, useState} from "react";
 import {
-    Box,
-    Button,
+    Box, Button,
     Card,
-    CardContent,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle, FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
+    CardContent, Dialog, DialogActions, DialogContent, DialogTitle,
     Stack,
-    TextField,
     Typography
 } from "@mui/material";
 
+function viewConnectionsPage() {
+    const [thisUser, setThisUser] = useState(null);
 
-function SearchUsersPage() {
-    const [actualUser, setUser] = useState(null);
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
@@ -31,21 +20,30 @@ function SearchUsersPage() {
     const [searchStr, setStr] = useState(null);
 
     const [users, setUsers] = useState([]);
+    const [connections, setConnections] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const [requester, setRequester] = useState(null);
-    const [requested, setRequested] = useState(null);
-    const [isConnected, setIsConnected] = useState(null);
 
     // get the user's username
     useEffect(() => {
         const params = new URLSearchParams(window.location.search),
             user = params.get("username");
 
-        setRequester(user);
+        setThisUser(user);
+        fetchConnections(user);
     }, [])
 
-    const handleSubmit = (event) => {
+    const fetchConnections = (user) => {
+        console.log("User to fetch for: " + user);
+
+        //fetch(`http://localhost:8080/viewConnections/${user}`) // use this for local development
+        fetch(`http://34.16.169.60:8080/viewConnections/${user}`)
+            .then(res => res.json())
+            .then(data => setUsers(data))
+            .catch(error => console.error('Error fetching connections:', error));
+    };
+
+    /*const handleSubmit = (event) => {
         // prevents page reload
         event.preventDefault();
 
@@ -54,11 +52,10 @@ function SearchUsersPage() {
         }
 
         // TODO: set error for empty search
-        //axios.post("http://localhost:8080/api/searchUsers", user) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers", user)
+        axios.post("http://localhost:8080/api/viewConnections", thisUser) // for local testing
+            //axios.get("http://34.16.169.60:8080/api/viewConnections", thisUser)
             .then((res) => {
-                console.log(user.firstName)
-                console.log(user.lastName)
+                console.log(thisUser + "'s connections")
 
                 if(res.status === 200){
                     console.log(res.data[0])
@@ -69,42 +66,10 @@ function SearchUsersPage() {
             .catch((err) => {
                 console.log(err.value);
             });
-    }
+    }*/
 
-    // TODO: note that a connection exists (is there a way to change the UI accordingly??)
-    const handleAddConnection = (event) => {
-        // prevents page reload
-        event.preventDefault();
-
-        const connection = {
-            requester, requested, isConnected
-        }
-        console.log(connection.requester);
-        console.log(connection.requested);
-
-        //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
-            .then((res) => {
-                console.log("CONNECTION ADDED.");
-                if(res.status === 200) {
-                    handleCloseProfile();
-                }
-            })
-            .catch((err) => {
-                console.log("ERROR ADDING CONNECTION.");
-                console.log(err.value);
-            });
-    }
-
-    const handleSetConnection = () => {
-        setRequested(selectedUser.username);
-        setIsConnected(false);
-    }
-
-    //DIALOG (Add connection)
     const [openProfile, setOpenProfile] = React.useState(false);
 
-    // takes in selected user to display profile
     const handleClickOpenProfile = (user) => {
         setSelectedUser(user);
 
@@ -132,64 +97,14 @@ function SearchUsersPage() {
         setSchool(null);
     };
 
-    // get the string the to search with
-    const handleSearch = (str) => {
-        setStr(str);
-
-        setFirstName(str);
-        setLastName(str);
-        setUsername(str);
-    };
-
     return (
         <div>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
                     <CardContent>
-                        <Typography variant='h4' align='center'>Search Users</Typography>
+                        <Typography variant='h4' align='center'>Your Connections</Typography>
                     </CardContent>
                 </ Card>
-
-                {/* this is the search area, submits a form */}
-                <Box component="form" noValidate onSubmit={handleSubmit}
-                     sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
-                    <Stack spacing={4} direction="row" justifyContent="center">
-                        {/* get search string for name and username */}
-                        <TextField
-                            required
-                            id="search"
-                            name="search"
-                            label="Name or Username"
-                            variant="outlined"
-                            onChange={(e) => handleSearch(e.target.value)}
-                        />
-
-                        {/* get requested user type (none, student, tutor) */}
-                        <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-                            <InputLabel required id="userType">User Type</InputLabel>
-                            <Select
-                                labelId="select userType"
-                                id="select userType"
-                                label="userType"
-                                onChange={(e) => setType(e.target.value)}
-                            >
-                                <MenuItem value={null}>
-                                    <em>None</em>
-                                </MenuItem>
-                                <MenuItem value={"student"}>Student</MenuItem>
-                                <MenuItem value={"tutor"}>Tutor</MenuItem>
-                            </Select>
-                        </FormControl>
-
-                        {/* submit the search form to get results */}
-                        <Button
-                            variant='contained'
-                            color="primary"
-                            type="submit"
-                        >
-                            Search</Button>
-                    </Stack>
-                </Box>
 
                 {/* display all matches on separate cards */}
                 {users.map((user, index) => (
@@ -241,7 +156,6 @@ function SearchUsersPage() {
                 fullWidth
                 component="form"
                 validate="true"
-                onSubmit={handleAddConnection}
             >
                 <DialogTitle variant='s2'>{firstName + " " + lastName}'s Profile</DialogTitle>
                 <DialogContent>
@@ -261,18 +175,11 @@ function SearchUsersPage() {
                         color="error"
                         onClick={handleCloseProfile}
                     >
-                        Cancel</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        onClick={handleSetConnection}
-                    >
-                        Connect</Button>
+                        Back</Button>
                 </DialogActions>
             </Dialog>
-        </div>
+            =        </div>
     );
 }
 
-export default SearchUsersPage;
+export default viewConnectionsPage;
