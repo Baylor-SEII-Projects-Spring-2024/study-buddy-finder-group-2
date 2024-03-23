@@ -6,6 +6,7 @@ import {
     Stack,
     Typography
 } from "@mui/material";
+import axios from "axios";
 
 function viewConnectionsPage() {
     const [thisUser, setThisUser] = useState(null);
@@ -23,6 +24,8 @@ function viewConnectionsPage() {
     const [connections, setConnections] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
+    const [selectedConnection, setSelectedConnection] = useState();
+    const [id, setId] = useState(null);
 
     // get the user's username
     useEffect(() => {
@@ -36,11 +39,28 @@ function viewConnectionsPage() {
     const fetchConnections = (user) => {
         console.log("User to fetch for: " + user);
 
-        //fetch(`http://localhost:8080/viewConnections/${user}`) // use this for local development
-        fetch(`http://34.16.169.60:8080/viewConnections/${user}`)
+        fetch(`http://localhost:8080/viewConnections/${user}`) // use this for local development
+        //fetch(`http://34.16.169.60:8080/viewConnections/${user}`)
             .then(res => res.json())
             .then(data => setUsers(data))
             .catch(error => console.error('Error fetching connections:', error));
+    };
+
+    const deleteConnection = (event) => {
+        event.preventDefault();
+
+        axios.delete(`http://localhost:8080/viewConnections/${selectedConnection?.id}`) // for local testing
+        //axios.delete(`http://34.16.169.60:8080/viewConnections/${selectedConnection?.id}`)
+            .then((res) => {
+                if(res.status === 200) {
+                    handleCloseProfile();
+                    fetchConnections(thisUser);
+                }
+            })
+            .catch((err) => {
+                console.log("ERROR DELETING CONNECTION.");
+                console.log(err);
+            });
     };
 
     /*const handleSubmit = (event) => {
@@ -95,6 +115,8 @@ function viewConnectionsPage() {
         setEmail(null);
         setType(null);
         setSchool(null);
+
+        setSelectedConnection(null);
     };
 
     return (
@@ -176,6 +198,12 @@ function viewConnectionsPage() {
                         onClick={handleCloseProfile}
                     >
                         Back</Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={deleteConnection}
+                    >
+                        Remove</Button>
                 </DialogActions>
             </Dialog>
             =        </div>

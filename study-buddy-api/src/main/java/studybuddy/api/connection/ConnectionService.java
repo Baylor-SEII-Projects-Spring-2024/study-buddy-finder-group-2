@@ -10,28 +10,30 @@ import java.util.Optional;
 public class ConnectionService {
     @Autowired
     ConnectionRepository connectionRepository;
-    public void deleteStudyBuddy(String thisUser, String otherUser){
-        connectionRepository.deleteStudyBuddy(thisUser,otherUser);
+    public void deleteConnection(String thisUser, String otherUser){
+        connectionRepository.deleteConnection(thisUser,otherUser);
     }
 
-    public List<String> getStudyBuddies(String thisUser){
-        return connectionRepository.getStudyBuddies(thisUser);
-    }
-
-    public List<String> getStudyBuddyRequesters(String thisUser){
-        return connectionRepository.getStudyBuddyRequesters(thisUser);
-    }
-
-    public List<String> getStudyBuddyRequests(String thisUser){
-        return connectionRepository.getStudyBuddyRequests(thisUser);
+    public void delete(Long id){
+        connectionRepository.deleteById(id);
     }
 
     public Connection saveConnection(Connection connection) {
-        return connectionRepository.save(connection);
+        // only save connection if it is not between the user and herself
+        if(!connection.getRequester().equals(connection.getRequested())) {
+            return connectionRepository.save(connection);
+        }
+        else {
+            return connection;
+        }
     }
 
     public Optional<Connection> findConnection(String requester, String requested) {
         return connectionRepository.findConnection(requester, requested);
+    }
+
+    public Connection getConnection(String requester, String requested) {
+        return connectionRepository.getConnection(requester, requested);
     }
 
     public List<Connection> getConnections(String username) {

@@ -20,7 +20,6 @@ import {
 
 
 function SearchUsersPage() {
-    const [actualUser, setUser] = useState(null);
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
@@ -33,9 +32,11 @@ function SearchUsersPage() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
+    const [id, setId] = useState(null);
     const [requester, setRequester] = useState(null);
     const [requested, setRequested] = useState(null);
     const [isConnected, setIsConnected] = useState(null);
+    const [selectedConnection, setSelectedConnection] = useState(null);
 
     // get the user's username
     useEffect(() => {
@@ -52,27 +53,23 @@ function SearchUsersPage() {
         const user = {
             username, firstName, lastName, emailAddress, userType, school
         }
+        console.log(requester);
 
-        // TODO: set error for empty search
-        //axios.post("http://localhost:8080/api/searchUsers", user) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers", user)
+        axios.post(`http://localhost:8080/api/searchUsers/${requester}`, user) // for local testing
+        //axios.post(`http://34.16.169.60:8080/api/searchUsers/${requester}`, user)
             .then((res) => {
-                console.log(user.firstName)
-                console.log(user.lastName)
-
                 if(res.status === 200){
-                    console.log(res.data[0])
+                    console.log(res.data[0]);
                     setUsers(res.data);
-                    //fetchUsers(searchStr);
                 }
             })
             .catch((err) => {
-                console.log(err.value);
+                console.log(err);
             });
     }
 
     // TODO: note that a connection exists (is there a way to change the UI accordingly??)
-    const handleAddConnection = (event) => {
+    const handleConnection = (event) => {
         // prevents page reload
         event.preventDefault();
 
@@ -81,28 +78,49 @@ function SearchUsersPage() {
         }
         console.log(connection.requester);
         console.log(connection.requested);
+        console.log(selectedConnection.id);
 
-        //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
-            .then((res) => {
-                console.log("CONNECTION ADDED.");
-                if(res.status === 200) {
-                    handleCloseProfile();
-                }
-            })
-            .catch((err) => {
-                console.log("ERROR ADDING CONNECTION.");
-                console.log(err.value);
-            });
+
+        if(isConnected) {
+            axios.delete(`http://localhost:8080/api/searchUsers/deleteConnection/${selectedConnection?.id}`)
+            //axios.delete(`http://34.16.169.60:8080/api/searchUsers/deleteConnection/${selectedConnection?.id}`)
+                .then((res) => {
+                    if(res.status === 200) {
+                        handleCloseProfile();
+                    }
+                })
+                .catch((err) => {
+                    console.log("ERROR DELETING CONNECTION.");
+                    console.log(err);
+                });
+        }
+        else {
+            axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
+                //axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
+                .then((res) => {
+                    console.log("CONNECTION ADDED.");
+                    if(res.status === 200) {
+                        handleCloseProfile();
+                    }
+                })
+                .catch((err) => {
+                    console.log("ERROR ADDING CONNECTION.");
+                    console.log(err.value);
+                });
+        }
     }
 
     const handleSetConnection = () => {
-        setRequested(selectedUser.username);
-        setIsConnected(false);
+        if(!isConnected) {
+            setRequested(selectedUser.username);
+            setIsConnected(false);
+        }
     }
 
     //DIALOG (Add connection)
-    const [openProfile, setOpenProfile] = React.useState(false);
+    const [openProfile, setOpenProfile] = useState(false);
+    const [text, setText] = useState("Connect");
+    //document.getElementById("connection")
 
     // takes in selected user to display profile
     const handleClickOpenProfile = (user) => {
@@ -115,6 +133,24 @@ function SearchUsersPage() {
         setEmail(user.emailAddress);
         setType(user.userType);
         setSchool(user.school);
+
+        // set connection
+        axios.post(`http://localhost:8080/searchUsers/getConnection/${requester}`, user.username)
+        //axios.post(`http://34.16.169.60:8080/searchUsers/getConnection/${requester}`, username)
+            .then((res) => {
+                setSelectedConnection(res.data);
+                setIsConnected(res.data.isConnected);
+                setId(res.data.id);
+
+                if(res.data.isConnected) {
+                    setText("Disconnect");
+                }
+
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.error('Error getting connection:', err)
+            });
 
         setOpenProfile(true);
     };
@@ -130,6 +166,10 @@ function SearchUsersPage() {
         setEmail(null);
         setType(null);
         setSchool(null);
+
+        setSelectedConnection(null);
+        setIsConnected(false);
+        setText("Connect");
     };
 
     // get the string the to search with
@@ -213,7 +253,7 @@ function SearchUsersPage() {
                                     {/* view the profile of that user */}
                                     <Button
                                         variant='contained'
-                                        color="primary"
+                                        color= "primary"
                                         size="small"
                                         onClick={() => handleClickOpenProfile(user)}
                                     >
@@ -241,7 +281,7 @@ function SearchUsersPage() {
                 fullWidth
                 component="form"
                 validate="true"
-                onSubmit={handleAddConnection}
+                onSubmit={handleConnection}
             >
                 <DialogTitle variant='s2'>{firstName + " " + lastName}'s Profile</DialogTitle>
                 <DialogContent>
@@ -263,12 +303,15 @@ function SearchUsersPage() {
                     >
                         Cancel</Button>
                     <Button
+                        id="connection"
                         variant="contained"
-                        color="primary"
+                        sx={{
+                            backgroundColor: isConnected ? 'purple' : 'light blue',
+                        }}
                         type="submit"
                         onClick={handleSetConnection}
                     >
-                        Connect</Button>
+                        {text}</Button>
                 </DialogActions>
             </Dialog>
         </div>
