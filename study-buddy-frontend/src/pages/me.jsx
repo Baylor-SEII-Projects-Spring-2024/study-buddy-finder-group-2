@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
-import Avatar from '@mui/material/Avatar';
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -19,8 +18,8 @@ function MyInfoPage() {
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
-    fetch(`http://localhost:8080/me/${user}`) // use this for local development
-    //fetch(`http://34.16.169.60:8080/me/${user}`)
+    //fetch(`http://localhost:8080/me/${user}`) // use this for local development
+    fetch(`http://34.16.169.60:8080/me/${user}`)
       .then(response => response.json())
       .then(data => setUser(data))
       .catch(error => console.error('Error fetching user:', error));
@@ -29,8 +28,8 @@ function MyInfoPage() {
   const fetchProfile = (user) => {
     console.log("Profile to fetch for: " + user);
 
-    fetch(`http://localhost:8080/profile/${user}`) // use this for local development
-    //fetch(`http://34.16.169.60:8080/profile/${user}`)
+    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
+    fetch(`http://34.16.169.60:8080/profile/${user}`)
       .then(response => response.json())
       .then(data => setProfile(data))
       .catch(error => console.error('Error fetching profile:', error));
@@ -55,7 +54,8 @@ function MyInfoPage() {
       id, username, bio
     }
   
-    axios.put("http://localhost:8080/me", profile)
+    //axios.put("http://localhost:8080/me", profile)
+    axios.put("http://34.16.169.60:8080/me", profile)
       .then((res) => {
         if (res.status === 200) {
           handleSettingsClose();
