@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import studybuddy.api.course.Course;
 
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +83,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
     public Optional<User> findByUsername(String username);
+
+    /**
+     * findByUsernameExists
+     *
+     * This function queries if any accounts have the same username
+     *
+     * @param username
+     *
+     * @return user if user with username exists,
+     *         NULL if not
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
+    public User findByUsernameExists(String username);
 
     /**
      * findByEmail

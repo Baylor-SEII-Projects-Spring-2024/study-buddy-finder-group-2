@@ -2,12 +2,9 @@ package studybuddy.api.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.Cascade;
 import studybuddy.api.course.Course;
-import studybuddy.api.school.School;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -43,7 +40,7 @@ public class User {
     @Column(name = "USER_TYPE")
     String userType;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
             joinColumns = @JoinColumn(name = "username"),

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from "axios";
 
 import {
@@ -13,6 +13,7 @@ import {
 
 
 function SearchUsersPage() {
+    const [actualUser, setUser] = useState(null);
     const [username, setUsername] = useState(null);
     //const [firstName, setFirstName] = useState(null);
     //const [lastName, setLastName] = useState(null);
@@ -24,6 +25,18 @@ function SearchUsersPage() {
     const [users, setUsers] = useState([]);
     const [searchStr, setSearchStr] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
+
+    const [requester, setRequester] = useState(null);
+    const [requested, setRequested] = useState(null);
+    const [isConnected, setIsConnected] = useState(null);
+
+    // get the user's username
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search),
+            user = params.get("username");
+
+        setRequester(user);
+    }, [])
 
     const handleSubmit = (event) => {
         // prevents page reload
@@ -53,17 +66,21 @@ function SearchUsersPage() {
             });
     }
 
+
     const handleAddConnection = (event) => {
         // prevents page reload
         event.preventDefault();
 
-        const user = {
-            username, name
+        const connection = {
+            requester, requested, isConnected
         }
+        console.log(connection.requester);
+        console.log(connection.requested);
 
-        axios.post(`http://localhost:8080/api/searchUsers/addConnection/${username}`, selectedUser) // for local testing
-            //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
+        axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
             .then((res) => {
+                console.log("CONNECTION ADDED.");
                 if(res.status === 200) {
                     handleCloseProfile();
                 }
@@ -74,7 +91,12 @@ function SearchUsersPage() {
             });
     }
 
-    //DIALOG 2 (Add connection)
+    const handleSetConnection = () => {
+        setRequested(selectedUser.username);
+        setIsConnected(false);
+    }
+
+    //DIALOG (Add connection)
     const [openProfile, setOpenProfile] = React.useState(false);
 
     // takes in selected meeting to display content of that meeting
@@ -157,6 +179,7 @@ function SearchUsersPage() {
                 fullWidth="md"
                 component="form"
                 validate="true"
+                onSubmit={handleAddConnection}
             >
                 <DialogTitle variant='s2'>{name}'s Profile</DialogTitle>
                 <DialogContent>
@@ -181,12 +204,11 @@ function SearchUsersPage() {
                         variant="contained"
                         color="primary"
                         type="submit"
-                        onSubmit={handleAddConnection}
+
                     >
                         Connect</Button>
                 </DialogActions>
             </Dialog>
-=        </div>
     );
 }
 
