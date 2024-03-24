@@ -13,6 +13,7 @@ import studybuddy.api.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @RestController
@@ -45,10 +46,10 @@ public class viewConnectionsEndpoint {
         }
 
         for(String u : conUsernames) {
-            User conUser = userService.findByUsernameExists(u);
+            Optional<User> conUser = userService.findByUsername(u);
 
             if(conUser != null) {
-                conUsers.add(conUser);
+                conUsers.add(conUser.get());
             }
         }
         return conUsers;
