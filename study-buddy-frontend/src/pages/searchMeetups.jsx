@@ -24,15 +24,19 @@ function SearchMeetupsPage() {
   const [username, setUsername] = useState(null);
   const [title, setTitle] = useState(null);
   const [description, setDescription] = useState(null);
-  const [subject, setSubject] = useState(null);
+  const [course, setCourse] = useState(null);
   const [date, setDate] = useState(null);
   const [location, setLocation] = useState(null);
+
   const [meetups, setMeetups] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   // get the user's username
   useEffect(() => {
     const params = new URLSearchParams(window.location.search),
         user = params.get("username");
+
+        //fetchCourses();
 
         // setRequester(user);
     }, [])
@@ -42,16 +46,26 @@ function SearchMeetupsPage() {
         setStr(str);
 
         setTitle(str);
-        // setLastName(str);
-        // setUsername(str);
+        //setCourse(str);
     };
+
+    // const fetchCourses = () => {
+    //     fetch(`http://localhost:8080/api/get-all-courses/`)
+    //     // fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+    //       .then(response => response.json())
+    //       .then(data =>{
+    //         setCourses(Array.from(data))   
+    //         console.log(data);}
+    //         )
+    //       .catch(error => console.error('Error fetching courses:', error));
+    // };
 
   const handleSubmit = (event) => {
     // prevents page reload
     event.preventDefault();
 
     const meetup = {
-        username, title, description, subject, date, location
+        username, title, description, course, date, location
     }
 
     // TODO: set error for empty search
@@ -98,7 +112,7 @@ function SearchMeetupsPage() {
                         />
 
                         {/* select course*/}
-                        {/* <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
+                        <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
                             <InputLabel required id="userType">User Type</InputLabel>
                             <Select
                                 labelId="select userType"
@@ -112,7 +126,7 @@ function SearchMeetupsPage() {
                                 <MenuItem value={"student"}>Student</MenuItem>
                                 <MenuItem value={"tutor"}>Tutor</MenuItem>
                             </Select>
-                        </FormControl> */}
+                        </FormControl>
 
                         {/* submit the search form to get results */}
                         <Button
@@ -126,12 +140,12 @@ function SearchMeetupsPage() {
 
                             
                 {meetups.map((meetup, index) => (
-                        <Card key={index} sx={{ marginBottom: 2 }} elevation={6}>
+                        <Card key={index} sx={{ marginBottom: 2, width: 500}} elevation={6}>
                             <CardContent>
                                 <Typography><strong>Title:</strong> {meetup.title}</Typography>
-                                <Typography><strong>Username:</strong> {meetup.username}</Typography>
+                                <Typography><strong>User:</strong> {meetup.username}</Typography>
                                 <Typography><strong>Description:</strong> {meetup.description}</Typography>
-                                <Typography><strong>Subject:</strong> {meetup.subject}</Typography>
+                                <Typography><strong>Course:</strong> {meetup.subject}</Typography>
                                 <Typography><strong>Date:</strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}</Typography>
                                 <Typography><strong>Location:</strong> {meetup.location}</Typography>
                                 {/* <Button variant='contained' color="primary" size="small" onClick={() => handleClickOpenProfile(user)}>
