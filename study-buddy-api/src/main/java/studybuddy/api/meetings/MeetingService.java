@@ -32,4 +32,8 @@ public class MeetingService {
     public List<Meeting> findByTitle(String title){
         return meetingRepository.findByTitle(title);
     }
+
+    public List<Meeting> findByTitleAndCourse(String title, String course){
+        return meetingRepository.findByTitleAndCourse(title, course);
+    }
 }

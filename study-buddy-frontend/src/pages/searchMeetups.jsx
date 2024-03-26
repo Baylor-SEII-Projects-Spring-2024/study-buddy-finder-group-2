@@ -22,9 +22,9 @@ import {
 function SearchMeetupsPage() {
   const [searchStr, setStr] = useState(null);
   const [username, setUsername] = useState(null);
-  const [title, setTitle] = useState(null);
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState(null);
-  const [course, setCourse] = useState(null);
+  const [subject, setSubject] = useState('');
   const [date, setDate] = useState(null);
   const [location, setLocation] = useState(null);
 
@@ -36,49 +36,47 @@ function SearchMeetupsPage() {
     const params = new URLSearchParams(window.location.search),
         user = params.get("username");
 
-        //fetchCourses();
-
-        // setRequester(user);
+        fetchCourses();
     }, [])
 
     // get the string the to search with
     const handleSearch = (str) => {
         setStr(str);
-
         setTitle(str);
-        //setCourse(str);
     };
 
-    // const fetchCourses = () => {
-    //     fetch(`http://localhost:8080/api/get-all-courses/`)
-    //     // fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-    //       .then(response => response.json())
-    //       .then(data =>{
-    //         setCourses(Array.from(data))   
-    //         console.log(data);}
-    //         )
-    //       .catch(error => console.error('Error fetching courses:', error));
-    // };
+    const fetchCourses = () => {
+        //fetch(`http://localhost:8080/api/get-all-courses/`)
+        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+          .then(response => response.json())
+          .then(data =>{
+            setCourses(Array.from(data))   
+            console.log(data);}
+            )
+          .catch(error => console.error('Error fetching courses:', error));
+    };
 
   const handleSubmit = (event) => {
     // prevents page reload
     event.preventDefault();
 
     const meetup = {
-        username, title, description, course, date, location
+        username, title, description, subject, date, location
     }
 
+    console.log("TITLEEEEEE: " + title);
+    console.log("COURSEEEEE: " + subject);
+
     // TODO: set error for empty search
-    axios.post("http://localhost:8080/api/searchMeetups", meetup) // for local testing
-    //axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup)
+    //axios.post("http://localhost:8080/api/searchMeetups", meetup) // for local testing
+    axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup)
         .then((res) => {
             console.log(meetup.title)
-            console.log(meetup.username)
+            console.log(meetup.subject)
 
             if(res.status === 200){
                 console.log(res.data[0])
                 setMeetups(res.data);
-                //fetchUsers(searchStr);
             }
         })
         .catch((err) => {
@@ -101,7 +99,7 @@ function SearchMeetupsPage() {
             <Box component="form" noValidate onSubmit={handleSubmit}
                      sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
                     <Stack spacing={4} direction="row" justifyContent="center">
-                        {/* get search string for meetup name*/}
+                        {/* search title */}
                         <TextField
                             required
                             id="search"
@@ -113,18 +111,22 @@ function SearchMeetupsPage() {
 
                         {/* select course*/}
                         <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-                            <InputLabel required id="userType">User Type</InputLabel>
+                            <InputLabel required id="courseType">Course</InputLabel>
                             <Select
-                                labelId="select userType"
-                                id="select userType"
-                                label="userType"
-                                onChange={(e) => setType(e.target.value)}
+                                labelId="select course"
+                                id="select course"
+                                label="courseType"
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
                             >
-                                <MenuItem value={null}>
-                                    <em>None</em>
-                                </MenuItem>
-                                <MenuItem value={"student"}>Student</MenuItem>
-                                <MenuItem value={"tutor"}>Tutor</MenuItem>
+                                <MenuItem value=''><em>None</em></MenuItem>
+                                {courses.map(course => {
+                                    return (
+                                        <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                                        {course.coursePrefix} {course.courseNumber}
+                                        </MenuItem>
+                                    )
+                                })}
                             </Select>
                         </FormControl>
 
@@ -137,8 +139,8 @@ function SearchMeetupsPage() {
                             Search</Button>
                     </Stack>
                 </Box>
-
-                            
+          
+                {/* Display meetup results */}
                 {meetups.map((meetup, index) => (
                         <Card key={index} sx={{ marginBottom: 2, width: 500}} elevation={6}>
                             <CardContent>
