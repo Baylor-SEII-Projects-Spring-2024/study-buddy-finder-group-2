@@ -30,7 +30,7 @@ public class RatingsEndpoint {
     private UserService userService;
 
     @RequestMapping(
-            value = "/makeRating/",
+            value = "/makeRating",
             method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json"
@@ -57,8 +57,15 @@ public class RatingsEndpoint {
     }
 
     @GetMapping("/viewMadeRatings/{username}")
-    public List<User> fetchMyRatings(@PathVariable String username) {
-        User ratingUser = userService.findByUsernameExists(username);
+    public ResponseEntity<List<User>> fetchMyRatings(@PathVariable String username) {
+        User ratingUser = userService.findByUsername(username).orElse(null);
+        System.out.println("finding " + username);
+        if (ratingUser == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
+
+
         List<Rating> ratings = ratingService.getMyRatings(ratingUser);
         List<User> rateUsers = new ArrayList<>();
         for(Rating r : ratings) {
@@ -72,12 +79,17 @@ public class RatingsEndpoint {
             rateUsers.add(r.getRatedUser());
 
         }
-        return rateUsers;
+        return ResponseEntity.ok(rateUsers);
     }
 
     @GetMapping("/viewRatingsForMe/{username}")
-    public List<User> fetchRatingsForMe(@PathVariable String username) {
-        User ratedUser = userService.findByUsernameExists(username);
+    public ResponseEntity<List<User>> fetchRatingsForMe(@PathVariable String username) {
+        User ratedUser = userService.findByUsername(username).orElse(null);
+        System.out.println("finding " + username);
+        if (ratedUser == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
         List<Rating> ratings = ratingService.getMyRatings(ratedUser);
         List<User> rateUsers = new ArrayList<>();
 
@@ -92,7 +104,7 @@ public class RatingsEndpoint {
 
             rateUsers.add(r.getRatingUser());
         }
-        return rateUsers;
+        return ResponseEntity.ok(rateUsers);
     }
 
     @DeleteMapping("/viewMadeRatings/{id}")

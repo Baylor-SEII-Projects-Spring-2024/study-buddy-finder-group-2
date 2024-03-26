@@ -9,7 +9,9 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = User.TABLE_NAME)
+@Table(name = User.TABLE_NAME,
+        indexes = {@Index(name = "idx_username", columnList = "USERNAME"),
+        @Index(name = "idx_id", columnList = "USER_ID")})
 public class User {
     public static final String TABLE_NAME = "USERS";
 
