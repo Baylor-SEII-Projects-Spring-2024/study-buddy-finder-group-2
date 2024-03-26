@@ -18,8 +18,8 @@ public class RecommendationEndpoint {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/api/recommendations")
-    public ResponseEntity<List<User>> recommendUsers(@RequestParam String username) {
+    @GetMapping("/api/recommendations/{username}")
+    public ResponseEntity<List<User>> recommendUsers(@PathVariable String username) {
         System.out.println("Recommendations for user: " + username);
         User loggedInUser = userService.findByUsername(username).get();
         List<User> recommendedUsers = userService.recommendUsersForUser(loggedInUser.getId());

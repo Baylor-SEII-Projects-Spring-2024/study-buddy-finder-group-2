@@ -43,20 +43,17 @@ function viewConnectionsPage() {
             .catch(error => console.error('Error fetching connections:', error));
     };
 
-    /*const handleSubmit = (event) => {
+    const handleSubmit = (event) => {
         // prevents page reload
         event.preventDefault();
-
         const user = {
             username, firstName, lastName, emailAddress, userType, school
         }
-
         // TODO: set error for empty search
-        axios.post("http://localhost:8080/api/viewConnections", thisUser) // for local testing
-            //axios.get("http://34.16.169.60:8080/api/viewConnections", thisUser)
+        //axios.post("http://localhost:8080/api/viewConnections", thisUser) // for local testing
+        axios.get("http://34.16.169.60:8080/api/viewConnections", thisUser)
             .then((res) => {
                 console.log(thisUser + "'s connections")
-
                 if(res.status === 200){
                     console.log(res.data[0])
                     setUsers(res.data);
@@ -66,7 +63,7 @@ function viewConnectionsPage() {
             .catch((err) => {
                 console.log(err.value);
             });
-    }*/
+    }
 
     const [openProfile, setOpenProfile] = React.useState(false);
 

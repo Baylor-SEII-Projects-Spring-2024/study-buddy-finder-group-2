@@ -125,33 +125,46 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public void deleteCourseByCourseId(long courseid, long userid);
 
 
-
-    // 1. Users in at least one common course
     @Query(value = "SELECT DISTINCT u.* FROM users u " +
-            "INNER JOIN users_courses uc ON u.user_id = uc.username " +
-            "INNER JOIN connection c ON (c.requested = u.username OR c.requester = u.username) " +
+            "INNER JOIN users_courses uc ON u.user_id = uc.username " + // Adjusted join condition
             "WHERE uc.course_id IN (" +
             "    SELECT uc2.course_id FROM users_courses uc2 WHERE uc2.username = ?1" +
             ") " +
-            "AND ((c.requested = ?1 AND c.is_connected = 1) OR (c.requester = ?1 AND c.is_connected = 1)) " +
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM connection c " +
+            "    WHERE (c.requester = ?1 AND c.requested = u.user_id AND c.is_connected = true) " +
+            "       OR (c.requester = u.user_id AND c.requested = ?1 AND c.is_connected = true)" +
+            ") " +
             "AND u.user_id != ?1",
             nativeQuery = true)
     public List<User> recommendUsersFromSameCourse(long userId);
 
-    // 2. Users with the same course prefix
     @Query(value = "SELECT DISTINCT u.* FROM users u " +
-            "JOIN users_courses uc ON u.user_id = uc.username " +
+            "JOIN users_courses uc ON u.user_id = uc.username " + // Adjusted join condition
             "JOIN courses c ON uc.course_id = c.course_id " +
-            "WHERE c.course_prefix = (SELECT c2.course_prefix FROM users_courses uc2 " +
-            "JOIN courses c2 ON uc2.course_id = c2.course_id WHERE uc2.username = ?1) " +
-            "AND u.user_id != ?1 LIMIT 5",
+            "WHERE c.course_prefix = (" +
+            "    SELECT c2.course_prefix FROM users_courses uc2 " +
+            "    JOIN courses c2 ON uc2.course_id = c2.course_id WHERE uc2.username = ?1" +
+            ") " +
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM connection conn " +
+            "    WHERE (conn.requester = ?1 AND conn.requested = u.user_id AND conn.is_connected = true) " +
+            "       OR (conn.requester = u.user_id AND conn.requested = ?1 AND conn.is_connected = true)" +
+            ") " +
+            "AND u.user_id != ?1 " +
+            "LIMIT 5",
             nativeQuery = true)
     List<User> recommendUsersFromSameCoursePrefix(long userId);
 
-    // 3. Random users from the system
     @Query(value = "SELECT DISTINCT u.* FROM users u " +
             "WHERE u.user_id != ?1 " +
-            "ORDER BY RAND() LIMIT 5",
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM connection c " +
+            "    WHERE (c.requester = ?1 AND c.requested = u.user_id AND c.is_connected = true) " +
+            "       OR (c.requester = u.user_id AND c.requested = ?1 AND c.is_connected = true)" +
+            ") " +
+            "ORDER BY RAND() " +
+            "LIMIT 5",
             nativeQuery = true)
     List<User> recommendRandomUsers(long userId);
 
