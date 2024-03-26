@@ -106,6 +106,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     public List<User> findByCoursesCourseId(long courseId);
 
+    /**
+     * findByUsernameExists
+     *
+     * This function queries if any accounts have the same username
+     *
+     * @param username
+     *
+     * @return user if user with username exists,
+     *         NULL if not
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
+    public User findByUsernameExists(String username);
+
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM users_courses uc WHERE uc.course_id = ?1 AND uc.username = ?2", nativeQuery = true)
@@ -116,9 +129,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 1. Users in at least one common course
     @Query(value = "SELECT DISTINCT u.* FROM users u " +
             "INNER JOIN users_courses uc ON u.user_id = uc.username " +
+            "INNER JOIN connection c ON (c.requested = u.username OR c.requester = u.username) " +
             "WHERE uc.course_id IN (" +
             "    SELECT uc2.course_id FROM users_courses uc2 WHERE uc2.username = ?1" +
-            ") AND u.user_id != ?1",
+            ") " +
+            "AND ((c.requested = ?1 AND c.is_connected = 1) OR (c.requester = ?1 AND c.is_connected = 1)) " +
+            "AND u.user_id != ?1",
             nativeQuery = true)
     public List<User> recommendUsersFromSameCourse(long userId);
 

@@ -130,6 +130,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User findByUsernameExists(String username) {
+        return userRepository.findByUsernameExists(username);
+    }
+
     /**
      *
      * @param c

@@ -46,10 +46,10 @@ public class viewConnectionsEndpoint {
         }
 
         for(String u : conUsernames) {
-            Optional<User> conUser = userService.findByUsername(u);
+            User conUser = userService.findByUsernameExists(u);
 
             if(conUser != null) {
-                conUsers.add(conUser.get());
+                conUsers.add(conUser);
             }
         }
         return conUsers;
