@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import studybuddy.api.course.Course;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -85,20 +84,7 @@ public class UserService {
      * @return user if user with username exists, NULL if not
      * */
     public Optional<User> findByUsername(String username) {
-    return userRepository.findByUsername(username);
-    }
-
-    /**
-     * findByUsername
-     *
-     * This function queries if any accounts have the same username
-     *
-     * @param username
-     *
-     * @return user if user with username exists, NULL if not
-     * */
-    public User findByUsernameExists(String username) {
-        return userRepository.findByUsernameExists(username);
+        return userRepository.findByUsername(username);
     }
 
     /**
@@ -144,6 +130,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User findByUsernameExists(String username) {
+        return userRepository.findByUsernameExists(username);
+    }
+
     /**
      *
      * @param c
@@ -158,5 +148,34 @@ public class UserService {
      */
     public void deleteCourseFromUser(Course c, User u){
         userRepository.deleteCourseByCourseId(c.getCourseId(), u.id);
+    }
+
+
+    public List<User> recommendUsersForUser(long userId) {
+        Set<User> uniqueRecommendations = new HashSet<>();
+
+        // try to get users from the same school and course
+        uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCourse(userId));
+        if (uniqueRecommendations.size() >= 5) {
+            return new ArrayList<>(uniqueRecommendations).subList(0, 5);
+        }
+
+        // try to get users with the same course prefix
+        uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCoursePrefix(userId));
+
+        // if we still don't have enough, get random users
+        if (uniqueRecommendations.size() < 5) {
+            List<User> randomUsers = userRepository.recommendRandomUsers(userId);
+            for (User user : randomUsers) {
+                if (uniqueRecommendations.size() >= 5) {
+                    break; // stop if we have enough
+                }
+                uniqueRecommendations.add(user);
+            }
+        }
+
+        // create a list from the set
+        List<User> recommendations = new ArrayList<>(uniqueRecommendations);
+        return recommendations.size() > 5 ? recommendations.subList(0, 5) : recommendations;
     }
 }

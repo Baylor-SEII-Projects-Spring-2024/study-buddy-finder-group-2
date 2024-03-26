@@ -71,19 +71,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public Optional<User> findByUsername(String username);
 
     /**
-     * findByUsernameExists
-     *
-     * This function queries if any accounts have the same username
-     *
-     * @param username
-     *
-     * @return user if user with username exists,
-     *         NULL if not
-     */
-    @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
-    public User findByUsernameExists(String username);
-
-    /**
      * findByEmail
      *
      * This function queries if any accounts have the same email
@@ -119,8 +106,53 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     public List<User> findByCoursesCourseId(long courseId);
 
+    /**
+     * findByUsernameExists
+     *
+     * This function queries if any accounts have the same username
+     *
+     * @param username
+     *
+     * @return user if user with username exists,
+     *         NULL if not
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
+    public User findByUsernameExists(String username);
+
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM users_courses uc WHERE uc.course_id = ?1 AND uc.username = ?2", nativeQuery = true)
     public void deleteCourseByCourseId(long courseid, long userid);
+
+
+
+    // 1. Users in at least one common course
+    @Query(value = "SELECT DISTINCT u.* FROM users u " +
+            "INNER JOIN users_courses uc ON u.user_id = uc.username " +
+            "INNER JOIN connection c ON (c.requested = u.username OR c.requester = u.username) " +
+            "WHERE uc.course_id IN (" +
+            "    SELECT uc2.course_id FROM users_courses uc2 WHERE uc2.username = ?1" +
+            ") " +
+            "AND ((c.requested = ?1 AND c.is_connected = 1) OR (c.requester = ?1 AND c.is_connected = 1)) " +
+            "AND u.user_id != ?1",
+            nativeQuery = true)
+    public List<User> recommendUsersFromSameCourse(long userId);
+
+    // 2. Users with the same course prefix
+    @Query(value = "SELECT DISTINCT u.* FROM users u " +
+            "JOIN users_courses uc ON u.user_id = uc.username " +
+            "JOIN courses c ON uc.course_id = c.course_id " +
+            "WHERE c.course_prefix = (SELECT c2.course_prefix FROM users_courses uc2 " +
+            "JOIN courses c2 ON uc2.course_id = c2.course_id WHERE uc2.username = ?1) " +
+            "AND u.user_id != ?1 LIMIT 5",
+            nativeQuery = true)
+    List<User> recommendUsersFromSameCoursePrefix(long userId);
+
+    // 3. Random users from the system
+    @Query(value = "SELECT DISTINCT u.* FROM users u " +
+            "WHERE u.user_id != ?1 " +
+            "ORDER BY RAND() LIMIT 5",
+            nativeQuery = true)
+    List<User> recommendRandomUsers(long userId);
+
 }
