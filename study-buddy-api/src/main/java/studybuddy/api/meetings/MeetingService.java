@@ -28,4 +28,8 @@ public class MeetingService {
     public List<Meeting> findByUsername(String username){
         return meetingRepository.findByUsername(username);
     }
+
+    public List<Meeting> findByTitle(String title){
+        return meetingRepository.findByTitle(title);
+    }
 }
