@@ -154,14 +154,26 @@ public class UserService {
     public List<User> recommendUsersForUser(long userId) {
         Set<User> uniqueRecommendations = new HashSet<>();
 
-        // try to get users from the same school and course
+        // try to get users from the same course
         uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCourse(userId));
         if (uniqueRecommendations.size() >= 5) {
             return new ArrayList<>(uniqueRecommendations).subList(0, 5);
         }
 
+        // print what we have so far
+        System.out.println("Recommendations so far: ");
+        for (User user : uniqueRecommendations) {
+            System.out.println(user.getUsername());
+        }
+
         // try to get users with the same course prefix
         uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCoursePrefix(userId));
+
+        // print what we have so far
+        System.out.println("Recommendations so far: ");
+        for (User user : uniqueRecommendations) {
+            System.out.println(user.getUsername());
+        }
 
         // if we still don't have enough, get random users
         if (uniqueRecommendations.size() < 5) {
