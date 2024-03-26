@@ -24,12 +24,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class NotificationEndpoint implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry registry){
-        registry.enableSimpleBroker("/api/notification");
+        registry.enableSimpleBroker("/api/topic");
+        registry.setApplicationDestinationPrefixes("/ws");
     }
 
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry){
-        registry.addEndpoint("/our-websocket");
+
+        registry.addEndpoint("/our-websocket").withSockJS();
     }
 
 }
