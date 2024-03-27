@@ -66,7 +66,7 @@ public class RatingsEndpoint {
         }
 
 
-        List<Rating> ratings = ratingService.getMyRatings(ratingUser);
+        List<Rating> ratings = ratingService.getMyRatings(ratingUser.getUsername());
         List<User> rateUsers = new ArrayList<>();
         for(Rating r : ratings) {
             System.out.println("ID is " + r.getRatingId());
@@ -90,7 +90,7 @@ public class RatingsEndpoint {
             log.warn("User not found");
             return ResponseEntity.badRequest().build();
         }
-        List<Rating> ratings = ratingService.getMyRatings(ratedUser);
+        List<Rating> ratings = ratingService.getMyRatings(ratedUser.getUsername());
         List<User> rateUsers = new ArrayList<>();
 
         for(Rating r : ratings) {

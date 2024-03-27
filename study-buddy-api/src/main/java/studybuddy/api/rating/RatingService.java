@@ -12,12 +12,12 @@ public class RatingService {
     private RatingRepository ratingRepository;
     public void deleteRating(Long id){ratingRepository.deleteRating(id);}
 
-    public Double getRatingScore(User targetUser){
+    public Double getRatingScore(String targetUser){
         return ratingRepository.getRatingScore(targetUser);}
 
-    public List<Rating> getRatingsForMe(User thisUser){
+    public List<Rating> getRatingsForMe(String thisUser){
         return ratingRepository.getRatingsForMe(thisUser);}
-    public List<Rating> getMyRatings(User thisUser){
+    public List<Rating> getMyRatings(String thisUser){
         return ratingRepository.getMyRatings(thisUser);}
 
     public Rating saveRating(Rating rating) {
