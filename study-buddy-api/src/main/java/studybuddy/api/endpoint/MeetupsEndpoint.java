@@ -93,6 +93,17 @@ public class MeetupsEndpoint {
 
     @DeleteMapping("/viewMeetups/{id}")
     public void deleteMeeting(@PathVariable Long id) {
+//        Optional<Meeting> m = meetingService.findById(id);
+//
+//        Meeting present = m.get();
+//
+//        for(User u : present.getAttendees()){
+//            meetingService.deleteMeetupUser(u.getId(), id);
+//        }
+//
+//        meetingService.delete(id);
+
+        meetingService.deleteMeetupUser(id);
         meetingService.delete(id);
     }
 

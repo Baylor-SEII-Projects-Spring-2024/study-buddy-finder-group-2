@@ -82,4 +82,9 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
             "ORDER BY RAND() " +
             "LIMIT 3", nativeQuery = true)
     public List<Meeting> findRandomMeetingsNotAttending(long userId);
+
+    @Transactional
+    @Query(value = "DELETE FROM meetups_users WHERE meeting_id = ?1", nativeQuery = true)
+    @Modifying
+    public void deleteMeetupUser(long meetingId);
 }

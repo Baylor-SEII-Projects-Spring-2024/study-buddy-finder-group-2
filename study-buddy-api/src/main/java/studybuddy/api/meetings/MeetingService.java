@@ -88,5 +88,7 @@ public class MeetingService {
         return recommendedMeetings;
     }
 
-
+    public void deleteMeetupUser(long meetingId){
+        meetingRepository.deleteMeetupUser(meetingId);
+    }
 }
