@@ -29,24 +29,44 @@ function SearchMeetupsPage() {
         setTitle(str);
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault(); // prevents page reload
-
+    const handleSubmit = async (event) => {
+        // prevents page reload
+        event.preventDefault();
+    
+        // get user time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+    
         const meetup = {
             username, title, description, subject, date, location
-        };
-
-        axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup)
-        //axios.post("http://localhost:8080/api/searchMeetups", meetup)
+        }
+    
+        console.log("TITLEEEEEE: " + title);
+        console.log("COURSEEEEE: " + subject);
+    
+        // TODO: set error for empty search
+        // axios.post("http://localhost:8080/api/searchMeetups", meetup, {
+        //     headers: {
+        //     'timezone': timezone
+        // }}) // for local testing
+        axios.post("http://34.16.169.60:8080/api/searchMeetups", {
+            headers: {
+            'timezone': timezone
+        }})
             .then((res) => {
-                if (res.status === 200) {
+                console.log(meetup.title)
+                console.log(meetup.subject)
+    
+                if(res.status === 200){
+                    console.log(res.data[0])
                     setMeetups(res.data);
                 }
             })
             .catch((err) => {
-                console.error('Error searching meetups:', err);
+                console.log(err.value);
             });
-    };
+    }
+
     const handleJoin = (meetup) => {
         console.log(currentUser);
         console.log(meetup.id);
