@@ -50,17 +50,14 @@ public class SearchUserEndpoint {
     }
 
     @RequestMapping(
-            value = "/searchUsers/getConnection/{username}",
+            value = "/api/searchUsers/getConnection/{username}",
             method = RequestMethod.POST
     )
     public ResponseEntity<Connection> getConnection(@PathVariable String username, @RequestBody String requested) {
         return ResponseEntity.ok(connectionService.getConnection(username, requested));
     }
 
-    @RequestMapping(
-            value = "/searchUsers/deleteConnection/{id}",
-            method = RequestMethod.DELETE
-    )
+    @DeleteMapping("/api/searchUsers/deleteConnection/{id}")
     public void deleteConnection(@PathVariable Long id) {
         connectionService.delete(id);
     }

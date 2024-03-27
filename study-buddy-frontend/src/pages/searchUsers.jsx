@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import axios from "axios";
+import axios from 'axios';
 
 import {
     Box,
@@ -135,8 +135,8 @@ function SearchUsersPage() {
         setSchool(user.school);
 
         // set connection
-        axios.post(`http://localhost:8080/searchUsers/getConnection/${requester}`, user.username)
-        //axios.post(`http://34.16.169.60:8080/searchUsers/getConnection/${requester}`, username)
+        axios.post(`http://localhost:8080/api/searchUsers/getConnection/${requester}`, user.username)
+            //axios.post(`http://34.16.169.60:8080/api/searchUsers/getConnection/${requester}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
                 setIsConnected(res.data.isConnected);

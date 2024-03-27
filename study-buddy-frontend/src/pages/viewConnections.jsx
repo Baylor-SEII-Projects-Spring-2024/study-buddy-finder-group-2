@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import {
     Box, Button,
     Card,
-    CardContent, Dialog, DialogActions, DialogContent, DialogTitle,
-    Stack,
+    CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select,
+    Stack, TextField,
     Typography
 } from "@mui/material";
 import axios from "axios";
@@ -25,7 +25,6 @@ function viewConnectionsPage() {
     const [selectedUser, setSelectedUser] = useState(null);
 
     const [selectedConnection, setSelectedConnection] = useState();
-    const [id, setId] = useState(null);
 
     // get the user's username
     useEffect(() => {
@@ -39,8 +38,8 @@ function viewConnectionsPage() {
     const fetchConnections = (user) => {
         console.log("User to fetch for: " + user);
 
-        fetch(`http://localhost:8080/viewConnections/${user}`) // use this for local development
-        //fetch(`http://34.16.169.60:8080/viewConnections/${user}`)
+        fetch(`http://localhost:8080/api/viewConnections/${user}`) // use this for local development
+            //fetch(`http://34.16.169.60:8080/api/viewConnections/${user}`)
             .then(res => res.json())
             .then(data => setUsers(data))
             .catch(error => console.error('Error fetching connections:', error));
@@ -49,8 +48,10 @@ function viewConnectionsPage() {
     const deleteConnection = (event) => {
         event.preventDefault();
 
-        axios.delete(`http://localhost:8080/viewConnections/${selectedConnection?.id}`) // for local testing
-        //axios.delete(`http://34.16.169.60:8080/viewConnections/${selectedConnection?.id}`)
+        console.log(selectedConnection);
+
+        axios.delete(`http://localhost:8080/api/viewConnections/${selectedConnection?.id}`) // for local testing
+        //axios.delete(`http://34.16.169.60:8080/api/viewConnections/${selectedConnection?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseProfile();
@@ -62,31 +63,6 @@ function viewConnectionsPage() {
                 console.log(err);
             });
     };
-
-    /*const handleSubmit = (event) => {
-        // prevents page reload
-        event.preventDefault();
-
-        const user = {
-            username, firstName, lastName, emailAddress, userType, school
-        }
-
-        // TODO: set error for empty search
-        axios.post("http://localhost:8080/api/viewConnections", thisUser) // for local testing
-            //axios.get("http://34.16.169.60:8080/api/viewConnections", thisUser)
-            .then((res) => {
-                console.log(thisUser + "'s connections")
-
-                if(res.status === 200){
-                    console.log(res.data[0])
-                    setUsers(res.data);
-                    //fetchUsers(searchStr);
-                }
-            })
-            .catch((err) => {
-                console.log(err.value);
-            });
-    }*/
 
     const [openProfile, setOpenProfile] = React.useState(false);
 
@@ -101,6 +77,19 @@ function viewConnectionsPage() {
         setType(user.userType);
         setSchool(user.school);
 
+        console.log(thisUser);
+        console.log(user.username);
+        // set connection
+        axios.post(`http://localhost:8080/api/viewConnections/getConnection/${thisUser}`, user.username)
+            //axios.post(`http://34.16.169.60:8080/api/viewConnections/getConnection/${requester}`, user.username)
+            .then((res) => {
+                setSelectedConnection(res.data);
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.error('Error getting connection:', err)
+            });
+
         setOpenProfile(true);
     };
 
@@ -109,9 +98,9 @@ function viewConnectionsPage() {
         setOpenProfile(false);
 
         // must reset user values for continued search!!
-        setUsername(searchStr);
-        setFirstName(searchStr);
-        setLastName(searchStr);
+        setUsername(null);
+        setFirstName(null);
+        setLastName(null);
         setEmail(null);
         setType(null);
         setSchool(null);
@@ -200,10 +189,10 @@ function viewConnectionsPage() {
                         Back</Button>
                     <Button
                         variant="contained"
-                        color="error"
+                        color="secondary"
                         onClick={deleteConnection}
                     >
-                        Remove</Button>
+                        Disconnect</Button>
                 </DialogActions>
             </Dialog>
             =        </div>

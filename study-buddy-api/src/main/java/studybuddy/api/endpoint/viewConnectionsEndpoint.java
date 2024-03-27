@@ -23,7 +23,7 @@ public class viewConnectionsEndpoint {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/viewConnections/{username}")
+    @GetMapping("/api/viewConnections/{username}")
     public List<User> fetchConnections(@PathVariable String username) {
         List<Connection> connections = connectionService.getConnections(username);
         List<String> conUsernames = new ArrayList<>();
@@ -51,13 +51,16 @@ public class viewConnectionsEndpoint {
         return conUsers;
     }
 
-    @DeleteMapping("/viewConnections/{id}")
+    @DeleteMapping("/api/viewConnections/{id}")
     public void deleteConnection(@PathVariable Long id) {
         connectionService.delete(id);
     }
 
-    /*@GetMapping("/viewConnections/getConnection/{username}")
+    @RequestMapping (
+            value = "/api/viewConnections/getConnection/{username}",
+            method = RequestMethod.POST
+    )
     public Connection getConnection(@PathVariable String username, @RequestBody String requested) {
         return connectionService.getConnection(username, requested);
-    }*/
+    }
 }
