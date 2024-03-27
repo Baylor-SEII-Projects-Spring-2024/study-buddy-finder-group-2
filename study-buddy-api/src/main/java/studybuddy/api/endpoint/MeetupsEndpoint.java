@@ -82,14 +82,12 @@ public class MeetupsEndpoint {
 //    }
 
     //TODO: make it so that the creator gets included in attendees ^^^^
-    @RequestMapping(
-            value = "/viewMeetups",
-            method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = "application/json"
-    )
+    @RequestMapping(value = "/viewMeetups", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
-        return ResponseEntity.ok(meetingService.save(meeting));
+        Meeting savedMeeting = meetingService.save(meeting);
+        Long userId = userService.findByUsername(savedMeeting.getUsername()).get().getId();
+        meetingService.saveMeetupUser(userId, savedMeeting.getId());
+        return ResponseEntity.ok(savedMeeting);
     }
 
 
@@ -133,5 +131,22 @@ public class MeetupsEndpoint {
         else{
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping(value = "/recommendMeetups/{username}")
+    public List<Meeting> recommendMeetups(@PathVariable String username) {
+        User loggedInUser = userService.findByUsername(username).get();
+        List<Meeting> recommendedMeetups = meetingService.recommendMeetupsForUser(loggedInUser.getId());
+
+        if (recommendedMeetups.isEmpty()) {
+            log.info("No recommendations found for user id: {}", loggedInUser.getUsername());
+        }
+        else {
+            for (Meeting meeting : recommendedMeetups) {
+                log.info("Recommended meeting: {}", meeting.getTitle());
+            }
+        }
+
+        return recommendedMeetups;
     }
 }

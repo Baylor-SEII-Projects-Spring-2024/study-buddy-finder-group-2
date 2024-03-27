@@ -36,8 +36,8 @@ function SearchUsersPage() {
 
 
     const fetchRecommendations = (username) => {
-        //axios.get(`http://localhost:8080/api/recommendations/${username}`) // Adjust as needed
-        axios.get(`http://34.16.169.60:8080/api/recommendations/${username}`)
+        axios.get(`http://localhost:8080/api/recommendations/${username}`) // Adjust as needed
+        //axios.get(`http://34.16.169.60:8080/api/recommendations/${username}`)
 
             .then((response) => {
                 setRecommendedUsers(response.data);
@@ -67,8 +67,8 @@ function SearchUsersPage() {
             username, firstName, lastName, emailAddress, userType, school
         }
         // TODO: set error for empty search
-        //axios.post("http://localhost:8080/api/searchUsers", user) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers", user)
+        axios.post("http://localhost:8080/api/searchUsers", user) // for local testing
+        //axios.post("http://34.16.169.60:8080/api/searchUsers", user)
             .then((res) => {
                 console.log(user.firstName)
                 console.log(user.lastName)
@@ -102,8 +102,8 @@ function SearchUsersPage() {
 
         //axios.post(`http://localhost:8080/api/searchUsers/addConnection/${username}`, selectedUser) // for local testing
             //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
-        //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
+        axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
+        //axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
             .then((res) => {
                 console.log("CONNECTION ADDED.");
                 if(res.status === 200) {

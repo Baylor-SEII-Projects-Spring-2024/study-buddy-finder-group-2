@@ -45,4 +45,48 @@ public class MeetingService {
     public void saveMeetupUser(long userId, long meetupId){
         meetingRepository.saveMeetupUser(userId, meetupId);
     }
+
+    public List<Meeting> recommendMeetupsForUser(long id) {
+        List<Meeting> recommendedMeetings = meetingRepository.recommendMeetupsWithConnections(id);
+
+        if (recommendedMeetings.size() < 3) {
+            List<Meeting> additionalMeetings = meetingRepository.recommendMeetingsFromSameCourse(id);
+            for (Meeting meeting : additionalMeetings) {
+                if (recommendedMeetings.size() >= 3) {
+                    break;
+                }
+                if (!recommendedMeetings.contains(meeting)) {
+                    recommendedMeetings.add(meeting);
+                }
+            }
+        }
+
+        if (recommendedMeetings.size() < 3) {
+            List<Meeting> prefixMeetings = meetingRepository.recommendMeetingsFromSameCoursePrefix(id);
+            for (Meeting meeting : prefixMeetings) {
+                if (recommendedMeetings.size() >= 3) {
+                    break;
+                }
+                if (!recommendedMeetings.contains(meeting)) {
+                    recommendedMeetings.add(meeting);
+                }
+            }
+        }
+
+        if (recommendedMeetings.size() < 3) {
+            List<Meeting> randomMeetings = meetingRepository.findRandomMeetingsNotAttending(id);
+            for (Meeting meeting : randomMeetings) {
+                if (recommendedMeetings.size() >= 3) {
+                    break;
+                }
+                if (!recommendedMeetings.contains(meeting)) {
+                    recommendedMeetings.add(meeting);
+                }
+            }
+        }
+
+        return recommendedMeetings;
+    }
+
+
 }
