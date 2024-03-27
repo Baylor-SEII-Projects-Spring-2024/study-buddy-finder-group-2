@@ -28,6 +28,8 @@ function SearchMeetupsPage() {
   const [date, setDate] = useState(null);
   const [location, setLocation] = useState(null);
 
+  const [currentUser, setCurrentUser] = useState('');
+
   const [meetups, setMeetups] = useState([]);
   const [courses, setCourses] = useState([]);
 
@@ -36,6 +38,7 @@ function SearchMeetupsPage() {
     const params = new URLSearchParams(window.location.search),
         user = params.get("username");
 
+        setCurrentUser(user);
         fetchCourses();
     }, [])
 
@@ -46,8 +49,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        fetch(`http://localhost:8080/api/get-all-courses/`)
-        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        //fetch(`http://localhost:8080/api/get-all-courses/`)
+        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
           .then(response => response.json())
           .then(data =>{
             setCourses(Array.from(data))   
@@ -68,8 +71,8 @@ function SearchMeetupsPage() {
     console.log("COURSEEEEE: " + subject);
 
     // TODO: set error for empty search
-    axios.post("http://localhost:8080/api/searchMeetups", meetup) // for local testing
-    //axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup)
+    //axios.post("http://localhost:8080/api/searchMeetups", meetup) // for local testing
+    axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup)
         .then((res) => {
             console.log(meetup.title)
             console.log(meetup.subject)
@@ -82,7 +85,27 @@ function SearchMeetupsPage() {
         .catch((err) => {
             console.log(err.value);
         });
-}
+    }
+
+    const handleJoin = (meetup) => {
+        console.log(currentUser)
+        console.log(meetup.id)
+
+        //axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`) // for local testing
+        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`, meetup)
+        .then((res) => {
+            console.log(user)
+            console.log(meetup.id)
+
+            if(res.status === 200){
+                console.log(res.data[0])
+                setMeetups(res.data);
+            }
+        })
+        .catch((err) => {
+            console.log(err.value);
+        });
+    }
 
   return (
     <div>
@@ -92,8 +115,6 @@ function SearchMeetupsPage() {
                     <Typography variant='h4' align='center'>Search Meetups</Typography>
                 </CardContent>
             </ Card>
-
-            
 
             {/* this is the search area, submits a form */}
             <Box component="form" noValidate onSubmit={handleSubmit}
@@ -156,9 +177,9 @@ function SearchMeetupsPage() {
                                         <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
                                     ))}
                                 </ul>
-                                {/* <Button variant='contained' color="primary" size="small" onClick={() => handleClickOpenProfile(user)}>
-                                    View Profile
-                                </Button> */}
+                                <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)}>
+                                    Join Meetup
+                                </Button>
                             </CardContent>
                         </Card>
                     ))}

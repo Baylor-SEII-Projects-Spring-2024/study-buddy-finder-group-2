@@ -41,4 +41,8 @@ public class MeetingService {
     public List<Long> findByUserId(long id){
         return meetingRepository.findByUserId(id);
     }
+
+    public void saveMeetupUser(long userId, long meetupId){
+        meetingRepository.saveMeetupUser(userId, meetupId);
+    }
 }

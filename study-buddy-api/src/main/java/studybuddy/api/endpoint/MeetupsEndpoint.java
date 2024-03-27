@@ -1,5 +1,6 @@
 package studybuddy.api.endpoint;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
@@ -59,6 +60,28 @@ public class MeetupsEndpoint {
         return meetings;
     }
 
+//    @Transactional
+//    @RequestMapping(
+//            value = "/viewMeetups",
+//            method = RequestMethod.POST,
+//            consumes = "application/json",
+//            produces = "application/json"
+//    )
+//    public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
+//        Optional<User> user = userService.findByUsername(meeting.getUsername());
+//
+//        ResponseEntity<Meeting> response = ResponseEntity.ok(meetingService.save(meeting));
+//
+//        Meeting m = response.getBody(); // Get the Meeting object from ResponseEntity
+//
+//        if(user.isPresent()) {
+//            meetingService.saveMeetupUser(m.getId(), user.get().getId());
+//        }
+//
+//        return response;
+//    }
+
+    //TODO: make it so that the creator gets included in attendees ^^^^
     @RequestMapping(
             value = "/viewMeetups",
             method = RequestMethod.POST,
@@ -68,6 +91,7 @@ public class MeetupsEndpoint {
     public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
         return ResponseEntity.ok(meetingService.save(meeting));
     }
+
 
     @DeleteMapping("/viewMeetups/{id}")
     public void deleteMeeting(@PathVariable Long id) {
