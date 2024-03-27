@@ -7,23 +7,48 @@ import org.springframework.web.bind.annotation.*;
 import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import studybuddy.api.user.User;
+import studybuddy.api.user.UserService;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://34.16.169.60:3000")
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
     private MeetingService meetingService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/viewMeetups/{username}")
     public List<Meeting> getMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone) {
         List<Meeting> meetings = meetingService.findByUsername(username);
+
+        Optional<User> user = userService.findByUsername(username);
+
+        List<Long> attendeeMeetingIds = meetingService.findByUserId(user.get().getId());
+
+        List<Meeting> meetings2 = new ArrayList<Meeting>();
+
+        for(Long id : attendeeMeetingIds){
+            Optional<Meeting> meetingOptional = meetingService.findById(id);
+
+            // add meeting only if not the creator (avoid duplicates)
+            meetingOptional.ifPresent(meeting -> {
+                if(!meeting.getUsername().equals(username)){
+                    meetings2.add(meeting);
+                }
+            });
+        }
+
+        meetings.addAll(meetings2);
 
         // convert each meeting to the users local time
         ZoneId timeZoneId = ZoneId.of(timeZone);

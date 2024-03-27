@@ -8,7 +8,6 @@ import axios from 'axios';
 import AddIcon from '@mui/icons-material/Add';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
-//TODO: Be able to choose people from connections to add to meeting
 //TODO: Bug where user able to input a bit of the date and it goes through
 
 function MeetupsPage() {
@@ -19,6 +18,8 @@ function MeetupsPage() {
     const [subject, setSubject] = useState(null);
     const [date, setDate] = useState(null);
     const [location, setLocation] = useState(null);
+    const [attendees, setAttendees] = useState(new Set());
+
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
     const [meetups, setMeetups] = useState([]);
@@ -40,24 +41,24 @@ function MeetupsPage() {
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
-        // fetch(`http://localhost:8080/viewMeetups/${user}`, {
-        //     headers: {
-        //     'timezone': timezone
-        //     }
-        // })
-        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        fetch(`http://localhost:8080/viewMeetups/${user}`, {
             headers: {
             'timezone': timezone
             }
         })
+        // fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        //     headers: {
+        //     'timezone': timezone
+        //     }
+        // })
           .then(response => response.json())
           .then(data => setMeetups(data))
           .catch(error => console.error('Error fetching meetings:', error));
     };
 
     const fetchCourses = () => {
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        fetch(`http://localhost:8080/api/get-all-courses/`)
+        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
           .then(response => response.json())
           .then(data =>{
             setCourses(Array.from(data))   
@@ -76,8 +77,8 @@ function MeetupsPage() {
           id, username, title, description, subject, date, location
       }
 
-      //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-         axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+      axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+         //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -100,7 +101,7 @@ function MeetupsPage() {
         const timezone = options.timeZone;
 
         const meeting = {
-            id, username, title, description, subject, date, location
+            id, username, title, description, subject, date, location, attendees
         }
 
         console.log("State variables after update");
@@ -110,17 +111,18 @@ function MeetupsPage() {
         console.log("desc: " + description);
         console.log("sub: " + subject);
         console.log("location: " + location);
+        console.log("attendees: " + attendees);
   
-        // axios.put("http://localhost:8080/viewMeetups", meeting, {
-        //     headers: {
-        //     'timezone': timezone
-        //     }
-        // })
-        axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        axios.put("http://localhost:8080/viewMeetups", meeting, {
             headers: {
             'timezone': timezone
             }
         })
+        // axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        //     headers: {
+        //     'timezone': timezone
+        //     }
+        // })
               .then((res) => {
                   if(res.status === 200) {
                       handleCloseEdit();
@@ -137,8 +139,8 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-      //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+      axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+        //axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -182,6 +184,7 @@ function MeetupsPage() {
         setSubject(meetup.subject);
         setDate(meetup.date);
         setLocation(meetup.location);
+        setAttendees(meetup.attendees);
 
         setOpenEdit(true);
     };
@@ -207,9 +210,9 @@ function MeetupsPage() {
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
                                 {/* <strong>ID: </strong> {meetup.id}
+                                <br />*/}
+                                <strong>Creator: </strong> {meetup.username}
                                 <br />
-                                <strong>Username: </strong> {meetup.username}
-                                <br /> */}
                                 <strong>Title: </strong> {meetup.title}
                                 <br />
                                 <strong>Description: </strong> {meetup.description}
@@ -220,6 +223,12 @@ function MeetupsPage() {
                                 <br />
                                 <strong>Location: </strong> {meetup.location}
                                 <br />
+                                <strong>Attendees:</strong>
+                                <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+                                    {meetup.attendees.map((attendee, index) => (
+                                        <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                    ))}
+                                </ul>
                                 </li>
                             </ul>
                         </CardContent>

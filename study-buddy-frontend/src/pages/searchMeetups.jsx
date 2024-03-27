@@ -46,8 +46,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        fetch(`http://localhost:8080/api/get-all-courses/`)
+        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
           .then(response => response.json())
           .then(data =>{
             setCourses(Array.from(data))   
@@ -68,8 +68,8 @@ function SearchMeetupsPage() {
     console.log("COURSEEEEE: " + subject);
 
     // TODO: set error for empty search
-    //axios.post("http://localhost:8080/api/searchMeetups", meetup) // for local testing
-    axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup)
+    axios.post("http://localhost:8080/api/searchMeetups", meetup) // for local testing
+    //axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup)
         .then((res) => {
             console.log(meetup.title)
             console.log(meetup.subject)
@@ -145,11 +145,17 @@ function SearchMeetupsPage() {
                         <Card key={index} sx={{ marginBottom: 2, width: 500}} elevation={6}>
                             <CardContent>
                                 <Typography><strong>Title:</strong> {meetup.title}</Typography>
-                                <Typography><strong>User:</strong> {meetup.username}</Typography>
+                                <Typography><strong>Creator:</strong> {meetup.username}</Typography>
                                 <Typography><strong>Description:</strong> {meetup.description}</Typography>
                                 <Typography><strong>Course:</strong> {meetup.subject}</Typography>
                                 <Typography><strong>Date:</strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}</Typography>
                                 <Typography><strong>Location:</strong> {meetup.location}</Typography>
+                                <strong>Attendees:</strong>
+                                <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+                                    {meetup.attendees.map((attendee, index) => (
+                                        <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                    ))}
+                                </ul>
                                 {/* <Button variant='contained' color="primary" size="small" onClick={() => handleClickOpenProfile(user)}>
                                     View Profile
                                 </Button> */}

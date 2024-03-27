@@ -36,4 +36,9 @@ public class MeetingService {
     public List<Meeting> findByTitleAndCourse(String title, String course){
         return meetingRepository.findByTitleAndCourse(title, course);
     }
+
+    // finds all meetup ids where user is just an attendee
+    public List<Long> findByUserId(long id){
+        return meetingRepository.findByUserId(id);
+    }
 }

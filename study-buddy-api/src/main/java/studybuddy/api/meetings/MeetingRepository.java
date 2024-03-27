@@ -13,4 +13,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     public List<Meeting> findByTitleAndCourse(String title, String course);
     @Query(value = "SELECT * FROM meetings m WHERE m.username = ?1", nativeQuery = true)
     public List<Meeting> findByUsername(String username);
+
+    @Query(value = "SELECT m.meeting_id FROM meetups_users m WHERE m.user_id = ?1", nativeQuery = true)
+    public List<Long> findByUserId(long id);
 }

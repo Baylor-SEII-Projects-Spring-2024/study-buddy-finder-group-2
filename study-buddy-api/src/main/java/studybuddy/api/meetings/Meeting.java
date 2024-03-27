@@ -2,8 +2,11 @@ package studybuddy.api.meetings;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import studybuddy.api.course.Course;
+import studybuddy.api.user.User;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Entity
@@ -22,6 +25,13 @@ public class Meeting {
 
     @Column(name = "USERNAME")
     String username;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "meetups_users",
+            joinColumns = @JoinColumn(name = "meeting_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    Set<User> attendees;
 
     @Column(name = "TITLE")
     String title;
