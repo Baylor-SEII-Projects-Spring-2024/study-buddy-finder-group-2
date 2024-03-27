@@ -92,7 +92,7 @@ function SearchMeetupsPage() {
         console.log(meetup.id)
 
         //axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`) // for local testing
-        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`, meetup)
+        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
         .then((res) => {
             console.log(user)
             console.log(meetup.id)
