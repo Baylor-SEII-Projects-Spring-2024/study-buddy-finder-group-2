@@ -19,7 +19,7 @@ $(document).ready(function() {
 });
 
 function connect() {
-    var socket = new SockJs('http://localhost:8080/our-websocket');
+    var socket = new SockJs('ws://localhost:8080/our-websocket');
     stompClient = Stomp.over(socket);
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function(frame) {
