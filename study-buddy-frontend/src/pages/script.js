@@ -1,7 +1,6 @@
 var stompClient = null;
 var notificationCount = 0;
-
-$(document).ready(function() {
+$(document).ready( function() {
     console.log("Index page is ready");
     connect();
 
@@ -9,7 +8,7 @@ $(document).ready(function() {
         sendMessage();
     });
 
-    $("#send-private").click(function(){
+    $("#send-private").click(function() {
         sendPrivateMessage();
     });
 
@@ -19,10 +18,9 @@ $(document).ready(function() {
 });
 
 function connect() {
-    var socket = new SockJs('ws://localhost:8080/our-websocket');
+    var socket = new SockJS('ws://localhost:8080/our-websocket');
     stompClient = Stomp.over(socket);
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function(frame) {
+    stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
         updateNotificationDisplay();
         stompClient.subscribe('/topic/messages', function (message) {
@@ -43,32 +41,32 @@ function connect() {
             updateNotificationDisplay();
         });
     });
+}
 
-    function showMessage(message) {
-        $("#messages").append("<tr><td>" + message + "</td></tr>");
-    }
+function showMessage(message) {
+    $("#messages").append("<tr><td>" + message + "</td></tr>");
+}
 
-    function sendMessage() {
-        console.log("sending message");
-        stompClient.send("/ws/message", {}, JSON.stringify({'messageContent': $("#message").val()}));
-    }
+function sendMessage() {
+    console.log("sending message");
+    stompClient.send("/ws/message", {}, JSON.stringify({'messageContent': $("#message").val()}));
+}
 
-    function sendPrivateMessage() {
-        console.log("sending private message");
-        stompClient.send("/ws/private-message", {}, JSON.stringify({'messageContent': $("#private-message").val()}));
-    }
+function sendPrivateMessage() {
+    console.log("sending private message");
+    stompClient.send("/ws/private-message", {}, JSON.stringify({'messageContent': $("#private-message").val()}));
+}
 
-    function updateNotificationDisplay() {
-        if (notificationCount === 0) {
-            $('#notifications').hide();
-        } else {
-            $('#notifications').show();
-            $('#notifications').text(notificationCount);
-        }
+function updateNotificationDisplay() {
+    if (notificationCount == 0) {
+        $('#notifications').hide();
+    } else {
+        $('#notifications').show();
+        $('#notifications').text(notificationCount);
     }
+}
 
-    function resetNotificationCount() {
-        notificationCount = 0;
-        updateNotificationDisplay();
-    }
+function resetNotificationCount() {
+    notificationCount = 0;
+    updateNotificationDisplay();
 }
