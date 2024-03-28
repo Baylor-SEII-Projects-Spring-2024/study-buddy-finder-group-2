@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import studybuddy.api.user.User;
 
+import java.util.Optional;
+
 @Data
 @Entity
 @Table(name = Rating.TABLE_NAME)
@@ -16,19 +18,30 @@ public class Rating {
             sequenceName = TABLE_NAME + "_SEQUENCE"
     )
     @Column(name = "RATING_ID")
-    private Long ratingId;
+    Long ratingId;
 
     @ManyToOne
     @JoinColumn(name = "RATING_USER", referencedColumnName = "username")
-    private User ratingUser;
+    User ratingUser;
 
     @ManyToOne
     @JoinColumn(name = "RATED_USER", referencedColumnName = "username")
-    private User ratedUser;
+    User ratedUser;
 
     @Column(name = "RATINGS")
-    private Double rating;
+    Double rating;
 
     @Column(name = "REVIEW", nullable = true)
-    private String review = null;
+    String review = null;
+
+    public Rating(Optional<User> ratingUser, Optional<User> ratedUser, Double rating, String review) {
+        this.ratingUser = ratingUser.orElseThrow(() -> new IllegalArgumentException("Rating user must be provided"));
+        this.ratedUser = ratedUser.orElseThrow(() -> new IllegalArgumentException("Rated user must be provided"));
+        this.rating = rating;
+        this.review = review;
+    }
+
+    public Rating() {
+
+    }
 }

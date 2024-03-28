@@ -36,7 +36,19 @@ public class RatingsEndpoint {
             produces = "application/json"
     )
     public ResponseEntity<Rating> createRating(@RequestBody Rating rating) {
-        return ResponseEntity.ok(ratingService.saveRating(rating));
+        Optional<User> ratingUser = userService.findByUsername(rating.getRatingUser().getUsername());
+        Optional<User> ratedUser = userService.findByUsername(rating.getRatedUser().getUsername());
+        if (ratingUser.isPresent() & ratedUser.isPresent()){
+            Rating savedRating = ratingService.saveRating(new Rating(ratingUser, ratedUser, rating.getRating(),rating.getReview()));
+            return ResponseEntity.ok(savedRating);
+        }
+        if (ratingUser.isEmpty()) {
+            log.warn("ratingUser not found");
+        }
+        if (ratedUser.isEmpty()) {
+            log.warn("ratedUser not found");
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @RequestMapping(
