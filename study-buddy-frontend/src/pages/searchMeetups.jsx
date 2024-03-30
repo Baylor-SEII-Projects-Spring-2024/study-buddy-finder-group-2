@@ -190,8 +190,9 @@ function SearchMeetupsPage() {
                                     <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
                                 ))}
                             </ul>
-                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)}>
-                                Join Meetup
+
+                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)} disabled={meetup.attendees.some(attendee => attendee.username === currentUser)}>
+                                {meetup.attendees.some(attendee => attendee.username === currentUser) ? "Already Joined" : "Join Meetup"}
                             </Button>
                         </CardContent>
                     </Card>
