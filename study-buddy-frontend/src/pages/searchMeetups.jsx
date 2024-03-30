@@ -170,27 +170,29 @@ function SearchMeetupsPage() {
                         </CardContent>
                     </Card>
 
-                    {meetups.map((meetup, index) => (
-                        <Card key={index} sx={{ margin: 2, width: '80%' }} elevation={6}>
-                            <CardContent>
-                                <Typography><strong>Title:</strong> {meetup.title}</Typography>
-                                <Typography><strong>Creator:</strong> {meetup.username}</Typography>
-                                <Typography><strong>Description:</strong> {meetup.description}</Typography>
-                                <Typography><strong>Course:</strong> {meetup.subject}</Typography>
-                                <Typography><strong>Date:</strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}</Typography>
-                                <Typography><strong>Location:</strong> {meetup.location}</Typography>
-                                <strong>Attendees:</strong>
-                                <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
-                                    {meetup.attendees.map((attendee, index) => (
-                                        <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
-                                    ))}
-                                </ul>
-                                <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)}>
-                                    Join Meetup
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ))}
+                {/* Display meetup results */}
+                {meetups.map((meetup, index) => (
+                    <Card key={index} sx={{ marginBottom: 2, width: '80%'}} elevation={6}>
+                        <CardContent>
+                            <Typography><strong>Title:</strong> {meetup.title}</Typography>
+                            <Typography><strong>Creator:</strong> {meetup.username}</Typography>
+                            <Typography><strong>Description:</strong> {meetup.description}</Typography>
+                            <Typography><strong>Course:</strong> {meetup.subject}</Typography>
+                            <Typography><strong>Date:</strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}</Typography>
+                            <Typography><strong>Location:</strong> {meetup.location}</Typography>
+                            <strong>Attendees:</strong>
+                            <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+                                {meetup.attendees.map((attendee, index) => (
+                                    <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                ))}
+                            </ul>
+
+                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)} disabled={meetup.attendees.some(attendee => attendee.username === currentUser)}>
+                                {meetup.attendees.some(attendee => attendee.username === currentUser) ? "Already Joined" : "Join Meetup"}
+                            </Button>
+                        </CardContent>
+                    </Card>
+                ))}
                 </Box>
             </Box>
         </ThemeProvider>
