@@ -53,14 +53,14 @@ function SearchMeetupsPage() {
         console.log("COURSEEEEE: " + subject);
 
         // TODO: set error for empty search
-        axios.post("http://localhost:8080/api/searchMeetups", meetup, {
-            headers: {
-                'timezone': timezone
-            }}) // for local testing
-        // axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
-        //        headers: {
-        //        'timezone': timezone
-        //     }})
+        // axios.post("http://localhost:8080/api/searchMeetups", meetup, {
+        //     headers: {
+        //         'timezone': timezone
+        //     }}) // for local testing
+        axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
+               headers: {
+               'timezone': timezone
+            }})
             .then((res) => {
                 console.log(meetup.title)
                 console.log(meetup.subject)
@@ -79,12 +79,24 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        //axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        //axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
-                    // Update your meetups state if necessary
+
+                    // add the attendee to meetups state variable
+                    const updatedMeetups = meetups.map(m => {
+                        if(m.id === meetup.id){
+                            return{
+                                ...m,
+                                attendees: [...m.attendees, { username: currentUser }]
+                            };
+                        }
+                        return m;
+                    });
+
+                    setMeetups(updatedMeetups);
                 }
             })
             .catch((err) => {
@@ -93,8 +105,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-        fetch(`http://localhost:8080/api/get-all-courses/`)
+        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        //fetch(`http://localhost:8080/api/get-all-courses/`)
             .then(response => response.json())
             .then(data => {
                 setCourses(Array.from(data))
@@ -104,8 +116,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchRecommendedMeetups = (user) => {
-        //axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
-        axios.get(`http://localhost:8080/recommendMeetups/${user}`)
+        axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
+        //axios.get(`http://localhost:8080/recommendMeetups/${user}`)
             .then(response => {
                 setRecommendedMeetups(response.data);
             })
