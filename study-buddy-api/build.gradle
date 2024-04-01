@@ -44,7 +44,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/javax.websocket/javax.websocket-api
 	compileOnly 'javax.websocket:javax.websocket-api:1.1'
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
-	implementation("org.springframework:spring-messaging")
+	implementation("org.springframework:spring-messaging:6.1.5")
 
 }
 
