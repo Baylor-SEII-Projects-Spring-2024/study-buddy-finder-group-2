@@ -32,7 +32,7 @@ public class NotificationEndpoint {
     @Autowired
     NotificationService notificationService;
     @RequestMapping(
-            value = "/api/getNotifications/{username}",
+            value = "/api/notification/getNotifications/{username}",
             method = RequestMethod.GET
     )
     public ResponseEntity<List<Notification>> getUsersNotifications(@PathVariable String username){
@@ -40,7 +40,7 @@ public class NotificationEndpoint {
     }
 
     @RequestMapping(
-            value = "/api/searchUsers/switchNotificationReadStatus",
+            value = "/api/notification/switchNotificationReadStatus",
             method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json"
