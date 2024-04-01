@@ -8,7 +8,6 @@ import axios from 'axios';
 import AddIcon from '@mui/icons-material/Add';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
-//TODO: Be able to choose people from connections to add to meeting
 //TODO: Bug where user able to input a bit of the date and it goes through
 
 function MeetupsPage() {
@@ -19,6 +18,8 @@ function MeetupsPage() {
     const [subject, setSubject] = useState(null);
     const [date, setDate] = useState(null);
     const [location, setLocation] = useState(null);
+    const [attendees, setAttendees] = useState(new Set());
+
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
     const [meetups, setMeetups] = useState([]);
@@ -100,7 +101,7 @@ function MeetupsPage() {
         const timezone = options.timeZone;
 
         const meeting = {
-            id, username, title, description, subject, date, location
+            id, username, title, description, subject, date, location, attendees
         }
 
         console.log("State variables after update");
@@ -110,6 +111,7 @@ function MeetupsPage() {
         console.log("desc: " + description);
         console.log("sub: " + subject);
         console.log("location: " + location);
+        console.log("attendees: " + attendees);
   
         // axios.put("http://localhost:8080/viewMeetups", meeting, {
         //     headers: {
@@ -182,6 +184,7 @@ function MeetupsPage() {
         setSubject(meetup.subject);
         setDate(meetup.date);
         setLocation(meetup.location);
+        setAttendees(meetup.attendees);
 
         setOpenEdit(true);
     };
@@ -201,15 +204,20 @@ function MeetupsPage() {
                 </ Card>
 
                 {meetups.map((meetup, index) => (
-                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, cursor: 'pointer'}} 
-                    elevation={6} onClick={() => handleClickOpenEdit(meetup)}>
+                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, 
+                    cursor: username === meetup.username ? 'pointer' : 'default'}}
+                    elevation={6} onClick={() => {
+                        if(username === meetup.username){
+                            handleClickOpenEdit(meetup);
+                        }
+                    }}>
                         <CardContent>
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
                                 {/* <strong>ID: </strong> {meetup.id}
+                                <br />*/}
+                                <strong>Creator: </strong> {meetup.username}
                                 <br />
-                                <strong>Username: </strong> {meetup.username}
-                                <br /> */}
                                 <strong>Title: </strong> {meetup.title}
                                 <br />
                                 <strong>Description: </strong> {meetup.description}
@@ -220,13 +228,19 @@ function MeetupsPage() {
                                 <br />
                                 <strong>Location: </strong> {meetup.location}
                                 <br />
+                                <strong>Attendees:</strong>
+                                <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+                                    {meetup.attendees.map((attendee, index) => (
+                                        <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                    ))}
+                                </ul>
                                 </li>
                             </ul>
                         </CardContent>
                     </Card>
                 ))}
 
-                <Button  startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
+                <Button startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
             </Stack>
 
         

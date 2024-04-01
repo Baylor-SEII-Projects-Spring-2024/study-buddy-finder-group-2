@@ -1,5 +1,6 @@
 package studybuddy.api.endpoint;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -7,8 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import studybuddy.api.user.User;
+import studybuddy.api.user.UserService;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +25,31 @@ public class MeetupsEndpoint {
     @Autowired
     private MeetingService meetingService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/viewMeetups/{username}")
     public List<Meeting> getMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone) {
         List<Meeting> meetings = meetingService.findByUsername(username);
+
+        Optional<User> user = userService.findByUsername(username);
+
+        List<Long> attendeeMeetingIds = meetingService.findByUserId(user.get().getId());
+
+        List<Meeting> meetings2 = new ArrayList<Meeting>();
+
+        for(Long id : attendeeMeetingIds){
+            Optional<Meeting> meetingOptional = meetingService.findById(id);
+
+            // add meeting only if not the creator (avoid duplicates)
+            meetingOptional.ifPresent(meeting -> {
+                if(!meeting.getUsername().equals(username)){
+                    meetings2.add(meeting);
+                }
+            });
+        }
+
+        meetings.addAll(meetings2);
 
         // convert each meeting to the users local time
         ZoneId timeZoneId = ZoneId.of(timeZone);
@@ -34,18 +60,50 @@ public class MeetupsEndpoint {
         return meetings;
     }
 
-    @RequestMapping(
-            value = "/viewMeetups",
-            method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = "application/json"
-    )
+//    @Transactional
+//    @RequestMapping(
+//            value = "/viewMeetups",
+//            method = RequestMethod.POST,
+//            consumes = "application/json",
+//            produces = "application/json"
+//    )
+//    public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
+//        Optional<User> user = userService.findByUsername(meeting.getUsername());
+//
+//        ResponseEntity<Meeting> response = ResponseEntity.ok(meetingService.save(meeting));
+//
+//        Meeting m = response.getBody(); // Get the Meeting object from ResponseEntity
+//
+//        if(user.isPresent()) {
+//            meetingService.saveMeetupUser(m.getId(), user.get().getId());
+//        }
+//
+//        return response;
+//    }
+
+    //TODO: make it so that the creator gets included in attendees ^^^^
+    @RequestMapping(value = "/viewMeetups", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
-        return ResponseEntity.ok(meetingService.save(meeting));
+        Meeting savedMeeting = meetingService.save(meeting);
+        Long userId = userService.findByUsername(savedMeeting.getUsername()).get().getId();
+        meetingService.saveMeetupUser(userId, savedMeeting.getId());
+        return ResponseEntity.ok(savedMeeting);
     }
+
 
     @DeleteMapping("/viewMeetups/{id}")
     public void deleteMeeting(@PathVariable Long id) {
+//        Optional<Meeting> m = meetingService.findById(id);
+//
+//        Meeting present = m.get();
+//
+//        for(User u : present.getAttendees()){
+//            meetingService.deleteMeetupUser(u.getId(), id);
+//        }
+//
+//        meetingService.delete(id);
+
+        meetingService.deleteMeetupUser(id);
         meetingService.delete(id);
     }
 
@@ -84,5 +142,22 @@ public class MeetupsEndpoint {
         else{
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping(value = "/recommendMeetups/{username}")
+    public List<Meeting> recommendMeetups(@PathVariable String username) {
+        User loggedInUser = userService.findByUsername(username).get();
+        List<Meeting> recommendedMeetups = meetingService.recommendMeetupsForUser(loggedInUser.getId());
+
+        if (recommendedMeetups.isEmpty()) {
+            log.info("No recommendations found for user id: {}", loggedInUser.getUsername());
+        }
+        else {
+            for (Meeting meeting : recommendedMeetups) {
+                log.info("Recommended meeting: {}", meeting.getTitle());
+            }
+        }
+
+        return recommendedMeetups;
     }
 }
