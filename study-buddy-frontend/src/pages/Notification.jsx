@@ -3,6 +3,7 @@ import useWebSocket, {useWebsocket} from 'react-use-websocket';
 import {Stomp} from '@stomp/stompjs';
 import {
     Button,
+    Badge,
     Grid,
     Card,
     CardContent,
@@ -14,39 +15,45 @@ import {
     DialogContentText,
     DialogTitle,
     TextField,
-    Box, Table
+    Box, Table, AppBar, Toolbar, IconButton
 } from '@mui/material';
+
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 function NotificationPage(){
-    const connectToWebSocket = () => {
-        const stompClient = Stomp.client("ws://localhost:8080/our-websocket");
-        stompClient.heartbeat.outgoing = 20000;
-        stompClient.reconnect_delay = stompClient.reconnectDelay;
-        let stompRef;
-        stompRef.current = stompClient;
-    }
+    const [count, setCount] = useState(0);
+    const [notificationList, setNotifList] = useState(null);
 
-    const sendMessage = () => {
-        if (message.trim() !== '') {
-            sendJsonMessage({ type: 'chat', message });
-            setMessage('');
-        }
+    const viewNotifications = () => {
+        axios.get("", )
+            .then((res) => {
+                setNotifList(res.data);
+                setCount(res.data.filter((x) => x.isRead === true).count);
+            })
+            .catch((err) => {
+
+            });
+
     };
-
     return (
-        <div>
-            <div>
-                Last received message: {lastJsonMessage && lastJsonMessage.message}
-            </div>
-            <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Send Message</button>
-        </div>
+        <Box>
+            <AppBar>
+                <Toolbar>
+                    <Badge badgeContent={count} color="warning">
+                    <IconButton
+                        aria-label="notifications of current user"
+                        aria-controls="menu-appbar"
+                        aria-haspopup="true"
+                        onClick={viewNotifications}
+                        color="inherit">
+                        <NotificationsIcon/>
+                    </IconButton>
+                    </Badge>
+                </Toolbar>
+            </AppBar>
+        </Box>
     );
 }
 export default NotificationPage;

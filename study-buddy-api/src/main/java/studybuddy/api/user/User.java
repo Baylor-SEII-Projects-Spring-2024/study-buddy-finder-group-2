@@ -59,6 +59,7 @@ public class User {
         if(!courses.contains(c)) courses.add(c);
     }
 
+
     public void removeCourse(Course c){
             courses.remove(c);
     }

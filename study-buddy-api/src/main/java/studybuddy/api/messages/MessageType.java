@@ -1,2 +1,7 @@
-package studybuddy.api.messages;public enum MessageType {
+package studybuddy.api.messages;
+
+public enum MessageType {
+    CHAT,
+    JOIN,
+    LEAVER
 }

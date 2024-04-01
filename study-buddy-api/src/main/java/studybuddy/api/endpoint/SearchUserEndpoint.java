@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import studybuddy.api.connection.Connection;
 import studybuddy.api.connection.ConnectionService;
 import studybuddy.api.meetings.Meeting;
+import studybuddy.api.notifications.Notification;
+import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +24,9 @@ public class SearchUserEndpoint {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private ConnectionService connectionService;
@@ -56,6 +62,13 @@ public class SearchUserEndpoint {
             return ResponseEntity.ok(connectionService.saveConnection(connection));
         }
         else {
+            //Sending notification
+            Notification notification = new Notification();
+            notification.setReciever(userService.findByUsernameExists(connection.getRequester()));
+            notification.setSender(userService.findByUsernameExists(connection.getRequested()));
+            notification.setTimestamp(new Date());
+            notification.setNotificationUrl("/invitations");
+            notificationService.sendNotification(notification);
 
             return ResponseEntity.ok(connectionService.saveConnection(connection));
         }
