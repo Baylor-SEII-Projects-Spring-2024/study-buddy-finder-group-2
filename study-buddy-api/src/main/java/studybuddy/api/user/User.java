@@ -2,12 +2,9 @@ package studybuddy.api.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.Cascade;
 import studybuddy.api.course.Course;
-import studybuddy.api.school.School;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data

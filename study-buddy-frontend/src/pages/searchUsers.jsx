@@ -92,7 +92,7 @@ function SearchUsersPage() {
                     console.log(err);
                 });
         }
-        // TODO: test what happens if a user requests a connection twice
+            // TODO: test what happens if a user requests a connection twice
         // the users are not currently connected
         else {
             //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing

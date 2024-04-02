@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import studybuddy.api.course.Course;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,19 +71,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public Optional<User> findByUsername(String username);
 
     /**
-     * findByUsernameExists
-     *
-     * This function queries if any accounts have the same username
-     *
-     * @param username
-     *
-     * @return user if user with username exists,
-     *         NULL if not
-     */
-    @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
-    public User findByUsernameExists(String username);
-
-    /**
      * findByEmail
      *
      * This function queries if any accounts have the same email
@@ -120,8 +106,68 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     public List<User> findByCoursesCourseId(long courseId);
 
+    /**
+     * findByUsernameExists
+     *
+     * This function queries if any accounts have the same username
+     *
+     * @param username
+     *
+     * @return user if user with username exists,
+     *         NULL if not
+     */
+    @Query(value = "SELECT * FROM users u WHERE u.username = ?1", nativeQuery = true)
+    public User findByUsernameExists(String username);
+
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM users_courses uc WHERE uc.course_id = ?1 AND uc.username = ?2", nativeQuery = true)
     public void deleteCourseByCourseId(long courseid, long userid);
+
+
+    @Query(value = "SELECT DISTINCT u.* FROM users u " +
+            "INNER JOIN users_courses uc ON u.user_id = uc.username " + // Adjusted join condition
+            "WHERE uc.course_id IN (" +
+            "    SELECT uc2.course_id FROM users_courses uc2 WHERE uc2.username = ?1" +
+            ") " +
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM connection conn " +
+            "    WHERE (conn.requester = (SELECT username FROM users WHERE user_id = ?1) AND conn.requested = u.username AND conn.is_connected = true) " +
+            "       OR (conn.requester = u.username AND conn.requested = (SELECT username FROM users WHERE user_id = ?1) AND conn.is_connected = true)" +
+            ") " +
+            "AND u.user_id != ?1",
+            nativeQuery = true)
+    public List<User> recommendUsersFromSameCourse(long userId);
+
+    @Query(value = "SELECT DISTINCT u.* FROM users u " +
+            "JOIN users_courses uc ON u.user_Id = uc.username " +
+            "JOIN courses c ON uc.course_id = c.course_id " +
+            "WHERE c.course_prefix = (" +
+            "    SELECT c2.course_prefix FROM users_courses uc2 " +
+            "    JOIN courses c2 ON uc2.course_id = c2.course_id " +
+            "    WHERE uc2.username = (SELECT username FROM users WHERE user_id = ?1)" +
+            ") " +
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM connection conn " +
+            "    WHERE (conn.requester = (SELECT username FROM users WHERE user_id = ?1) AND conn.requested = u.username AND conn.is_connected = true) " +
+            "       OR (conn.requester = u.username AND conn.requested = (SELECT username FROM users WHERE user_id = ?1) AND conn.is_connected = true)" +
+            ") " +
+            "AND u.user_id != ?1 " +
+            "LIMIT 5",
+            nativeQuery = true)
+    List<User> recommendUsersFromSameCoursePrefix(long userId);
+
+    @Query(value = "SELECT DISTINCT u.* FROM users u " +
+            "WHERE u.user_id != ?1 " +
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM connection c " +
+            "    INNER JOIN users u2 ON u2.username = c.requester OR u2.username = c.requested " +
+            "    WHERE (u2.user_id = ?1 AND ((c.requester = u.username AND c.is_connected = true) " +
+            "    OR (c.requested = u.username AND c.is_connected = true)))" +
+            ") " +
+            "ORDER BY RAND() " +
+            "LIMIT 5",
+            nativeQuery = true)
+    List<User> recommendRandomUsers(long userId);
+
 }
