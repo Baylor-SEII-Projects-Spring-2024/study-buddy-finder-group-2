@@ -15,8 +15,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class SearchUserEndpoint {
 
     @Autowired
@@ -71,8 +71,6 @@ public class SearchUserEndpoint {
     public ResponseEntity<Connection> addConnection(@RequestBody Connection connection){
         Optional<Connection> existingConnection = connectionService.findConnection(connection.getRequester(), connection.getRequested());
 
-        // TODO: something to show user that connection exists (requests??)
-        // TODO: prevent user from connecting with self
         if(existingConnection.isPresent()) {
             connection.setId(existingConnection.get().getId());
             connection.setIsConnected(true);

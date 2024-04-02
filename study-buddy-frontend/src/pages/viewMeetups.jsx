@@ -37,8 +37,8 @@ function MeetupsPage() {
     const fetchMeetups = (user) => {
         console.log("User to fetch for: " + user);
 
-        fetch(`http://localhost:8080/viewMeetups/${user}`) // use this for local development
-        // fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
+        //fetch(`http://localhost:8080/viewMeetups/${user}`) // use this for local development
+        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
           .then(response => response.json())
           .then(data => setMeetups(data))
           .catch(error => console.error('Error fetching meetings:', error));
@@ -54,8 +54,8 @@ function MeetupsPage() {
           id, username, title, description, subject, date, location
       }
 
-      axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-      //   axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+      //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+      axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -85,8 +85,8 @@ function MeetupsPage() {
         console.log("sub: " + subject);
         console.log("location: " + location);
   
-        axios.put("http://localhost:8080/viewMeetups", meeting) // for local testing
-        //   axios.put("http://34.16.169.60:8080/viewMeetups", meeting)
+        //axios.put("http://localhost:8080/viewMeetups", meeting) // for local testing
+        axios.put("http://34.16.169.60:8080/viewMeetups", meeting)
               .then((res) => {
                   if(res.status === 200) {
                       handleCloseEdit();
@@ -103,8 +103,8 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-      axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-      //  axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+      //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+      axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();

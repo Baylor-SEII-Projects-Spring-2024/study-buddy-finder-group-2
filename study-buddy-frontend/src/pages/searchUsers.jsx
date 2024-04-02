@@ -46,6 +46,7 @@ function SearchUsersPage() {
         setRequester(user);
     }, [])
 
+    // search for users matching the specifications
     const handleSubmit = (event) => {
         // prevents page reload
         event.preventDefault();
@@ -53,10 +54,10 @@ function SearchUsersPage() {
         const user = {
             username, firstName, lastName, emailAddress, userType, school
         }
-        console.log(requester);
 
-        axios.post(`http://localhost:8080/api/searchUsers/${requester}`, user) // for local testing
-        //axios.post(`http://34.16.169.60:8080/api/searchUsers/${requester}`, user)
+        // this search will NOT return the current user
+        //axios.post(`http://localhost:8080/api/searchUsers/${requester}`, user) // for local testing
+        axios.post(`http://34.16.169.60:8080/api/searchUsers/${requester}`, user)
             .then((res) => {
                 if(res.status === 200){
                     console.log(res.data[0]);
@@ -68,7 +69,7 @@ function SearchUsersPage() {
             });
     }
 
-    // TODO: note that a connection exists (is there a way to change the UI accordingly??)
+    // delete or add connection base off of current connection status
     const handleConnection = (event) => {
         // prevents page reload
         event.preventDefault();
@@ -76,14 +77,11 @@ function SearchUsersPage() {
         const connection = {
             requester, requested, isConnected
         }
-        console.log(connection.requester);
-        console.log(connection.requested);
-        console.log(selectedConnection.id);
 
-
+        // if the users are currently connected
         if(isConnected) {
-            axios.delete(`http://localhost:8080/api/searchUsers/deleteConnection/${selectedConnection?.id}`)
-            //axios.delete(`http://34.16.169.60:8080/api/searchUsers/deleteConnection/${selectedConnection?.id}`)
+            //axios.delete(`http://localhost:8080/api/searchUsers/deleteConnection/${selectedConnection?.id}`)
+            axios.delete(`http://34.16.169.60:8080/api/searchUsers/deleteConnection/${selectedConnection?.id}`)
                 .then((res) => {
                     if(res.status === 200) {
                         handleCloseProfile();
@@ -94,9 +92,11 @@ function SearchUsersPage() {
                     console.log(err);
                 });
         }
+        // TODO: test what happens if a user requests a connection twice
+        // the users are not currently connected
         else {
-            axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
-                //axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
+            //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
+            axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
                 .then((res) => {
                     console.log("CONNECTION ADDED.");
                     if(res.status === 200) {
@@ -110,6 +110,7 @@ function SearchUsersPage() {
         }
     }
 
+    // set connection values
     const handleSetConnection = () => {
         if(!isConnected) {
             setRequested(selectedUser.username);
@@ -117,10 +118,9 @@ function SearchUsersPage() {
         }
     }
 
-    //DIALOG (Add connection)
     const [openProfile, setOpenProfile] = useState(false);
     const [text, setText] = useState("Connect");
-    //document.getElementById("connection")
+    // look at document.getElementById("connection")
 
     // takes in selected user to display profile
     const handleClickOpenProfile = (user) => {
@@ -134,9 +134,9 @@ function SearchUsersPage() {
         setType(user.userType);
         setSchool(user.school);
 
-        // set connection
-        axios.post(`http://localhost:8080/api/searchUsers/getConnection/${requester}`, user.username)
-            //axios.post(`http://34.16.169.60:8080/api/searchUsers/getConnection/${requester}`, user.username)
+        // set connection values for existing connection
+        //axios.post(`http://localhost:8080/api/searchUsers/getConnection/${requester}`, user.username)
+        axios.post(`http://34.16.169.60:8080/api/searchUsers/getConnection/${requester}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
                 setIsConnected(res.data.isConnected);
@@ -145,8 +145,6 @@ function SearchUsersPage() {
                 if(res.data.isConnected) {
                     setText("Disconnect");
                 }
-
-                console.log(res.data);
             })
             .catch((err) => {
                 console.error('Error getting connection:', err)
@@ -156,10 +154,11 @@ function SearchUsersPage() {
     };
 
     // close the profile
+    // reset connection and user values
     const handleCloseProfile = () => {
         setOpenProfile(false);
 
-        // must reset user values for continued search!!
+        // must reset values for continued search!!
         setUsername(searchStr);
         setFirstName(searchStr);
         setLastName(searchStr);

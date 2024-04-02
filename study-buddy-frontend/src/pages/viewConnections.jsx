@@ -2,8 +2,12 @@ import React, {useEffect, useState} from "react";
 import {
     Box, Button,
     Card,
-    CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select,
-    Stack, TextField,
+    CardContent,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Stack,
     Typography
 } from "@mui/material";
 import axios from "axios";
@@ -18,15 +22,13 @@ function viewConnectionsPage() {
     const [userType, setType] = useState(null);
     const [school, setSchool] = useState(null);
 
-    const [searchStr, setStr] = useState(null);
-
     const [users, setUsers] = useState([]);
-    const [connections, setConnections] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
     const [selectedConnection, setSelectedConnection] = useState();
 
     // get the user's username
+    // show all connections for that user
     useEffect(() => {
         const params = new URLSearchParams(window.location.search),
             user = params.get("username");
@@ -35,20 +37,20 @@ function viewConnectionsPage() {
         fetchConnections(user);
     }, [])
 
+    // get all connections with isConnected = true
     const fetchConnections = (user) => {
         console.log("User to fetch for: " + user);
 
-        fetch(`http://localhost:8080/api/viewConnections/${user}`) // use this for local development
-            //fetch(`http://34.16.169.60:8080/api/viewConnections/${user}`)
+        //fetch(`http://localhost:8080/api/viewConnections/${user}`) // use this for local development
+        fetch(`http://34.16.169.60:8080/api/viewConnections/${user}`)
             .then(res => res.json())
             .then(data => setUsers(data))
             .catch(error => console.error('Error fetching connections:', error));
     };
 
+    // delete a connection
     const deleteConnection = (event) => {
         event.preventDefault();
-
-        console.log(selectedConnection);
 
         axios.delete(`http://localhost:8080/api/viewConnections/${selectedConnection?.id}`) // for local testing
         //axios.delete(`http://34.16.169.60:8080/api/viewConnections/${selectedConnection?.id}`)
@@ -66,6 +68,7 @@ function viewConnectionsPage() {
 
     const [openProfile, setOpenProfile] = React.useState(false);
 
+    // show the profile of the connected user
     const handleClickOpenProfile = (user) => {
         setSelectedUser(user);
 
@@ -77,14 +80,11 @@ function viewConnectionsPage() {
         setType(user.userType);
         setSchool(user.school);
 
-        console.log(thisUser);
-        console.log(user.username);
         // set connection
-        axios.post(`http://localhost:8080/api/viewConnections/getConnection/${thisUser}`, user.username)
-            //axios.post(`http://34.16.169.60:8080/api/viewConnections/getConnection/${requester}`, user.username)
+        //axios.post(`http://localhost:8080/api/viewConnections/getConnection/${thisUser}`, user.username)
+        axios.post(`http://34.16.169.60:8080/api/viewConnections/getConnection/${thisUser}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
-                console.log(res.data);
             })
             .catch((err) => {
                 console.error('Error getting connection:', err)
@@ -94,10 +94,11 @@ function viewConnectionsPage() {
     };
 
     // close the profile
+    // reset user and connection values
     const handleCloseProfile = () => {
         setOpenProfile(false);
 
-        // must reset user values for continued search!!
+        // must reset values for continued search!!
         setUsername(null);
         setFirstName(null);
         setLastName(null);
