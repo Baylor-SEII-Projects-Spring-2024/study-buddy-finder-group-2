@@ -52,8 +52,8 @@ function viewConnectionsPage() {
     const deleteConnection = (event) => {
         event.preventDefault();
 
-        axios.delete(`http://localhost:8080/api/viewConnections/${selectedConnection?.id}`) // for local testing
-            //axios.delete(`http://34.16.169.60:8080/api/viewConnections/${selectedConnection?.id}`)
+        //axios.delete(`http://localhost:8080/api/viewConnections/${selectedConnection?.id}`) // for local testing
+        axios.delete(`http://34.16.169.60:8080/api/viewConnections/${selectedConnection?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseProfile();
