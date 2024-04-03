@@ -60,6 +60,10 @@ function StudentLandingPage() {
                             <Button variant='contained' color="primary"> Connections</Button>
                         </Link>
 
+                        <Link href={`/Notification?username=${encodeURIComponent(username)}`} passHref>
+                            <Button variant='contained' color="primary"> Notifications</Button>
+                        </Link>
+
                         <Link href="/" passHref>
                             <Button variant='contained' color="secondary"> Log Out</Button>
                         </Link>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-// import useWebSocket, {useWebsocket} from 'react-use-websocket';
-// import {Stomp} from '@stomp/stompjs';
+
 import {
     Button,
     Badge,
@@ -11,6 +10,7 @@ import {
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
+import Link from "next/link";
 
 function NotificationPage(){
     const [username, setUsername] = useState(null);
@@ -31,6 +31,7 @@ function NotificationPage(){
         api.get(`users/${name}`)
             .then(async data => {
                 await setUser(data);
+                viewNotifications(name);
                 setInterval(function () {
                     viewNotifications(name);
                 }, 5000);
@@ -141,12 +142,13 @@ function NotificationPage(){
                                                     value.read = !value.read;
                                                 }}>
                                             </Checkbox>
+                                            <Link href={value.notificationUrl}>
                                             <ListItemText id={labelId}
                                                           fontWeight={value.read ? 400 : 1000 }
                                                           primary={`${value.notificationContent}`} />
+                                            </Link>
                                             <Button size="small" onClick={() => {
                                                 selectNotif(value);
-                                                console.log(`go to ${value.notificationUrl}`);
                                                 deleteNotif(value);
                                             }}>
                                                 X
