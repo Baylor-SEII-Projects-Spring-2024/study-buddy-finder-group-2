@@ -27,7 +27,7 @@ function MeetupsPage() {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search),
-        user = params.get("username");
+            user = params.get("username");
 
         setUsername(user);
         fetchMeetups(user);
@@ -48,37 +48,37 @@ function MeetupsPage() {
         // })
         fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
             headers: {
-            'timezone': timezone
+                'timezone': timezone
             }
         })
-          .then(response => response.json())
-          .then(data => setMeetups(data))
-          .catch(error => console.error('Error fetching meetings:', error));
+            .then(response => response.json())
+            .then(data => setMeetups(data))
+            .catch(error => console.error('Error fetching meetings:', error));
     };
 
     const fetchCourses = () => {
         //fetch(`http://localhost:8080/api/get-all-courses/`)
         fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-          .then(response => response.json())
-          .then(data =>{
-            setCourses(Array.from(data))   
-            console.log(data);}
+            .then(response => response.json())
+            .then(data =>{
+                setCourses(Array.from(data))
+                console.log(data);}
             )
-          .catch(error => console.error('Error fetching courses:', error));
+            .catch(error => console.error('Error fetching courses:', error));
     };
 
     // CREATE
     const handleSubmit = (event) => {
-      // prevents page reload
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
+        // prevents page reload
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
 
-      const meeting = {
-          id, username, title, description, subject, date, location
-      }
+        const meeting = {
+            id, username, title, description, subject, date, location
+        }
 
-      //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-         axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -112,7 +112,7 @@ function MeetupsPage() {
         console.log("sub: " + subject);
         console.log("location: " + location);
         console.log("attendees: " + attendees);
-  
+
         // axios.put("http://localhost:8080/viewMeetups", meeting, {
         //     headers: {
         //     'timezone': timezone
@@ -120,26 +120,26 @@ function MeetupsPage() {
         // })
         axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
             headers: {
-            'timezone': timezone
+                'timezone': timezone
             }
         })
-              .then((res) => {
-                  if(res.status === 200) {
-                      handleCloseEdit();
-                      fetchMeetups(username);
-                  }
-              })
-              .catch((err) => {
-                  console.log("ERROR UPDATING MEETING.");
-                  console.log(err.value);
-              });
-      }
+            .then((res) => {
+                if(res.status === 200) {
+                    handleCloseEdit();
+                    fetchMeetups(username);
+                }
+            })
+            .catch((err) => {
+                console.log("ERROR UPDATING MEETING.");
+                console.log(err.value);
+            });
+    }
 
     // DELETE
     const handleDelete = (event) =>{
         event.preventDefault();
 
-      //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+        //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
         axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
@@ -153,7 +153,7 @@ function MeetupsPage() {
             });
     }
 
-    
+
 
     //DIALOG (CREATE MEETUP)
     const [open, setOpen] = React.useState(false);
@@ -204,9 +204,9 @@ function MeetupsPage() {
                 </ Card>
 
                 {meetups.map((meetup, index) => (
-                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, 
-                    cursor: username === meetup.username ? 'pointer' : 'default'}}
-                    elevation={6} onClick={() => {
+                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1,
+                        cursor: username === meetup.username ? 'pointer' : 'default'}}
+                          elevation={6} onClick={() => {
                         if(username === meetup.username){
                             handleClickOpenEdit(meetup);
                         }
@@ -214,26 +214,26 @@ function MeetupsPage() {
                         <CardContent>
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
-                                {/* <strong>ID: </strong> {meetup.id}
+                                    {/* <strong>ID: </strong> {meetup.id}
                                 <br />*/}
-                                <strong>Creator: </strong> {meetup.username}
-                                <br />
-                                <strong>Title: </strong> {meetup.title}
-                                <br />
-                                <strong>Description: </strong> {meetup.description}
-                                <br />
-                                <strong>Course: </strong> {meetup.subject}
-                                <br />
-                                <strong>Date: </strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}
-                                <br />
-                                <strong>Location: </strong> {meetup.location}
-                                <br />
-                                <strong>Attendees:</strong>
-                                <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
-                                    {meetup.attendees.map((attendee, index) => (
-                                        <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
-                                    ))}
-                                </ul>
+                                    <strong>Creator: </strong> {meetup.username}
+                                    <br />
+                                    <strong>Title: </strong> {meetup.title}
+                                    <br />
+                                    <strong>Description: </strong> {meetup.description}
+                                    <br />
+                                    <strong>Course: </strong> {meetup.subject}
+                                    <br />
+                                    <strong>Date: </strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}
+                                    <br />
+                                    <strong>Location: </strong> {meetup.location}
+                                    <br />
+                                    <strong>Attendees:</strong>
+                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+                                        {meetup.attendees.map((attendee, index) => (
+                                            <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                        ))}
+                                    </ul>
                                 </li>
                             </ul>
                         </CardContent>
@@ -243,216 +243,216 @@ function MeetupsPage() {
                 <Button startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
             </Stack>
 
-        
-
-      {/*CREATE MEETUP DIALOG BOX*/}
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                component="form" validate="true" onSubmit={handleSubmit}
-                disableScrollLock={true}
-            >
-        <DialogTitle>Create Meetup</DialogTitle>
-        <DialogContent>
-
-          <DialogContentText>
-            Set the title, description, course, date, and location of your meeting.
-          </DialogContentText>
-
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="title"
-            name="title"
-            label="Title of Meeting"
-            type="string"
-            fullWidth
-            variant="standard"
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-        <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="description"
-            name="description"
-            label="Description of Meeting"
-            type="string"
-            fullWidth
-            variant="standard"
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
-        <FormControl fullWidth required>
-            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
-            <Select
-            labelId="courses"
-            id="dropdown"
-            sx={{ marginTop: '20px' }}
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            label="Select a Course"
-            >
-
-            {courses.map(course => {
-                return (
-                    <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
-                    {course.coursePrefix} {course.courseNumber}
-                    </MenuItem>
-                )
-            })}
-
-            </Select>
-        </FormControl>
-
-        <DateTimePicker
-            label="Date"
-            onChange={(e) => setDate(e)}
-
-            //makes field required
-            slotProps={{
-                textField: {
-                required: true,
-                style: { marginTop: '20px' }
-                }
-            }}
-
-            disablePast
-        />
-
-        <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="location"
-            name="location"
-            label="Location of Meeting"
-            type="string"
-            fullWidth
-            variant="standard"
-            onChange={(e) => setLocation(e.target.value)}
-          />
-
-        </DialogContent>
-
-        <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Create</Button>
-        </DialogActions>
-        
-      </Dialog>
-    </LocalizationProvider>
 
 
+            {/*CREATE MEETUP DIALOG BOX*/}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Dialog
+                    open={open}
+                    onClose={handleClose}
+                    component="form" validate="true" onSubmit={handleSubmit}
+                    disableScrollLock={true}
+                >
+                    <DialogTitle>Create Meetup</DialogTitle>
+                    <DialogContent>
 
-    {/*EDIT MEETUP DIALOG BOX*/}
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Dialog
-            open={openEdit}
-            onClose={handleCloseEdit}
-            component="form" validate="true" onSubmit={handleSubmitUpdate}
-            disableScrollLock={true}
-      >
-        <DialogTitle>Edit Meetup</DialogTitle>
-        <DialogContent>
+                        <DialogContentText>
+                            Set the title, description, course, date, and location of your meeting.
+                        </DialogContentText>
 
-          <DialogContentText>
-            Edit the title, description, course, date, and location of your meeting.
-          </DialogContentText>
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="title"
+                            name="title"
+                            label="Title of Meeting"
+                            type="string"
+                            fullWidth
+                            variant="standard"
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
 
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="title"
-            name="title"
-            label="Title of Meeting"
-            type="string"
-            fullWidth
-            variant="standard"
-            defaultValue={selectedMeeting?.title || ''}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="description"
+                            name="description"
+                            label="Description of Meeting"
+                            type="string"
+                            fullWidth
+                            variant="standard"
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
 
-        <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="description"
-            name="description"
-            label="Description of Meeting"
-            type="string"
-            fullWidth
-            variant="standard"
-            defaultValue={selectedMeeting?.description || ''}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+                        <FormControl fullWidth required>
+                            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
+                            <Select
+                                labelId="courses"
+                                id="dropdown"
+                                sx={{ marginTop: '20px' }}
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
+                                label="Select a Course"
+                            >
 
-        <FormControl fullWidth required>
-            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
-            <Select
-            labelId="courses"
-            id="dropdown"
-            sx={{ marginTop: '20px' }}
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            label="Select a Course"
-            >
+                                {courses.map(course => {
+                                    return (
+                                        <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                                            {course.coursePrefix} {course.courseNumber}
+                                        </MenuItem>
+                                    )
+                                })}
 
-            {courses.map(course => {
-                return (
-                    <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
-                    {course.coursePrefix} {course.courseNumber}
-                    </MenuItem>
-                )
-            })}
+                            </Select>
+                        </FormControl>
 
-            </Select>
-        </FormControl>
+                        <DateTimePicker
+                            label="Date"
+                            onChange={(e) => setDate(e)}
 
-        <DateTimePicker
-            label="Date"
-            defaultValue={dayjs(selectedMeeting?.date)}
+                            //makes field required
+                            slotProps={{
+                                textField: {
+                                    required: true,
+                                    style: { marginTop: '20px' }
+                                }
+                            }}
 
-            //makes field required
-            slotProps={{
-                textField: {
-                required: true,
-                style: { marginTop: '10px' }
-                }
-            }}
+                            disablePast
+                        />
 
-            disablePast
-            onChange={(e) => setDate(e)}
-        />
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="location"
+                            name="location"
+                            label="Location of Meeting"
+                            type="string"
+                            fullWidth
+                            variant="standard"
+                            onChange={(e) => setLocation(e.target.value)}
+                        />
 
-        <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="location"
-            name="location"
-            label="Location of Meeting"
-            type="string"
-            fullWidth
-            variant="standard"
-            defaultValue={selectedMeeting?.location || ''}
-            onChange={(e) => setLocation(e.target.value)}
-          />
+                    </DialogContent>
 
-        </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Create</Button>
+                    </DialogActions>
 
-        <DialogActions>
-            <Button onClick={handleCloseEdit}>Cancel</Button>
-            <Button onClick={handleDelete} style={{ backgroundColor: 'red', color: 'white' }}>Delete</Button>
-            <Button type="submit" onSubmit={handleSubmitUpdate} style={{ backgroundColor: 'purple', color: 'white' }}>Update</Button>
-        </DialogActions>
-        
-      </Dialog>
-    </LocalizationProvider>
+                </Dialog>
+            </LocalizationProvider>
+
+
+
+            {/*EDIT MEETUP DIALOG BOX*/}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Dialog
+                    open={openEdit}
+                    onClose={handleCloseEdit}
+                    component="form" validate="true" onSubmit={handleSubmitUpdate}
+                    disableScrollLock={true}
+                >
+                    <DialogTitle>Edit Meetup</DialogTitle>
+                    <DialogContent>
+
+                        <DialogContentText>
+                            Edit the title, description, course, date, and location of your meeting.
+                        </DialogContentText>
+
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="title"
+                            name="title"
+                            label="Title of Meeting"
+                            type="string"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedMeeting?.title || ''}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="description"
+                            name="description"
+                            label="Description of Meeting"
+                            type="string"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedMeeting?.description || ''}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+
+                        <FormControl fullWidth required>
+                            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
+                            <Select
+                                labelId="courses"
+                                id="dropdown"
+                                sx={{ marginTop: '20px' }}
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
+                                label="Select a Course"
+                            >
+
+                                {courses.map(course => {
+                                    return (
+                                        <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                                            {course.coursePrefix} {course.courseNumber}
+                                        </MenuItem>
+                                    )
+                                })}
+
+                            </Select>
+                        </FormControl>
+
+                        <DateTimePicker
+                            label="Date"
+                            defaultValue={dayjs(selectedMeeting?.date)}
+
+                            //makes field required
+                            slotProps={{
+                                textField: {
+                                    required: true,
+                                    style: { marginTop: '10px' }
+                                }
+                            }}
+
+                            disablePast
+                            onChange={(e) => setDate(e)}
+                        />
+
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="location"
+                            name="location"
+                            label="Location of Meeting"
+                            type="string"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedMeeting?.location || ''}
+                            onChange={(e) => setLocation(e.target.value)}
+                        />
+
+                    </DialogContent>
+
+                    <DialogActions>
+                        <Button onClick={handleCloseEdit}>Cancel</Button>
+                        <Button onClick={handleDelete} style={{ backgroundColor: 'red', color: 'white' }}>Delete</Button>
+                        <Button type="submit" onSubmit={handleSubmitUpdate} style={{ backgroundColor: 'purple', color: 'white' }}>Update</Button>
+                    </DialogActions>
+
+                </Dialog>
+            </LocalizationProvider>
         </div>
     );
 }

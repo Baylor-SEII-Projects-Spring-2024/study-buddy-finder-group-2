@@ -5,11 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.connection.Connection;
 import studybuddy.api.connection.ConnectionService;
-import studybuddy.api.meetings.Meeting;
 import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.Date;
 import java.util.List;
@@ -32,17 +32,40 @@ public class SearchUserEndpoint {
     private ConnectionService connectionService;
 
     @RequestMapping(
-            value = "/api/searchUsers",
+            value = "/api/searchUsers/{username}",
             method = RequestMethod.POST
     )
-    public ResponseEntity<List<User>> searchResults(@RequestBody User userSearch) {
+    public ResponseEntity<List<User>> searchResults(@PathVariable String username, @RequestBody User userSearch) {
+        List<User> users;
+        System.out.println(username);
+
         if(userSearch.getUserType() == null) {
-            return ResponseEntity.ok(userService.findByNameOrUsername(userSearch.getUsername()));
+            users = userService.findByNameOrUsername(userSearch.getUsername());
         }
         else {
-            System.out.println(userSearch.getUserType());
-            return ResponseEntity.ok(userService.findByNameOrUsernameAndUserType(userSearch.getUsername(), userSearch.getUserType()));
+            users = userService.findByNameOrUsernameAndUserType(userSearch.getUsername(), userSearch.getUserType());
         }
+
+        // remove the current user from search results
+        for(User u : users) {
+            if(u.getUsername().equals(username)) {
+                users.remove(u);
+            }
+        }
+        return ResponseEntity.ok(users);
+    }
+
+    @RequestMapping(
+            value = "/api/searchUsers/getConnection/{username}",
+            method = RequestMethod.POST
+    )
+    public ResponseEntity<Connection> getConnection(@PathVariable String username, @RequestBody String requested) {
+        return ResponseEntity.ok(connectionService.getConnection(username, requested));
+    }
+
+    @DeleteMapping("/api/searchUsers/deleteConnection/{id}")
+    public void deleteConnection(@PathVariable Long id) {
+        connectionService.delete(id);
     }
 
     @RequestMapping(
@@ -54,8 +77,6 @@ public class SearchUserEndpoint {
     public ResponseEntity<Connection> addConnection(@RequestBody Connection connection){
         Optional<Connection> existingConnection = connectionService.findConnection(connection.getRequester(), connection.getRequested());
 
-        // TODO: something to show user that connection exists (requests??)
-        // TODO: prevent user from connecting with self
         if(existingConnection.isPresent()) {
             connection.setId(existingConnection.get().getId());
             connection.setIsConnected(true);
