@@ -52,4 +52,9 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
+    public Notification deleteNotificationById(Notification notification){
+        notificationRepository.removeNotificationByNotificationId(notification.getNotificationId());
+        return notification;
+    }
+
 }

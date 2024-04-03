@@ -25,8 +25,8 @@ import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class NotificationEndpoint {
 
     @Autowired
@@ -45,7 +45,18 @@ public class NotificationEndpoint {
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<Notification> addConnection(@RequestBody Notification notification){
+    public ResponseEntity<Notification> switchReadStatus(@RequestBody Notification notification){
         return ResponseEntity.ok(notificationService.changeReadStatus(notification));
+    }
+
+
+    @RequestMapping(
+            value = "/api/notification/deleteNotification",
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<Notification> removeNotification(@RequestBody Notification notification){
+        return ResponseEntity.ok(notificationService.deleteNotificationById(notification));
     }
 }

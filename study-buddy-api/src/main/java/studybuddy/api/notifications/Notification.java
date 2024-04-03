@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = studybuddy.api.course.Course.TABLE_NAME)
+@Table(name = studybuddy.api.notifications.Notification.TABLE_NAME)
 public class Notification {
     public static final String TABLE_NAME = "notifications";
     @Id
@@ -22,7 +22,7 @@ public class Notification {
     private Long notificationId;
 
     @Column(name = "NOTIFICATION_CONTENT")
-    private int notificationContent;
+    private String notificationContent;
 
     @Column(name = "NOTIFICATION_URL")
     private String notificationUrl;

@@ -1,25 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import useWebSocket, {useWebsocket} from 'react-use-websocket';
-import {Stomp} from '@stomp/stompjs';
+// import useWebSocket, {useWebsocket} from 'react-use-websocket';
+// import {Stomp} from '@stomp/stompjs';
 import {
     Button,
     Badge,
-    Grid,
-    Card,
-    CardContent,
-    Stack,
     Typography,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    TextField,
-    Box, Table, AppBar, Toolbar, IconButton, Menu, MenuItem, ListItemButton, ListItemText, List
+    Box,AppBar, Toolbar, IconButton, Menu, MenuItem, ListItemButton, ListItemText, List, Checkbox
 } from '@mui/material';
 
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import axios from 'axios';
+import axios, {Axios, defaults} from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 function NotificationPage(){
@@ -31,58 +21,69 @@ function NotificationPage(){
     const [anchorEl, setAnchorEl] = React.useState(null);
 
 
-    axios.defaults.baseURL = 'http://localhost:8080/';
-    //axios.defaults.baseURL = 'http://34.16.169.60:8080/';
+    const api = axios.create({
+        baseURL: 'http://localhost:8080/' || 'http://34.16.169.60:8080/'
+    });
 
-    const fetchUser = (user) => {
-        console.log("User to fetch for: " + user);
+    const fetchUser = (name) => {
+        console.log("User to fetch for: " + name);
 
-        fetch(`me/${user}`)
-            .then(response => response.json())
-            .then(data => setUser(data))
+        api.get(`users/${name}`)
+            .then(async data => {
+                await setUser(data);
+                setInterval(function () {
+                    viewNotifications(name);
+                }, 5000);
+            })
             .catch(error => console.error('Error fetching user:', error));
+
     };
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
+            name = params.get("username");
 
-        setUsername(user);
-        fetchUser(user);
+        setUsername(name);
+        fetchUser(name);
     }, []);
 
-    const delay = (t) => new Promise(resolve => setTimeout(resolve, t));
-
-
-    const viewNotifications = async () => {
-        let more = true;
-        while (more) {
-            axios.get(`api/notification/getNotifications/${username}`)
+    const viewNotifications = (name) => {
+            api.get(`api/notification/getNotifications/${name}`)
                 .then((res) => {
                     setNotifList(res.data);
-                    setCount(res.data.filter((x) => x.isRead === true).length);
+                    console.log(res.data);
+                    setCount(res.data.filter(x => x.read === false).length);
                 })
                 .catch((err) => {
                     console.log("Uh oh, can't get notifications");
                     setNotifList(null);
                 });
-
-            await delay(5000);
-
-        }
     }
 
-    const switchNotifReadStatus = () => {
-        axios.post(`api/notification/switchNotificationReadStatus`, notif)
+    const switchNotifReadStatus = (value) => {
+        api.post(`api/notification/switchNotificationReadStatus`, value)
             .then((res) => {
                 selectNotif(null);
-                console.log(res.isRead);
+                console.log(res.read);
             })
             .catch((err) => {
                 console.log("Uh oh, can't get notifications");
                 selectNotif(null);
             });
     }
+
+    const deleteNotif = (value) => {
+        api.post(`api/notification/deleteNotification`, value)
+            .then((res) => {
+                selectNotif(null);
+                console.log("notification deleted");
+            })
+            .catch((err) => {
+                console.log("Uh oh, can't get notifications");
+                selectNotif(null);
+            });
+    }
+
 
     const handleOpen = () => {
         setAnchorEl(event.currentTarget);
@@ -107,8 +108,7 @@ function NotificationPage(){
                         aria-controls="menu-appbar"
                         aria-haspopup="true"
                         size="large"
-                        edge="right"
-                        onClick={viewNotifications && handleOpen}
+                        onClick={handleOpen}
                         color="inherit">
                         <NotificationsIcon/>
                     </IconButton>
@@ -130,25 +130,32 @@ function NotificationPage(){
                         >
                             <List component="notifications" aria-label="notifications">
                                 {notificationList === null ? () => console.log("empty") : notificationList.map((value) => {
-                                    const labelId = `checkbox-list-label-${value.content}`;
+                                    const labelId = `checkbox-list-label-${value.notificationId}`;
                                     return (
                                         <MenuItem
                                             selected={ notif === value}
                                         >
-                                            <ListItemText id={labelId} primary={`${value.content}`} />
+                                            <Checkbox
+                                                onClick={() => {
+                                                    switchNotifReadStatus(value);
+                                                    value.read = !value.read;
+                                                }}>
+                                            </Checkbox>
+                                            <ListItemText id={labelId}
+                                                          fontWeight={value.read ? 400 : 1000 }
+                                                          primary={`${value.notificationContent}`} />
                                             <Button size="small" onClick={() => {
                                                 selectNotif(value);
-                                                console.log(`clicked ${value.courseNumber}`);
-
+                                                console.log(`go to ${value.notificationUrl}`);
+                                                deleteNotif(value);
                                             }}>
-                                                []
+                                                X
                                             </Button>
+
                                         </MenuItem>
                                     );
                                 })}
                             </List>
-                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                            <MenuItem onClick={handleClose}>My account</MenuItem>
                         </Menu>
                     </div>
                 </Toolbar>
