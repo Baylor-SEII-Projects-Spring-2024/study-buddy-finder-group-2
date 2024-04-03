@@ -85,10 +85,11 @@ public class SearchUserEndpoint {
         else {
             //Sending notification
             Notification notification = new Notification();
-            notification.setReciever(userService.findByUsernameExists(connection.getRequester()));
-            notification.setSender(userService.findByUsernameExists(connection.getRequested()));
+            notification.setReciever(userService.findByUsernameExists(connection.getRequested()));
+            notification.setSender(userService.findByUsernameExists(connection.getRequester()));
             notification.setTimestamp(new Date());
             notification.setNotificationUrl("/invitations");
+            notification.setNotificationContent(connection.getRequester()+" wants to be your buddy!");
             notificationService.sendNotification(notification);
 
             return ResponseEntity.ok(connectionService.saveConnection(connection));
