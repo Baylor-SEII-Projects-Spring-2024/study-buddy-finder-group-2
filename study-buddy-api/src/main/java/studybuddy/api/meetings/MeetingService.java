@@ -91,4 +91,8 @@ public class MeetingService {
     public void deleteMeetupUser(long meetingId){
         meetingRepository.deleteMeetupUser(meetingId);
     }
+
+    public void leaveMeetup(long userId, long meetingId){
+        meetingRepository.leaveMeetup(userId, meetingId);
+    }
 }
