@@ -7,6 +7,10 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import AddIcon from '@mui/icons-material/Add';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PersonIcon from '@mui/icons-material/Person';
+import CreateIcon from '@mui/icons-material/Create';
+import EventIcon from '@mui/icons-material/Event';
 
 //TODO: Bug where user able to input a bit of the date and it goes through
 
@@ -213,15 +217,15 @@ function MeetupsPage() {
     return (
         <div>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
-                <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
+                <Card sx={{ width: 'auto', margin: 'auto' }} elevation={4}>
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <SupervisorAccountIcon sx={{fontSize: 40, marginRight: '10px'}}/>
-                        <Typography variant='h4' align='center'>Your Meetups</Typography>
+                        <Typography variant='h4' align='center'>{username}'s Meetups</Typography>
                     </CardContent>
                 </ Card>
 
                 {meetups.map((meetup, index) => (
-                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1,
+                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto',
                         cursor: username === meetup.username ? 'pointer' : 'default'}}
                           elevation={6} onClick={() => {
                         if(username === meetup.username){
@@ -231,26 +235,45 @@ function MeetupsPage() {
                         <CardContent>
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
-                                    {/* <strong>ID: </strong> {meetup.id}
-                                <br />*/}
-                                    <strong>Creator: </strong> {meetup.username}
+                                    <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{meetup.title}</Typography>
+                                    
+                                    
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
+                                    </div>
+
                                     <br />
-                                    <strong>Title: </strong> {meetup.title}
+
+                                    
+                                    <span style={{ marginLeft: '30px'}}>{meetup.description}</span>
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{meetup.subject}</span>
+                                    </div>
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                                    </div>
+
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{meetup.location}</span>
+                                    </div>
+
                                     <br />
-                                    <strong>Description: </strong> {meetup.description}
-                                    <br />
-                                    <strong>Course: </strong> {meetup.subject}
-                                    <br />
-                                    <strong>Start: </strong> {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')}
-                                    <br />
-                                    <strong>End: </strong> {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}
-                                    <br />
-                                    <strong>Location: </strong> {meetup.location}
-                                    <br />
-                                    <strong>Attendees:</strong>
-                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+
+                                    
+                                    <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px'}}>Attendees</Typography>
+                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
                                         {meetup.attendees.map((attendee, index) => (
-                                            <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                            <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
                                         ))}
                                     </ul>
                                 </li>
