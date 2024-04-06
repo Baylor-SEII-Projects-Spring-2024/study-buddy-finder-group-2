@@ -16,7 +16,8 @@ function MeetupsPage() {
     const [title, setTitle] = useState(null);
     const [description, setDescription] = useState(null);
     const [subject, setSubject] = useState(null);
-    const [date, setDate] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [location, setLocation] = useState(null);
     const [attendees, setAttendees] = useState(new Set());
 
@@ -41,24 +42,24 @@ function MeetupsPage() {
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
-        // fetch(`http://localhost:8080/viewMeetups/${user}`, {
-        //     headers: {
-        //     'timezone': timezone
-        //     }
-        // })
-        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        fetch(`http://localhost:8080/viewMeetups/${user}`, {
             headers: {
-                'timezone': timezone
+            'timezone': timezone
             }
         })
+        // fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        //     headers: {
+        //         'timezone': timezone
+        //     }
+        // })
             .then(response => response.json())
             .then(data => setMeetups(data))
             .catch(error => console.error('Error fetching meetings:', error));
     };
 
     const fetchCourses = () => {
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        fetch(`http://localhost:8080/api/get-all-courses/`)
+        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
             .then(response => response.json())
             .then(data =>{
                 setCourses(Array.from(data))
@@ -73,12 +74,18 @@ function MeetupsPage() {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
-        const meeting = {
-            id, username, title, description, subject, date, location
+        // validate start and end times
+        if(new Date(endDate) < new Date(startDate)) {
+            alert("End dates cannot occur before start dates.");
+            return;
         }
 
-        //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        const meeting = {
+            id, username, title, description, subject, startDate, endDate, location
+        }
+
+        axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+        //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -96,12 +103,18 @@ function MeetupsPage() {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
+        // validate start and end times
+        if(new Date(endDate) < new Date(startDate)) {
+            alert("End dates cannot occur before start dates.");
+            return;
+        }
+
         // get user local time zone
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
         const meeting = {
-            id, username, title, description, subject, date, location, attendees
+            id, username, title, description, subject, startDate, endDate, location, attendees
         }
 
         console.log("State variables after update");
@@ -113,16 +126,16 @@ function MeetupsPage() {
         console.log("location: " + location);
         console.log("attendees: " + attendees);
 
-        // axios.put("http://localhost:8080/viewMeetups", meeting, {
-        //     headers: {
-        //     'timezone': timezone
-        //     }
-        // })
-        axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        axios.put("http://localhost:8080/viewMeetups", meeting, {
             headers: {
-                'timezone': timezone
+            'timezone': timezone
             }
         })
+        // axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        //     headers: {
+        //         'timezone': timezone
+        //     }
+        // })
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -139,8 +152,8 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-        //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+        axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+        //axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -182,9 +195,13 @@ function MeetupsPage() {
         setTitle(meetup.title);
         setDescription(meetup.description);
         setSubject(meetup.subject);
-        setDate(meetup.date);
+        setStartDate(meetup.startDate);
+        setEndDate(meetup.endDate);
         setLocation(meetup.location);
         setAttendees(meetup.attendees);
+
+        console.log("START OPEN EDIT: " + meetup.startDate);
+        console.log("END OPEN EDIT: " + meetup.endDate);
 
         setOpenEdit(true);
     };
@@ -224,7 +241,9 @@ function MeetupsPage() {
                                     <br />
                                     <strong>Course: </strong> {meetup.subject}
                                     <br />
-                                    <strong>Date: </strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}
+                                    <strong>Start: </strong> {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')}
+                                    <br />
+                                    <strong>End: </strong> {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}
                                     <br />
                                     <strong>Location: </strong> {meetup.location}
                                     <br />
@@ -257,7 +276,7 @@ function MeetupsPage() {
                     <DialogContent>
 
                         <DialogContentText>
-                            Set the title, description, course, date, and location of your meeting.
+                            Set the title, description, course, start date, end date, and location of your meeting.
                         </DialogContentText>
 
                         <TextField
@@ -309,8 +328,24 @@ function MeetupsPage() {
                         </FormControl>
 
                         <DateTimePicker
-                            label="Date"
-                            onChange={(e) => setDate(e)}
+                            label="Start"
+                            onChange={(e) => setStartDate(e)}
+
+                            //makes field required
+                            slotProps={{
+                                textField: {
+                                    required: true,
+                                    style: { marginTop: '20px' }
+                                }
+                            }}
+
+                            disablePast
+                        />
+
+                        <DateTimePicker
+                            label="End"
+                            onChange={(e) => setEndDate(e)}
+                            sx = {{ marginLeft: '15px'}}
 
                             //makes field required
                             slotProps={{
@@ -360,7 +395,7 @@ function MeetupsPage() {
                     <DialogContent>
 
                         <DialogContentText>
-                            Edit the title, description, course, date, and location of your meeting.
+                            Edit the title, description, course, start date, end date, and location of your meeting.
                         </DialogContentText>
 
                         <TextField
@@ -414,19 +449,36 @@ function MeetupsPage() {
                         </FormControl>
 
                         <DateTimePicker
-                            label="Date"
-                            defaultValue={dayjs(selectedMeeting?.date)}
+                            label="Start"
+                            defaultValue={dayjs(selectedMeeting?.startDate)}
 
                             //makes field required
                             slotProps={{
                                 textField: {
                                     required: true,
-                                    style: { marginTop: '10px' }
+                                    style: { marginTop: '20px' }
                                 }
                             }}
 
                             disablePast
-                            onChange={(e) => setDate(e)}
+                            onChange={(e) => setStartDate(e)}
+                        />
+
+                        <DateTimePicker
+                            label="End"
+                            sx = {{ marginLeft: '15px'}}
+                            defaultValue={dayjs(selectedMeeting?.endDate)}
+
+                            //makes field required
+                            slotProps={{
+                                textField: {
+                                    required: true,
+                                    style: { marginTop: '20px' }
+                                }
+                            }}
+
+                            disablePast
+                            onChange={(e) => setEndDate(e)}
                         />
 
                         <TextField

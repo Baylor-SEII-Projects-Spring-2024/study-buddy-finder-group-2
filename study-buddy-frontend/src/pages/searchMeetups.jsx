@@ -11,24 +11,13 @@ const theme = createTheme({
 });
 
 function SearchMeetupsPage() {
-    // const [searchStr, setStr] = useState(null);
-    // const [username, setUsername] = useState(null);
-    // const [title, setTitle] = useState('');
-    // const [description, setDescription] = useState(null);
-    // const [subject, setSubject] = useState('');
-    // const [date, setDate] = useState(null);
-    // const [location, setLocation] = useState(null);
-    // const [currentUser, setCurrentUser] = useState('');
-    // const [meetups, setMeetups] = useState([]);
-    // const [recommendedMeetups, setRecommendedMeetups] = useState([]);
-    // const [courses, setCourses] = useState([]);
-
     const [searchStr, setStr] = useState('');
     const [username, setUsername] = useState('');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [subject, setSubject] = useState('');
-    const [date, setDate] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [location, setLocation] = useState('');
     const [currentUser, setCurrentUser] = useState('');
     const [meetups, setMeetups] = useState([]);
@@ -42,7 +31,7 @@ function SearchMeetupsPage() {
         fetchCourses();
         fetchRecommendedMeetups(user);
 
-        console.log("Users in meetups:", meetups.map(meetup => meetup.attendees.map(attendee => attendee.username)).flat());
+        // console.log("Users in meetups:", meetups.map(meetup => meetup.attendees.map(attendee => attendee.username)).flat());
     }, []);
 
     const handleSearch = (str) => {
@@ -59,7 +48,7 @@ function SearchMeetupsPage() {
         const timezone = options.timeZone;
 
         const meetup = {
-            username, title, description, subject, date, location
+            username, title, description, subject, startDate, endDate, location
         }
 
         console.log("TITLEEEEEE: " + title);
@@ -237,7 +226,8 @@ function SearchMeetupsPage() {
                             <Typography><strong>Creator:</strong> {meetup.username}</Typography>
                             <Typography><strong>Description:</strong> {meetup.description}</Typography>
                             <Typography><strong>Course:</strong> {meetup.subject}</Typography>
-                            <Typography><strong>Date:</strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}</Typography>
+                            <Typography><strong>Start:</strong> {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')}</Typography>
+                            <Typography><strong>End:</strong> {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</Typography>
                             <Typography><strong>Location:</strong> {meetup.location}</Typography>
                             <strong>Attendees:</strong>
                             <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>

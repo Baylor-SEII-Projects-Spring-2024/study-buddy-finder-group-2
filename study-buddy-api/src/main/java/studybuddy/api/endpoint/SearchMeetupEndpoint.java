@@ -49,14 +49,14 @@ public class SearchMeetupEndpoint {
 
         ZoneId timeZoneId = ZoneId.of(timeZone);
         m.forEach(meeting -> {
-            meeting.setDate(meeting.getDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+            meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+            meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
         });
 
         ResponseEntity<List<Meeting>> response = new ResponseEntity<>(m, HttpStatus.OK);
 
         return response;
     }
-
 
     @Transactional
     @RequestMapping(
