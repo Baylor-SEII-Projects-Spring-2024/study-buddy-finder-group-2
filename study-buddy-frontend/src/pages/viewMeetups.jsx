@@ -46,24 +46,24 @@ function MeetupsPage() {
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
-        fetch(`http://localhost:8080/viewMeetups/${user}`, {
-            headers: {
-            'timezone': timezone
-            }
-        })
-        // fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        // fetch(`http://localhost:8080/viewMeetups/${user}`, {
         //     headers: {
-        //         'timezone': timezone
+        //     'timezone': timezone
         //     }
         // })
+        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+            headers: {
+                'timezone': timezone
+            }
+        })
             .then(response => response.json())
             .then(data => setMeetups(data))
             .catch(error => console.error('Error fetching meetings:', error));
     };
 
     const fetchCourses = () => {
-        fetch(`http://localhost:8080/api/get-all-courses/`)
-        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        //fetch(`http://localhost:8080/api/get-all-courses/`)
+        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
             .then(response => response.json())
             .then(data =>{
                 setCourses(Array.from(data))
@@ -79,8 +79,8 @@ function MeetupsPage() {
         const data = new FormData(event.currentTarget);
 
         // validate start and end times
-        if(new Date(endDate) < new Date(startDate)) {
-            alert("End dates cannot occur before start dates.");
+        if(new Date(endDate) <= new Date(startDate)) {
+            alert("End times cannot occur before or on start times.");
             return;
         }
 
@@ -88,8 +88,8 @@ function MeetupsPage() {
             id, username, title, description, subject, startDate, endDate, location
         }
 
-        axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-        //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -108,8 +108,8 @@ function MeetupsPage() {
         const data = new FormData(event.currentTarget);
 
         // validate start and end times
-        if(new Date(endDate) < new Date(startDate)) {
-            alert("End dates cannot occur before start dates.");
+        if(new Date(endDate) <= new Date(startDate)) {
+            alert("End times cannot occur before or on start times.");
             return;
         }
 
@@ -130,16 +130,16 @@ function MeetupsPage() {
         console.log("location: " + location);
         console.log("attendees: " + attendees);
 
-        axios.put("http://localhost:8080/viewMeetups", meeting, {
-            headers: {
-            'timezone': timezone
-            }
-        })
-        // axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        // axios.put("http://localhost:8080/viewMeetups", meeting, {
         //     headers: {
-        //         'timezone': timezone
+        //     'timezone': timezone
         //     }
         // })
+        axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+            headers: {
+                'timezone': timezone
+            }
+        })
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -156,8 +156,8 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-        axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        //axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+        //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -169,6 +169,38 @@ function MeetupsPage() {
                 console.log(err.value);
             });
     }
+
+    const handleLeave = (meetup) => {
+        console.log("LEAVING")
+        console.log(username);
+        console.log(meetup.id);
+
+        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
+        //axios.delete(`http://localhost:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log('Left meetup:', res.data);
+
+                // remove user from meetups state variable
+                const updatedMeetups = meetups.map(m => {
+                    if (m.id === meetup.id) {
+                        return {
+                            ...m,
+                            attendees: m.attendees.filter(attendee => attendee.username !== username)
+                        };
+                    }
+                    return m;
+                });
+
+                setMeetups(updatedMeetups);
+
+                fetchMeetups(username);
+                }
+            })
+            .catch((err) => {
+                console.error('Error leaving meetup:', err);
+            });
+    };
 
 
 
@@ -253,7 +285,7 @@ function MeetupsPage() {
                                     )}
                                 </div>
 
-
+                                    {/* FIX INDENTATION */}
                                     <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{meetup.title}</Typography>
                                     
                                     
@@ -295,6 +327,13 @@ function MeetupsPage() {
                                             <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
                                         ))}
                                     </ul>
+
+                                
+                                {meetup.username !== username ? (
+                                    <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
+                                        Leave Meetup
+                                    </Button>
+                                ) : (null)}
                                 </li>
                             </ul>
                         </CardContent>
