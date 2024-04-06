@@ -59,14 +59,14 @@ function SearchMeetupsPage() {
         console.log("COURSEEEEE: " + subject);
 
         // TODO: set error for empty search
-        // axios.post("http://localhost:8080/api/searchMeetups", meetup, {
-        //     headers: {
-        //         'timezone': timezone
-        //     }}) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
-               headers: {
-               'timezone': timezone
+        axios.post("http://localhost:8080/api/searchMeetups", meetup, {
+            headers: {
+                'timezone': timezone
             }})
+        // axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
+        //        headers: {
+        //        'timezone': timezone
+        //     }})
             .then((res) => {
                 console.log(meetup.title)
                 console.log(meetup.subject)
@@ -86,8 +86,8 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        //axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        //axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
@@ -117,8 +117,8 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        //axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        //axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Left meetup:', res.data);
@@ -143,8 +143,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
+        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        fetch(`http://localhost:8080/api/get-all-courses/`)
             .then(response => response.json())
             .then(data => {
                 setCourses(Array.from(data))
@@ -154,8 +154,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchRecommendedMeetups = (user) => {
-        axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
-        //axios.get(`http://localhost:8080/recommendMeetups/${user}`)
+        //axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
+        axios.get(`http://localhost:8080/recommendMeetups/${user}`)
             .then(response => {
                 setRecommendedMeetups(response.data);
             })
@@ -226,9 +226,26 @@ function SearchMeetupsPage() {
                 .map((meetup, index) => (
                     <Card key={index} sx={{ height: 'auto', marginBottom: 2, width: '80%'}} elevation={6}>
                         <CardContent>
+                            <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end'}}>
+                                {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60)) !== 0 && (
+                                    <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                        {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60))}D
+                                    </span>
+                                )}
+                                {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
+                                    <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                        {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60)}HR
+                                    </span>
+                                )}
+                                {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60 !== 0 && (
+                                    <span style={{ fontSize: '30px', color: 'gray' }}>
+                                        {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60}MIN
+                                    </span>
+                                )}
+                            </div>
                         <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{meetup.title}</Typography>
                                     
-                                    
+                                    {/* TODO: FIX INDENTATION */}
                                     <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
                                         <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
                                         <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
