@@ -14,12 +14,13 @@ function MyInfoPage() {
   const [bio, setBio] = useState('');
   const [username, setUsername] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
+  const [userCourses, setUserCourses] = useState([]);
 
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/me/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/me/${user}`)
+    fetch(`http://localhost:8080/me/${user}`) // use this for local development
+    //fetch(`http://34.16.169.60:8080/me/${user}`)
       .then(response => response.json())
       .then(data => setUser(data))
       .catch(error => console.error('Error fetching user:', error));
@@ -28,8 +29,8 @@ function MyInfoPage() {
   const fetchProfile = (user) => {
     console.log("Profile to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/profile/${user}`)
+    fetch(`http://localhost:8080/profile/${user}`) // use this for local development
+    //fetch(`http://34.16.169.60:8080/profile/${user}`)
       .then(response => response.json())
       .then(data => setProfile(data))
       .catch(error => console.error('Error fetching profile:', error));
@@ -43,7 +44,19 @@ function MyInfoPage() {
 
         fetchUser(user);
         fetchProfile(user);
+        fetchUserCourses(user);
     }, []);
+
+  const fetchUserCourses = (user) => {
+      fetch(`http://localhost:8080/api/get-courses-user/${user}`)
+      //fetch(`http://34.16.169.60:8080/api/get-courses-user/${user}`)
+          .then(response => response.json())
+          .then(data =>{
+              setUserCourses(Array.from(data))
+              console.log(data);}
+          )
+          .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
+  };
 
 
   const handleSubmit = (event) => {
@@ -54,8 +67,8 @@ function MyInfoPage() {
       id, username, bio
     }
   
-    //axios.put("http://localhost:8080/me", profile)
-    axios.put("http://34.16.169.60:8080/me", profile)
+    axios.put("http://localhost:8080/me", profile)
+    //axios.put("http://34.16.169.60:8080/me", profile)
       .then((res) => {
         if (res.status === 200) {
           handleSettingsClose();
@@ -109,6 +122,22 @@ function MyInfoPage() {
             <Typography variant="body1" style={{ marginLeft: '100px'}}>
               {profile.bio}
             </Typography>
+
+            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px'}}>
+              Courses
+            </Typography>
+
+            {userCourses && userCourses.length > 0 ? (
+              userCourses.map((course, index) => (
+                <div key={index} style={{ marginLeft: '100px', color: 'gray'}}>
+                  {course.coursePrefix} {course.courseNumber}
+                </div>
+              )))
+            : (
+              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px'}}>
+                Not enrolled in any courses.
+              </Typography>
+            )}
           </CardContent>
         </Card>
 
@@ -116,7 +145,7 @@ function MyInfoPage() {
 
 
 
-      {/*CREATE SETTINGS DIALOG BOX*/}
+      {/* SETTINGS DIALOG BOX */}
             <Dialog
                 open={settingsOpen}
                 onClose={handleSettingsClose}
