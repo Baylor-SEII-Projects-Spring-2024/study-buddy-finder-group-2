@@ -117,7 +117,7 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
         //axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
