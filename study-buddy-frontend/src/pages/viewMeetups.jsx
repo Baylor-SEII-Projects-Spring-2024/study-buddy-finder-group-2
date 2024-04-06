@@ -46,24 +46,24 @@ function MeetupsPage() {
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
-        fetch(`http://localhost:8080/viewMeetups/${user}`, {
-            headers: {
-            'timezone': timezone
-            }
-        })
-        // fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        // fetch(`http://localhost:8080/viewMeetups/${user}`, {
         //     headers: {
-        //         'timezone': timezone
+        //     'timezone': timezone
         //     }
         // })
+        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+            headers: {
+                'timezone': timezone
+            }
+        })
             .then(response => response.json())
             .then(data => setMeetups(data))
             .catch(error => console.error('Error fetching meetings:', error));
     };
 
     const fetchCourses = () => {
-        fetch(`http://localhost:8080/api/get-all-courses/`)
-        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        //fetch(`http://localhost:8080/api/get-all-courses/`)
+        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
             .then(response => response.json())
             .then(data =>{
                 setCourses(Array.from(data))
@@ -88,8 +88,8 @@ function MeetupsPage() {
             id, username, title, description, subject, startDate, endDate, location
         }
 
-        axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-        //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -130,16 +130,16 @@ function MeetupsPage() {
         console.log("location: " + location);
         console.log("attendees: " + attendees);
 
-        axios.put("http://localhost:8080/viewMeetups", meeting, {
-            headers: {
-            'timezone': timezone
-            }
-        })
-        // axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        // axios.put("http://localhost:8080/viewMeetups", meeting, {
         //     headers: {
-        //         'timezone': timezone
+        //     'timezone': timezone
         //     }
         // })
+        axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+            headers: {
+                'timezone': timezone
+            }
+        })
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -156,8 +156,8 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-        axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        //axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+        //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
