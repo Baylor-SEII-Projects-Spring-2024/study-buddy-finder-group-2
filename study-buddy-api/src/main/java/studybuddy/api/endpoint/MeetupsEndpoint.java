@@ -18,8 +18,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://34.16.169.60:3000")
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
@@ -27,6 +27,11 @@ public class MeetupsEndpoint {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping("/viewMeetup/{meetupId}")
+    public Optional<Meeting> getMeetup(@PathVariable long meetupId) {
+        return meetingService.findById(meetupId);
+    }
 
     @GetMapping("/viewMeetups/{username}")
     public List<Meeting> getMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone) {
@@ -61,28 +66,6 @@ public class MeetupsEndpoint {
         return meetings;
     }
 
-//    @Transactional
-//    @RequestMapping(
-//            value = "/viewMeetups",
-//            method = RequestMethod.POST,
-//            consumes = "application/json",
-//            produces = "application/json"
-//    )
-//    public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
-//        Optional<User> user = userService.findByUsername(meeting.getUsername());
-//
-//        ResponseEntity<Meeting> response = ResponseEntity.ok(meetingService.save(meeting));
-//
-//        Meeting m = response.getBody(); // Get the Meeting object from ResponseEntity
-//
-//        if(user.isPresent()) {
-//            meetingService.saveMeetupUser(m.getId(), user.get().getId());
-//        }
-//
-//        return response;
-//    }
-
-    //TODO: make it so that the creator gets included in attendees ^^^^
     @RequestMapping(value = "/viewMeetups", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
         Meeting savedMeeting = meetingService.save(meeting);
@@ -94,16 +77,6 @@ public class MeetupsEndpoint {
 
     @DeleteMapping("/viewMeetups/{id}")
     public void deleteMeeting(@PathVariable Long id) {
-//        Optional<Meeting> m = meetingService.findById(id);
-//
-//        Meeting present = m.get();
-//
-//        for(User u : present.getAttendees()){
-//            meetingService.deleteMeetupUser(u.getId(), id);
-//        }
-//
-//        meetingService.delete(id);
-
         meetingService.deleteMeetupUser(id);
         meetingService.delete(id);
     }
@@ -153,7 +126,7 @@ public class MeetupsEndpoint {
     }
 
     @GetMapping(value = "/recommendMeetups/{username}")
-    public List<Meeting> recommendMeetups(@PathVariable String username) {
+    public List<Meeting> recommendMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone) {
         User loggedInUser = userService.findByUsername(username).get();
         List<Meeting> recommendedMeetups = meetingService.recommendMeetupsForUser(loggedInUser.getId());
 
@@ -161,7 +134,11 @@ public class MeetupsEndpoint {
             log.info("No recommendations found for user id: {}", loggedInUser.getUsername());
         }
         else {
+            // convert each meeting to the users local time
+            ZoneId timeZoneId = ZoneId.of(timeZone);
             for (Meeting meeting : recommendedMeetups) {
+                meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+                meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
                 log.info("Recommended meeting: {}", meeting.getTitle());
             }
         }

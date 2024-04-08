@@ -59,14 +59,14 @@ function SearchMeetupsPage() {
         console.log("COURSEEEEE: " + subject);
 
         // TODO: set error for empty search
-        // axios.post("http://localhost:8080/api/searchMeetups", meetup, {
-        //     headers: {
-        //         'timezone': timezone
-        //     }})
-        axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
-               headers: {
-               'timezone': timezone
+        axios.post("http://localhost:8080/api/searchMeetups", meetup, {
+            headers: {
+                'timezone': timezone
             }})
+        // axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
+        //        headers: {
+        //        'timezone': timezone
+        //     }})
             .then((res) => {
                 console.log(meetup.title)
                 console.log(meetup.subject)
@@ -82,12 +82,28 @@ function SearchMeetupsPage() {
     }
 
     const handleJoin = (meetup) => {
+        // get up to date version of the meetup to make sure its not deleted
+        axios.get(`http://localhost:8080/viewMeetup/${meetup.id}`)
+            .then(response => {
+                if(response.data === null){
+                    alert("This meetup has been removed. You cannot join it.");
+                    return;
+                }
+            })
+            .catch(error => console.error('Error getting meetup', error));
+
+
+        if(new Date(meetup.startDate) <= new Date()){
+            alert("This meetup has expired. You cannot join it.");
+            return;
+        }
+
         console.log("JOINING")
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        //axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        //axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
@@ -117,8 +133,8 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        //axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        //axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Left meetup:', res.data);
@@ -143,8 +159,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
+        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        fetch(`http://localhost:8080/api/get-all-courses/`)
             .then(response => response.json())
             .then(data => {
                 setCourses(Array.from(data))
@@ -153,9 +169,16 @@ function SearchMeetupsPage() {
             .catch(error => console.error('Error fetching courses:', error));
     };
 
-    const fetchRecommendedMeetups = (user) => {
-        axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
-        //axios.get(`http://localhost:8080/recommendMeetups/${user}`)
+    const fetchRecommendedMeetups = async (user) => {
+        // get user time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+
+        //axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
+        axios.get(`http://localhost:8080/recommendMeetups/${user}`, {
+            headers: {
+                'timezone': timezone
+            }})
             .then(response => {
                 setRecommendedMeetups(response.data);
             })
@@ -163,15 +186,20 @@ function SearchMeetupsPage() {
     };
 
 
+    //check if ongoing or expired and put a different border color for each
+
+
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', flexDirection: 'row', p: 2 }}>
                 <Box sx={{ width: '30%', marginRight: '2%' }}>
                     <Typography variant="h5" sx={{ mb: 2, color: 'primary.main' }}>Recommended Meetups</Typography>
-                    {recommendedMeetups.map((meetup, index) => (
+                    {recommendedMeetups.filter(r => new Date(r.startDate) > new Date()).map((meetup, index) => (
                         <Card key={index} sx={{ mb: 2 }} elevation={6}>
                             <CardContent>
                                 <Typography><strong>Title:</strong> {meetup.title}</Typography>
+                                <Typography><strong>Start:</strong> {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')}</Typography>
+                                <Typography><strong>End:</strong> {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</Typography>
                                 <Typography><strong>Description:</strong> {meetup.description}</Typography>
                             </CardContent>
                         </Card>
@@ -222,7 +250,7 @@ function SearchMeetupsPage() {
 
                 {/* Display meetup results */}
                 {meetups
-                .filter(meetup => meetup.username !== currentUser)
+                .filter(meetup => meetup.username !== currentUser && new Date(meetup.startDate) > new Date())
                 .map((meetup, index) => (
                     <Card key={index} sx={{ height: 'auto', marginBottom: 2, width: '80%'}} elevation={6}>
                         <CardContent>
