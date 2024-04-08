@@ -5,7 +5,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 //This is the page that the user themself sees (able to edit and such)
 
-//TODO: Display courses, links
+//TODO: Display profile pictures, links
 
 function MyInfoPage() {
   const [user, setUser] = useState(null);
@@ -16,12 +16,16 @@ function MyInfoPage() {
   const [profilePic, setProfilePic] = useState(null);
   const [userCourses, setUserCourses] = useState([]);
 
+  const api = axios.create({
+    baseURL: 'http://localhost:8080/'
+    //baseURL: 'http://34.16.169.60:8080/'
+  });
+
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/me/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/me/${user}`)
-      .then(response => response.json())
+    api.get(`me/${user}`)
+      .then(response => response.data)
       .then(data => setUser(data))
       .catch(error => console.error('Error fetching user:', error));
   };
@@ -29,9 +33,8 @@ function MyInfoPage() {
   const fetchProfile = (user) => {
     console.log("Profile to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/profile/${user}`)
-      .then(response => response.json())
+    api.get(`profile/${user}`)
+      .then(response => response.data)
       .then(data => setProfile(data))
       .catch(error => console.error('Error fetching profile:', error));
   };
@@ -48,9 +51,8 @@ function MyInfoPage() {
     }, []);
 
   const fetchUserCourses = (user) => {
-      //fetch(`http://localhost:8080/api/get-courses-user/${user}`)
-      fetch(`http://34.16.169.60:8080/api/get-courses-user/${user}`)
-          .then(response => response.json())
+      api.get(`api/get-courses-user/${user}`)
+          .then(response => response.data)
           .then(data =>{
               setUserCourses(Array.from(data))
               console.log(data);}
@@ -67,8 +69,7 @@ function MyInfoPage() {
       id, username, bio
     }
   
-    //axios.put("http://localhost:8080/me", profile)
-    axios.put("http://34.16.169.60:8080/me", profile)
+    api.put("me", profile)
       .then((res) => {
         if (res.status === 200) {
           handleSettingsClose();

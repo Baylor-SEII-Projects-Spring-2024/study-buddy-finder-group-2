@@ -28,14 +28,17 @@ function SearchMeetupsPage() {
     const [recommendedMeetups, setRecommendedMeetups] = useState([]);
     const [courses, setCourses] = useState([]);
 
+    const api = axios.create({
+        baseURL: 'http://localhost:8080/'
+        //baseURL: 'http://34.16.169.60:8080/'
+    });
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const user = params.get("username");
         setCurrentUser(user);
         fetchCourses();
         fetchRecommendedMeetups(user);
-
-        // console.log("Users in meetups:", meetups.map(meetup => meetup.attendees.map(attendee => attendee.username)).flat());
     }, []);
 
     const handleSearch = (str) => {
@@ -58,15 +61,10 @@ function SearchMeetupsPage() {
         console.log("TITLEEEEEE: " + title);
         console.log("COURSEEEEE: " + subject);
 
-        // TODO: set error for empty search
-        axios.post("http://localhost:8080/api/searchMeetups", meetup, {
+        api.post("api/searchMeetups", meetup, {
             headers: {
                 'timezone': timezone
             }})
-        // axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
-        //        headers: {
-        //        'timezone': timezone
-        //     }})
             .then((res) => {
                 console.log(meetup.title)
                 console.log(meetup.subject)
@@ -83,7 +81,7 @@ function SearchMeetupsPage() {
 
     const handleJoin = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted
-        axios.get(`http://localhost:8080/viewMeetup/${meetup.id}`)
+        api.get(`viewMeetup/${meetup.id}`)
             .then(response => {
                 if(response.data === null){
                     alert("This meetup has been removed. You cannot join it.");
@@ -102,8 +100,7 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        //axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        api.post(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
@@ -130,7 +127,7 @@ function SearchMeetupsPage() {
 
     const handleLeave = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted
-        axios.get(`http://localhost:8080/viewMeetup/${meetup.id}`)
+        api.get(`viewMeetup/${meetup.id}`)
             .then(response => {
                 if(response.data === null){
                     alert("This meetup has been removed. You cannot leave it.");
@@ -149,8 +146,7 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        //axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        api.delete(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Left meetup:', res.data);
@@ -175,9 +171,8 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-        fetch(`http://localhost:8080/api/get-all-courses/`)
-            .then(response => response.json())
+        api.get(`api/get-all-courses/`)
+            .then(response => response.data)
             .then(data => {
                 setCourses(Array.from(data))
                 console.log(data);
@@ -190,8 +185,7 @@ function SearchMeetupsPage() {
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
-        //axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
-        axios.get(`http://localhost:8080/recommendMeetups/${user}`, {
+        api.get(`recommendMeetups/${user}`, {
             headers: {
                 'timezone': timezone
             }})
