@@ -129,6 +129,22 @@ function SearchMeetupsPage() {
 
 
     const handleLeave = (meetup) => {
+        // get up to date version of the meetup to make sure its not deleted
+        axios.get(`http://localhost:8080/viewMeetup/${meetup.id}`)
+            .then(response => {
+                if(response.data === null){
+                    alert("This meetup has been removed. You cannot leave it.");
+                    return;
+                }
+            })
+            .catch(error => console.error('Error getting meetup', error));
+
+
+        if(new Date(meetup.startDate) <= new Date()){
+            alert("This meetup is ongoing or has expired. You cannot leave it.");
+            return;
+        }
+
         console.log("LEAVING")
         console.log(currentUser);
         console.log(meetup.id);
@@ -184,10 +200,6 @@ function SearchMeetupsPage() {
             })
             .catch(error => console.error('Error fetching recommended meetups:', error));
     };
-
-
-    //check if ongoing or expired and put a different border color for each
-
 
     return (
         <ThemeProvider theme={theme}>

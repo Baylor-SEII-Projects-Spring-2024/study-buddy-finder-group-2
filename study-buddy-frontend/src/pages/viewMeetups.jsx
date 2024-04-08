@@ -46,24 +46,24 @@ function MeetupsPage() {
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
-        // fetch(`http://localhost:8080/viewMeetups/${user}`, {
-        //     headers: {
-        //     'timezone': timezone
-        //     }
-        // })
-        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        fetch(`http://localhost:8080/viewMeetups/${user}`, {
             headers: {
-                'timezone': timezone
+            'timezone': timezone
             }
         })
+        // fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        //     headers: {
+        //         'timezone': timezone
+        //     }
+        // })
             .then(response => response.json())
             .then(data => setMeetups(data))
             .catch(error => console.error('Error fetching meetings:', error));
     };
 
     const fetchCourses = () => {
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+        fetch(`http://localhost:8080/api/get-all-courses/`)
+        //fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
             .then(response => response.json())
             .then(data =>{
                 setCourses(Array.from(data))
@@ -88,8 +88,8 @@ function MeetupsPage() {
             id, username, title, description, subject, startDate, endDate, location
         }
 
-        //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
+        //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -130,16 +130,16 @@ function MeetupsPage() {
         console.log("location: " + location);
         console.log("attendees: " + attendees);
 
-        // axios.put("http://localhost:8080/viewMeetups", meeting, {
-        //     headers: {
-        //     'timezone': timezone
-        //     }
-        // })
-        axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        axios.put("http://localhost:8080/viewMeetups", meeting, {
             headers: {
-                'timezone': timezone
+            'timezone': timezone
             }
         })
+        // axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        //     headers: {
+        //         'timezone': timezone
+        //     }
+        // })
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -156,8 +156,8 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-        //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+        axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
+        //axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -170,13 +170,29 @@ function MeetupsPage() {
             });
     }
 
+    const handleDeleteExpire = (meetup) =>{
+        axios.delete(`http://localhost:8080/viewMeetups/${meetup?.id}`) // for local testing
+        //axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+            .then((res) => {
+                if(res.status === 200) {
+                    fetchMeetups(username);
+                }
+            })
+            .catch((err) => {
+                console.log("ERROR DELETING EXPIRED MEETING.");
+                console.log(err.value);
+            });
+    }
+
+
+
     const handleLeave = (meetup) => {
         console.log("LEAVING")
         console.log(username);
         console.log(meetup.id);
 
-        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
-        //axios.delete(`http://localhost:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
+        //axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
+        axios.delete(`http://localhost:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Left meetup:', res.data);
@@ -258,12 +274,18 @@ function MeetupsPage() {
 
                 {meetups.map((meetup, index) => (
                     <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto',
-                        cursor: username === meetup.username ? 'pointer' : 'default'}}
+                        cursor: username === meetup.username && new Date(meetup.startDate) > new Date() ? 'pointer' : 'default', 
+
+                        // red - expired, blue - ongoing, green - future
+                        boxShadow: new Date(meetup.startDate) > new Date() ? '0 0 10px rgba(0, 255, 0, 0.5)' 
+                        : new Date(meetup.endDate) < new Date() ? '0 0 10px rgba(255, 0, 0, 0.5)' 
+                        : '0 0 10px rgba(0, 0, 255, 0.5)'}}
                           elevation={6} onClick={() => {
-                        if(username === meetup.username){
+                        if(username === meetup.username && new Date(meetup.startDate) > new Date()){
                             handleClickOpenEdit(meetup);
                         }
                     }}>
+
                         <CardContent>
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
@@ -328,10 +350,17 @@ function MeetupsPage() {
                                         ))}
                                     </ul>
 
-                                
-                                {meetup.username !== username ? (
+                                {/* attendee can leave meeting except when its ongoing */}
+                                {meetup.username !== username && (new Date(meetup.startDate) > new Date() || new Date(meetup.endDate) < new Date()) ? (
                                     <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
                                         Leave Meetup
+                                    </Button>
+                                ) : (null)}
+
+                                {/* appears when meetup you created is expired and you want to delete it */}
+                                {meetup.username === username && new Date(meetup.endDate) <= new Date() ? (
+                                    <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleDeleteExpire(meetup)}>
+                                        Delete Meetup
                                     </Button>
                                 ) : (null)}
                                 </li>
