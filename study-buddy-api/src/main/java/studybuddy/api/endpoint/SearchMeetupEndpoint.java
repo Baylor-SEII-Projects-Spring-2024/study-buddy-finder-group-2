@@ -7,23 +7,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
+import studybuddy.api.notifications.Notification;
+import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
-@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class SearchMeetupEndpoint {
     @Autowired
     private MeetingService meetingService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @RequestMapping(
             value = "/api/searchMeetups",
@@ -63,14 +69,22 @@ public class SearchMeetupEndpoint {
             value = "/api/searchMeetups/{username}",
             method = RequestMethod.POST
     )
-    public void joinMeeting(@PathVariable String username, @RequestParam Long meetingId){
-        System.out.println("USERNAME: " + username);
-        System.out.println("MEETINGID: " + meetingId);
-        Optional<User> user = userService.findByUsername(username);
+    public void joinMeeting(@PathVariable String username, @RequestParam Long meetingId, @RequestParam String creator) {
+//        System.out.println("USERNAME: " + username);
+//        System.out.println("MEETINGID: " + meetingId);
+        User user = userService.findByUsernameExists(username);
+        Optional<Meeting> meeting = meetingService.findById(meetingId);
 
-        if(user.isPresent()) {
-            meetingService.saveMeetupUser(user.get().getId(), meetingId);
-        }
+        meetingService.saveMeetupUser(user.getId(), meetingId);
+
+        // send notification to creator that user joined their meeting
+        Notification notification = new Notification();
+        notification.setReciever(userService.findByUsernameExists(creator));
+        notification.setSender(user);
+        notification.setTimestamp(new Date());
+        notification.setNotificationUrl("/invitations");
+        notification.setNotificationContent(user.getUsername() + " has joined your meeting, '" + meeting.get().getTitle() + "'");
+        notificationService.sendNotification(notification);
     }
 
     @Transactional

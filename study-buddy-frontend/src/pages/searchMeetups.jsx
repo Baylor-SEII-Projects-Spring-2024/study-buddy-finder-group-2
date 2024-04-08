@@ -97,10 +97,11 @@ function SearchMeetupsPage() {
         }
 
         console.log("JOINING")
-        console.log(currentUser);
-        console.log(meetup.id);
+        console.log("Joiner: " + currentUser);
+        console.log("Creator: " + meetup.username);
+        console.log("Meeting Id: " + meetup.id);
 
-        api.post(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        api.post(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}&creator=${meetup.username}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
