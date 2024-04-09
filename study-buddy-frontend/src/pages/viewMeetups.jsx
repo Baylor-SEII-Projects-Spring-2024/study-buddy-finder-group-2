@@ -8,6 +8,10 @@ import axios from 'axios';
 import AddIcon from '@mui/icons-material/Add';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import NotificationPage from "@/pages/Notification";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PersonIcon from '@mui/icons-material/Person';
+import CreateIcon from '@mui/icons-material/Create';
+import EventIcon from '@mui/icons-material/Event';
 
 //TODO: Bug where user able to input a bit of the date and it goes through
 
@@ -17,7 +21,8 @@ function MeetupsPage() {
     const [title, setTitle] = useState(null);
     const [description, setDescription] = useState(null);
     const [subject, setSubject] = useState(null);
-    const [date, setDate] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [location, setLocation] = useState(null);
     const [attendees, setAttendees] = useState(new Set());
 
@@ -76,8 +81,14 @@ function MeetupsPage() {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
+        // validate start and end times
+        if(new Date(endDate) <= new Date(startDate)) {
+            alert("End times cannot occur before or on start times.");
+            return;
+        }
+
         const meeting = {
-            id, username, title, description, subject, date, location
+            id, username, title, description, subject, startDate, endDate, location
         }
 
         api.post("viewMeetups", meeting)
@@ -98,12 +109,18 @@ function MeetupsPage() {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
+        // validate start and end times
+        if(new Date(endDate) <= new Date(startDate)) {
+            alert("End times cannot occur before or on start times.");
+            return;
+        }
+
         // get user local time zone
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
         const meeting = {
-            id, username, title, description, subject, date, location, attendees
+            id, username, title, description, subject, startDate, endDate, location, attendees
         }
 
         console.log("State variables after update");
@@ -154,6 +171,38 @@ function MeetupsPage() {
             });
     }
 
+    const handleLeave = (meetup) => {
+        console.log("LEAVING")
+        console.log(username);
+        console.log(meetup.id);
+
+        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
+        //axios.delete(`http://localhost:8080/api/searchMeetups/${username}?meetingId=${meetup.id}`)
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log('Left meetup:', res.data);
+
+                // remove user from meetups state variable
+                const updatedMeetups = meetups.map(m => {
+                    if (m.id === meetup.id) {
+                        return {
+                            ...m,
+                            attendees: m.attendees.filter(attendee => attendee.username !== username)
+                        };
+                    }
+                    return m;
+                });
+
+                setMeetups(updatedMeetups);
+
+                fetchMeetups(username);
+                }
+            })
+            .catch((err) => {
+                console.error('Error leaving meetup:', err);
+            });
+    };
+
 
 
     //DIALOG (CREATE MEETUP)
@@ -183,9 +232,13 @@ function MeetupsPage() {
         setTitle(meetup.title);
         setDescription(meetup.description);
         setSubject(meetup.subject);
-        setDate(meetup.date);
+        setStartDate(meetup.startDate);
+        setEndDate(meetup.endDate);
         setLocation(meetup.location);
         setAttendees(meetup.attendees);
+
+        console.log("START OPEN EDIT: " + meetup.startDate);
+        console.log("END OPEN EDIT: " + meetup.endDate);
 
         setOpenEdit(true);
     };
@@ -198,15 +251,15 @@ function MeetupsPage() {
         <div>
             <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
-                <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
+                <Card sx={{ width: 'auto', margin: 'auto' }} elevation={4}>
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <SupervisorAccountIcon sx={{fontSize: 40, marginRight: '10px'}}/>
-                        <Typography variant='h4' align='center'>Your Meetups</Typography>
+                        <Typography variant='h4' align='center'>{username}'s Meetups</Typography>
                     </CardContent>
                 </ Card>
 
                 {meetups.map((meetup, index) => (
-                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1,
+                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto',
                         cursor: username === meetup.username ? 'pointer' : 'default'}}
                           elevation={6} onClick={() => {
                         if(username === meetup.username){
@@ -216,26 +269,73 @@ function MeetupsPage() {
                         <CardContent>
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
-                                    {/* <strong>ID: </strong> {meetup.id}
-                                <br />*/}
-                                    <strong>Creator: </strong> {meetup.username}
+                                <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end'}}>
+                                    {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60)) !== 0 && (
+                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                            {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60))}D
+                                        </span>
+                                    )}
+                                    {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
+                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                            {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60)}HR
+                                        </span>
+                                    )}
+                                    {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60 !== 0 && (
+                                        <span style={{ fontSize: '30px', color: 'gray' }}>
+                                            {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60}MIN
+                                        </span>
+                                    )}
+                                </div>
+
+                                    {/* FIX INDENTATION */}
+                                    <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{meetup.title}</Typography>
+                                    
+                                    
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
+                                    </div>
+
                                     <br />
-                                    <strong>Title: </strong> {meetup.title}
+
+                                    
+                                    <span style={{ marginLeft: '30px'}}>{meetup.description}</span>
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{meetup.subject}</span>
+                                    </div>
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                                    </div>
+
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{meetup.location}</span>
+                                    </div>
+
                                     <br />
-                                    <strong>Description: </strong> {meetup.description}
-                                    <br />
-                                    <strong>Course: </strong> {meetup.subject}
-                                    <br />
-                                    <strong>Date: </strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}
-                                    <br />
-                                    <strong>Location: </strong> {meetup.location}
-                                    <br />
-                                    <strong>Attendees:</strong>
-                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+
+                                    
+                                    <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px'}}>Attendees</Typography>
+                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
                                         {meetup.attendees.map((attendee, index) => (
-                                            <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                            <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
                                         ))}
                                     </ul>
+
+                                
+                                {meetup.username !== username ? (
+                                    <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
+                                        Leave Meetup
+                                    </Button>
+                                ) : (null)}
                                 </li>
                             </ul>
                         </CardContent>
@@ -259,7 +359,7 @@ function MeetupsPage() {
                     <DialogContent>
 
                         <DialogContentText>
-                            Set the title, description, course, date, and location of your meeting.
+                            Set the title, description, course, start date, end date, and location of your meeting.
                         </DialogContentText>
 
                         <TextField
@@ -311,8 +411,24 @@ function MeetupsPage() {
                         </FormControl>
 
                         <DateTimePicker
-                            label="Date"
-                            onChange={(e) => setDate(e)}
+                            label="Start"
+                            onChange={(e) => setStartDate(e)}
+
+                            //makes field required
+                            slotProps={{
+                                textField: {
+                                    required: true,
+                                    style: { marginTop: '20px' }
+                                }
+                            }}
+
+                            disablePast
+                        />
+
+                        <DateTimePicker
+                            label="End"
+                            onChange={(e) => setEndDate(e)}
+                            sx = {{ marginLeft: '15px'}}
 
                             //makes field required
                             slotProps={{
@@ -362,7 +478,7 @@ function MeetupsPage() {
                     <DialogContent>
 
                         <DialogContentText>
-                            Edit the title, description, course, date, and location of your meeting.
+                            Edit the title, description, course, start date, end date, and location of your meeting.
                         </DialogContentText>
 
                         <TextField
@@ -416,19 +532,36 @@ function MeetupsPage() {
                         </FormControl>
 
                         <DateTimePicker
-                            label="Date"
-                            defaultValue={dayjs(selectedMeeting?.date)}
+                            label="Start"
+                            defaultValue={dayjs(selectedMeeting?.startDate)}
 
                             //makes field required
                             slotProps={{
                                 textField: {
                                     required: true,
-                                    style: { marginTop: '10px' }
+                                    style: { marginTop: '20px' }
                                 }
                             }}
 
                             disablePast
-                            onChange={(e) => setDate(e)}
+                            onChange={(e) => setStartDate(e)}
+                        />
+
+                        <DateTimePicker
+                            label="End"
+                            sx = {{ marginLeft: '15px'}}
+                            defaultValue={dayjs(selectedMeeting?.endDate)}
+
+                            //makes field required
+                            slotProps={{
+                                textField: {
+                                    required: true,
+                                    style: { marginTop: '20px' }
+                                }
+                            }}
+
+                            disablePast
+                            onChange={(e) => setEndDate(e)}
                         />
 
                         <TextField

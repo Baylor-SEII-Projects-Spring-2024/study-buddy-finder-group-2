@@ -14,6 +14,7 @@ function MyInfoPage() {
   const [bio, setBio] = useState('');
   const [username, setUsername] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
+  const [userCourses, setUserCourses] = useState([]);
 
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
@@ -43,7 +44,19 @@ function MyInfoPage() {
 
         fetchUser(user);
         fetchProfile(user);
+        fetchUserCourses(user);
     }, []);
+
+  const fetchUserCourses = (user) => {
+      //fetch(`http://localhost:8080/api/get-courses-user/${user}`)
+      fetch(`http://34.16.169.60:8080/api/get-courses-user/${user}`)
+          .then(response => response.json())
+          .then(data =>{
+              setUserCourses(Array.from(data))
+              console.log(data);}
+          )
+          .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
+  };
 
 
   const handleSubmit = (event) => {
@@ -109,14 +122,29 @@ function MyInfoPage() {
             <Typography variant="body1" style={{ marginLeft: '100px'}}>
               {profile.bio}
             </Typography>
+
+            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px'}}>
+              Courses
+            </Typography>
+
+            {userCourses && userCourses.length > 0 ? (
+              userCourses.map((course, index) => (
+                <div key={index} style={{ marginLeft: '100px', color: 'gray'}}>
+                  {course.coursePrefix} {course.courseNumber}
+                </div>
+              )))
+            : (
+              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px'}}>
+                Not enrolled in any courses.
+              </Typography>
+            )}
           </CardContent>
         </Card>
 
       ) : null}
 
 
-
-      {/*CREATE SETTINGS DIALOG BOX*/}
+      {/* SETTINGS DIALOG BOX */}
             <Dialog
                 open={settingsOpen}
                 onClose={handleSettingsClose}

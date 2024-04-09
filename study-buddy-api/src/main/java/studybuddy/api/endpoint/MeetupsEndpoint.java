@@ -54,7 +54,8 @@ public class MeetupsEndpoint {
         // convert each meeting to the users local time
         ZoneId timeZoneId = ZoneId.of(timeZone);
         meetings.forEach(meeting -> {
-            meeting.setDate(meeting.getDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+            meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+            meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
         });
 
         return meetings;
@@ -124,16 +125,23 @@ public class MeetupsEndpoint {
             ZoneId timeZoneId = ZoneId.of(timeZone);
 
             // set timezone of old meeting to new meeting to check against
-            oldMeeting.setDate(oldMeeting.getDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+            oldMeeting.setStartDate(oldMeeting.getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+            oldMeeting.setEndDate(oldMeeting.getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
 
 //            System.out.println("OLD: " + oldMeeting.getDate());
 //            System.out.println("NEW: " + meeting.getDate());
 
             // if user didnt update time then convert the time to UTC
             // if user did update time then do not convert to UTC
-            if(oldMeeting.getDate().isEqual(meeting.getDate())) {
+            if(oldMeeting.getStartDate().isEqual(meeting.getStartDate())) {
                 //System.out.println("******BEFORE CONVERT: " + meeting.getDate());
-                meeting.setDate(meeting.getDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+                meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+                //System.out.println("AFTER CONVERT: " + meeting.getDate());
+            }
+
+            if(oldMeeting.getEndDate().isEqual(meeting.getEndDate())) {
+                //System.out.println("******BEFORE CONVERT: " + meeting.getDate());
+                meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
                 //System.out.println("AFTER CONVERT: " + meeting.getDate());
             }
 

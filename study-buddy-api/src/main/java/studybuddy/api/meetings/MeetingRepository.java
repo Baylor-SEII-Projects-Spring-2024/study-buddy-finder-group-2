@@ -87,4 +87,9 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     @Query(value = "DELETE FROM meetups_users WHERE meeting_id = ?1", nativeQuery = true)
     @Modifying
     public void deleteMeetupUser(long meetingId);
+
+    @Transactional
+    @Query(value = "DELETE FROM meetups_users WHERE user_id = ?1 AND meeting_id = ?2", nativeQuery = true)
+    @Modifying
+    public void leaveMeetup(long userId, long meetingId);
 }
