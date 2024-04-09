@@ -68,13 +68,8 @@ function SearchMeetupsPage() {
         // axios.post("http://localhost:8080/api/searchMeetups", meetup, {
         //     headers: {
         //         'timezone': timezone
-<<<<<<< HEAD
         //     }}) // for local testing
         api.post("api/searchMeetups", meetup, {
-=======
-        //     }})
-        axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
->>>>>>> main
                headers: {
                'timezone': timezone
             }})
