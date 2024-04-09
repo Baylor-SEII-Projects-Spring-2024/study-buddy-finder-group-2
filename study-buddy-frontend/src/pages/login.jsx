@@ -67,8 +67,8 @@ function LoginPage() {
             password
         };
 
-        //axios.post('http://localhost:8080/api/login', user)
-        axios.post('http://34.16.169.60:8080/api/login', user)
+        axios.post('http://localhost:8080/api/login', user)
+        //axios.post('http://34.16.169.60:8080/api/login', user)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('User is recognized!');

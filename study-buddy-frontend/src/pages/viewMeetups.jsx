@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
+import { Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import AddIcon from '@mui/icons-material/Add';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
-//TODO: Be able to choose people from connections to add to meeting
 //TODO: Bug where user able to input a bit of the date and it goes through
-//TODO: Convert timezones from UTC
-//TODO: Convert from military time to AM/PM
 
 function MeetupsPage() {
     const [id, setId] = useState(null);
@@ -19,29 +18,53 @@ function MeetupsPage() {
     const [subject, setSubject] = useState(null);
     const [date, setDate] = useState(null);
     const [location, setLocation] = useState(null);
+    const [attendees, setAttendees] = useState(new Set());
 
     const [selectedMeeting, setSelectedMeeting] = useState(null);
 
-    //GET MEETUPS (runs after every render) and set user
     const [meetups, setMeetups] = useState([]);
+    const [courses, setCourses] = useState([]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search),
         user = params.get("username");
 
         setUsername(user);
-
         fetchMeetups(user);
+        fetchCourses();
     }, [])
 
-    const fetchMeetups = (user) => {
+    const fetchMeetups = async (user) => {
         console.log("User to fetch for: " + user);
 
-        //fetch(`http://localhost:8080/viewMeetups/${user}`) // use this for local development
-         fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
+        // get user local time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+
+        // fetch(`http://localhost:8080/viewMeetups/${user}`, {
+        //     headers: {
+        //     'timezone': timezone
+        //     }
+        // })
+        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+            headers: {
+            'timezone': timezone
+            }
+        })
           .then(response => response.json())
           .then(data => setMeetups(data))
           .catch(error => console.error('Error fetching meetings:', error));
+    };
+
+    const fetchCourses = () => {
+        //fetch(`http://localhost:8080/api/get-all-courses/`)
+        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
+          .then(response => response.json())
+          .then(data =>{
+            setCourses(Array.from(data))   
+            console.log(data);}
+            )
+          .catch(error => console.error('Error fetching courses:', error));
     };
 
     // CREATE
@@ -68,13 +91,17 @@ function MeetupsPage() {
             });
     }
 
-    const handleSubmitUpdate = (event) => {
+    const handleSubmitUpdate = async (event) => {
         // prevents page reload
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
+        // get user local time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+
         const meeting = {
-            id, username, title, description, subject, date, location
+            id, username, title, description, subject, date, location, attendees
         }
 
         console.log("State variables after update");
@@ -84,9 +111,18 @@ function MeetupsPage() {
         console.log("desc: " + description);
         console.log("sub: " + subject);
         console.log("location: " + location);
+        console.log("attendees: " + attendees);
   
-        //axios.put("http://localhost:8080/viewMeetups", meeting) // for local testing
-           axios.put("http://34.16.169.60:8080/viewMeetups", meeting)
+        // axios.put("http://localhost:8080/viewMeetups", meeting, {
+        //     headers: {
+        //     'timezone': timezone
+        //     }
+        // })
+        axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+            headers: {
+            'timezone': timezone
+            }
+        })
               .then((res) => {
                   if(res.status === 200) {
                       handleCloseEdit();
@@ -124,13 +160,15 @@ function MeetupsPage() {
 
     const handleClickOpen = () => {
         setId(null);
+        setSubject("");
         setOpen(true);
+        document.body.style.overflow = 'hidden';
     };
 
     const handleClose = () => {
         setOpen(false);
+        document.body.style.overflow = 'auto';
     };
-
 
     //DIALOG 2 (EDIT MEETUP)
     const [openEdit, setOpenEdit] = React.useState(false);
@@ -146,6 +184,7 @@ function MeetupsPage() {
         setSubject(meetup.subject);
         setDate(meetup.date);
         setLocation(meetup.location);
+        setAttendees(meetup.attendees);
 
         setOpenEdit(true);
     };
@@ -158,7 +197,8 @@ function MeetupsPage() {
         <div>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
-                    <CardContent>
+                    <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <SupervisorAccountIcon sx={{fontSize: 40, marginRight: '10px'}}/>
                         <Typography variant='h4' align='center'>Your Meetups</Typography>
                     </CardContent>
                 </ Card>
@@ -170,26 +210,32 @@ function MeetupsPage() {
                             <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                 <li>
                                 {/* <strong>ID: </strong> {meetup.id}
+                                <br />*/}
+                                <strong>Creator: </strong> {meetup.username}
                                 <br />
-                                <strong>Username: </strong> {meetup.username}
-                                <br /> */}
                                 <strong>Title: </strong> {meetup.title}
                                 <br />
                                 <strong>Description: </strong> {meetup.description}
                                 <br />
-                                <strong>Subject: </strong> {meetup.subject}
+                                <strong>Course: </strong> {meetup.subject}
                                 <br />
-                                <strong>Date: </strong> {meetup.date}
+                                <strong>Date: </strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}
                                 <br />
                                 <strong>Location: </strong> {meetup.location}
                                 <br />
+                                <strong>Attendees:</strong>
+                                <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+                                    {meetup.attendees.map((attendee, index) => (
+                                        <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
+                                    ))}
+                                </ul>
                                 </li>
                             </ul>
                         </CardContent>
                     </Card>
                 ))}
 
-                <Button variant='contained' color="primary" onClick={handleClickOpen}>Create Meetup</Button>
+                <Button  startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
             </Stack>
 
         
@@ -200,12 +246,13 @@ function MeetupsPage() {
                 open={open}
                 onClose={handleClose}
                 component="form" validate="true" onSubmit={handleSubmit}
+                disableScrollLock={true}
             >
         <DialogTitle>Create Meetup</DialogTitle>
         <DialogContent>
 
           <DialogContentText>
-            Set the title, description, subject, date, and location of your meeting.
+            Set the title, description, course, date, and location of your meeting.
           </DialogContentText>
 
           <TextField
@@ -234,19 +281,27 @@ function MeetupsPage() {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-        {/* TODO: MAKE DROPDOWN MENU OF ALL THE USERS COURSES INSTEAD */}
-        <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="subject"
-            name="subject"
-            label="Subject"
-            type="string"
-            fullWidth
-            variant="standard"
+        <FormControl fullWidth required>
+            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
+            <Select
+            labelId="courses"
+            id="dropdown"
+            sx={{ marginTop: '20px' }}
+            value={subject}
             onChange={(e) => setSubject(e.target.value)}
-          />
+            label="Select a Course"
+            >
+
+            {courses.map(course => {
+                return (
+                    <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                    {course.coursePrefix} {course.courseNumber}
+                    </MenuItem>
+                )
+            })}
+
+            </Select>
+        </FormControl>
 
         <DateTimePicker
             label="Date"
@@ -256,9 +311,11 @@ function MeetupsPage() {
             slotProps={{
                 textField: {
                 required: true,
-                style: { marginTop: '10px' }
+                style: { marginTop: '20px' }
                 }
             }}
+
+            disablePast
         />
 
         <TextField
@@ -291,14 +348,14 @@ function MeetupsPage() {
             <Dialog
             open={openEdit}
             onClose={handleCloseEdit}
-
-             component="form" validate="true" onSubmit={handleSubmitUpdate}
+            component="form" validate="true" onSubmit={handleSubmitUpdate}
+            disableScrollLock={true}
       >
         <DialogTitle>Edit Meetup</DialogTitle>
         <DialogContent>
 
           <DialogContentText>
-            Edit the title, description, subject, date, and location of your meeting.
+            Edit the title, description, course, date, and location of your meeting.
           </DialogContentText>
 
           <TextField
@@ -329,20 +386,27 @@ function MeetupsPage() {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-        {/* TODO: MAKE DROPDOWN MENU OF ALL THE USERS COURSES INSTEAD */}
-        <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="subject"
-            name="subject"
-            label="Subject"
-            type="string"
-            fullWidth
-            variant="standard"
-            defaultValue={selectedMeeting?.subject || ''}
+        <FormControl fullWidth required>
+            <InputLabel id="courses" sx={{ marginTop: '20px'}}>Select a Course</InputLabel>
+            <Select
+            labelId="courses"
+            id="dropdown"
+            sx={{ marginTop: '20px' }}
+            value={subject}
             onChange={(e) => setSubject(e.target.value)}
-          />
+            label="Select a Course"
+            >
+
+            {courses.map(course => {
+                return (
+                    <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                    {course.coursePrefix} {course.courseNumber}
+                    </MenuItem>
+                )
+            })}
+
+            </Select>
+        </FormControl>
 
         <DateTimePicker
             label="Date"
@@ -356,6 +420,7 @@ function MeetupsPage() {
                 }
             }}
 
+            disablePast
             onChange={(e) => setDate(e)}
         />
 

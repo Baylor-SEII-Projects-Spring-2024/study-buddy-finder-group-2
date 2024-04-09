@@ -5,8 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import studybuddy.api.connection.Connection;
 import studybuddy.api.meetings.Meeting;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
@@ -52,7 +50,7 @@ public class RatingsEndpoint {
     }
 
     @RequestMapping(
-            value = "/viewMadeRatings/{username}",
+            value = "/updateRating/{username}",
             method = RequestMethod.PUT,
             consumes = "application/json",
             produces = "application/json"
@@ -69,7 +67,7 @@ public class RatingsEndpoint {
     }
 
     @GetMapping("/viewMadeRatings/{username}")
-    public ResponseEntity<List<User>> fetchMyRatings(@PathVariable String username) {
+    public ResponseEntity<List<Rating>> fetchMyRatings(@PathVariable String username) {
         User ratingUser = userService.findByUsername(username).orElse(null);
         System.out.println("finding " + username);
         if (ratingUser == null) {
@@ -79,7 +77,7 @@ public class RatingsEndpoint {
 
 
         List<Rating> ratings = ratingService.getMyRatings(ratingUser.getUsername());
-        List<User> rateUsers = new ArrayList<>();
+
         for(Rating r : ratings) {
             System.out.println("ID is " + r.getRatingId());
             System.out.println("User who you rated is " + r.getRatedUser());
@@ -88,14 +86,19 @@ public class RatingsEndpoint {
                 System.out.println("Review is " + r.getReview());
             }
 
-            rateUsers.add(r.getRatedUser());
+
 
         }
-        return ResponseEntity.ok(rateUsers);
+        return ResponseEntity.ok(ratings);
+    }
+
+    @GetMapping("/viewRating/{ratingId}")
+    public Optional<Rating> getRating(@PathVariable long ratingId) {
+        return ratingService.findRatingByID(ratingId);
     }
 
     @GetMapping("/viewRatingsForMe/{username}")
-    public ResponseEntity<List<User>> fetchRatingsForMe(@PathVariable String username) {
+    public ResponseEntity<List<Rating>> fetchRatingsForMe(@PathVariable String username) {
         User ratedUser = userService.findByUsername(username).orElse(null);
         System.out.println("finding " + username);
         if (ratedUser == null) {
@@ -103,7 +106,6 @@ public class RatingsEndpoint {
             return ResponseEntity.badRequest().build();
         }
         List<Rating> ratings = ratingService.getMyRatings(ratedUser.getUsername());
-        List<User> rateUsers = new ArrayList<>();
 
         for(Rating r : ratings) {
 
@@ -114,12 +116,12 @@ public class RatingsEndpoint {
                 System.out.println("Review is " + r.getReview());
             }
 
-            rateUsers.add(r.getRatingUser());
+
         }
-        return ResponseEntity.ok(rateUsers);
+        return ResponseEntity.ok(ratings);
     }
 
-    @DeleteMapping("/viewMadeRatings/{id}")
+    @DeleteMapping("/deleteRating/{id}")
     public void deleteRating(@PathVariable Long id) {
         ratingService.deleteRating(id);
     }
