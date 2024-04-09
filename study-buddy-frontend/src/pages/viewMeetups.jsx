@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import AddIcon from '@mui/icons-material/Add';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import NotificationPage from "@/pages/Notification";
 
 //TODO: Bug where user able to input a bit of the date and it goes through
 
@@ -24,6 +25,11 @@ function MeetupsPage() {
 
     const [meetups, setMeetups] = useState([]);
     const [courses, setCourses] = useState([]);
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search),
@@ -46,22 +52,19 @@ function MeetupsPage() {
         //     'timezone': timezone
         //     }
         // })
-        fetch(`http://34.16.169.60:8080/viewMeetups/${user}`, {
+        api.get(`viewMeetups/${user}`, {
             headers: {
                 'timezone': timezone
             }
         })
-            .then(response => response.json())
-            .then(data => setMeetups(data))
+            .then(data => setMeetups(data.data))
             .catch(error => console.error('Error fetching meetings:', error));
     };
 
     const fetchCourses = () => {
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-            .then(response => response.json())
+        api.get(`http://34.16.169.60:8080/api/get-all-courses/`)
             .then(data =>{
-                setCourses(Array.from(data))
+                setCourses(data.data)
                 console.log(data);}
             )
             .catch(error => console.error('Error fetching courses:', error));
@@ -77,8 +80,7 @@ function MeetupsPage() {
             id, username, title, description, subject, date, location
         }
 
-        //axios.post("http://localhost:8080/viewMeetups", meeting) // for local testing
-        axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        api.post("viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleClose();
@@ -118,7 +120,7 @@ function MeetupsPage() {
         //     'timezone': timezone
         //     }
         // })
-        axios.put("http://34.16.169.60:8080/viewMeetups", meeting, {
+        api.put("viewMeetups", meeting, {
             headers: {
                 'timezone': timezone
             }
@@ -139,8 +141,7 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-        //axios.delete(`http://localhost:8080/viewMeetups/${selectedMeeting?.id}`) // for local testing
-        axios.delete(`http://34.16.169.60:8080/viewMeetups/${selectedMeeting?.id}`)
+        api.delete(`viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseEdit();
@@ -195,6 +196,7 @@ function MeetupsPage() {
 
     return (
         <div>
+            <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

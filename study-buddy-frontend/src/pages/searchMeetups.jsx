@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import dayjs from 'dayjs';
 import { Box, Button, Card, CardContent, Typography, TextField, FormControl, InputLabel, Select, MenuItem, ThemeProvider, createTheme } from "@mui/material";
+import NotificationPage from "@/pages/Notification";
 
 const theme = createTheme({
     palette: {
@@ -22,6 +23,11 @@ function SearchMeetupsPage() {
     const [meetups, setMeetups] = useState([]);
     const [recommendedMeetups, setRecommendedMeetups] = useState([]);
     const [courses, setCourses] = useState([]);
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+
 
 
     useEffect(() => {
@@ -57,7 +63,7 @@ function SearchMeetupsPage() {
         //     headers: {
         //         'timezone': timezone
         //     }}) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
+        api.post("api/searchMeetups", meetup, {
                headers: {
                'timezone': timezone
             }})
@@ -79,8 +85,7 @@ function SearchMeetupsPage() {
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        //axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        api.post(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
@@ -105,19 +110,16 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
-            .then(response => response.json())
+        api.get(`http://34.16.169.60:8080/api/get-all-courses/`)
             .then(data => {
-                setCourses(Array.from(data))
-                console.log(data);
+                setCourses(data.data)
+                console.log(data.data);
             })
             .catch(error => console.error('Error fetching courses:', error));
     };
 
     const fetchRecommendedMeetups = (user) => {
-        axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
-        //axios.get(`http://localhost:8080/recommendMeetups/${user}`)
+        api.get(`recommendMeetups/${user}`)
             .then(response => {
                 setRecommendedMeetups(response.data);
             })
@@ -127,6 +129,7 @@ function SearchMeetupsPage() {
 
     return (
         <ThemeProvider theme={theme}>
+            <NotificationPage></NotificationPage> <br/>
             <Box sx={{ display: 'flex', flexDirection: 'row', p: 2 }}>
                 <Box sx={{ width: '30%', marginRight: '2%' }}>
                     <Typography variant="h5" sx={{ mb: 2, color: 'primary.main' }}>Recommended Meetups</Typography>

@@ -37,6 +37,12 @@ function LoginPage() {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isError, setIsError] = useState(false);
 
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+
+
     useEffect(() => {
         const handleMouseMove = (event) => {
             setMousePosition({ x: event.clientX, y: event.clientY });
@@ -67,8 +73,7 @@ function LoginPage() {
             password
         };
 
-        //axios.post('http://localhost:8080/api/login', user)
-        axios.post('http://34.16.169.60:8080/api/login', user)
+        api.post('api/login', user)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('User is recognized!');
