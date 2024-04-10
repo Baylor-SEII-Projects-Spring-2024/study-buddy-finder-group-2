@@ -73,7 +73,7 @@ function NotificationPage() {
                 if(data.data.userType === "student"){
                     setRef(`/studentLanding?username=${encodeURIComponent(name)}`)
                 }
-                else if (data.data.userType == "tutor"){
+                else if (data.data.userType === "tutor"){
                     setRef(`/tutorLanding?username=${encodeURIComponent(name)}`)
                 }
                 viewNotifications(name);
@@ -236,7 +236,7 @@ function NotificationPage() {
                                                     value.read = !value.read
                                                 }}>
                                             </Checkbox>
-                                            <Link href={value.notificationUrl}>
+                                            <Link href={`${value.notificationUrl}?username=${encodeURIComponent(username)}`}>
                                             <ListItemText id={labelId}
                                                           fontWeight={value.read ? 400 : 1000 }
                                                           primary={`${value.notificationContent}`} />
