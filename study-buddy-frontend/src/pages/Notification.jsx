@@ -204,9 +204,16 @@ function NotificationPage() {
                                         <MenuItem
                                             selected={ notif === value}
                                         >
-                                            <Checkbox checked={false}
+                                            <Checkbox checked={value.read}
                                                 onClick={() => {
+                                                    if(value.read) {
+                                                        setCount(count+1);
+                                                    }
+                                                    else {
+                                                        setCount(count-1);
+                                                    }
                                                     switchNotifReadStatus(value);
+                                                    value.read = !value.read
                                                 }}>
                                             </Checkbox>
                                             <Link href={value.notificationUrl}>

@@ -15,14 +15,16 @@ function MyInfoPage() {
   const [username, setUsername] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [userCourses, setUserCourses] = useState([]);
-
+  const api = axios.create({
+    //baseURL: 'http://localhost:8080/'
+    baseURL: 'http://34.16.169.60:8080/'
+  });
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
     //fetch(`http://localhost:8080/me/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/me/${user}`)
-      .then(response => response.json())
-      .then(data => setUser(data))
+    api.get(`me/${user}`)
+      .then(data => setUser(data.data))
       .catch(error => console.error('Error fetching user:', error));
   };
 
@@ -30,9 +32,8 @@ function MyInfoPage() {
     console.log("Profile to fetch for: " + user);
 
     //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
-    fetch(`http://34.16.169.60:8080/profile/${user}`)
-      .then(response => response.json())
-      .then(data => setProfile(data))
+    api.get(`profile/${user}`)
+      .then(data => setProfile(data.data))
       .catch(error => console.error('Error fetching profile:', error));
   };
 
@@ -49,11 +50,10 @@ function MyInfoPage() {
 
   const fetchUserCourses = (user) => {
       //fetch(`http://localhost:8080/api/get-courses-user/${user}`)
-      fetch(`http://34.16.169.60:8080/api/get-courses-user/${user}`)
-          .then(response => response.json())
+      api.get(`api/get-courses-user/${user}`)
           .then(data =>{
-              setUserCourses(Array.from(data))
-              console.log(data);}
+              setUserCourses(data.data)
+              console.log(data.data);}
           )
           .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
   };
@@ -68,7 +68,7 @@ function MyInfoPage() {
     }
   
     //axios.put("http://localhost:8080/me", profile)
-    axios.put("http://34.16.169.60:8080/me", profile)
+    api.put("me", profile)
       .then((res) => {
         if (res.status === 200) {
           handleSettingsClose();
