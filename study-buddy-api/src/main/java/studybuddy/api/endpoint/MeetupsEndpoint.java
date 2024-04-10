@@ -14,7 +14,8 @@ import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
-
+import studybuddy.api.rating.Rating;
+import studybuddy.api.rating.RatingService;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,6 +38,9 @@ public class MeetupsEndpoint {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private RatingService ratingService;
 
     @GetMapping("expiredMeetups/{username}")
     public void checkExpiredMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone){
@@ -90,6 +94,7 @@ public class MeetupsEndpoint {
                     notification.setNotificationUrl("/invitations");
                     notification.setNotificationContent("The meetup '" + meeting.getTitle() + "' by '" + meeting.getUsername() + "' has ended.");
                     notificationService.sendNotification(notification);
+
                 }
             });
 
@@ -104,8 +109,27 @@ public class MeetupsEndpoint {
         remindedMeetings.forEach(meeting -> {
             meeting.getAttendees().forEach(attendee -> {
                 // only send notif to attendees, not the creator
+                meeting.getAttendees().forEach(reviewed -> {
+                    if (!attendee.equals(reviewed)) {
+                        System.out.println("Reviewer: " + attendee.getUsername());
+                        System.out.println("Reviewed: " + reviewed.getUsername());
+                        Rating rating = new Rating();
+                        rating.setRatingUser(attendee);
+                        rating.setRatedUser(reviewed);
+                        ratingService.saveRating(rating);
+                        Notification notification = new Notification();
+                        notification.setReciever(attendee);
+                        notification.setSender(userService.findByUsernameExists(meeting.getUsername()));
+                        notification.setTimestamp(new Date());
+                        notification.setNotificationUrl("/makeRating");
+                        notification.setNotificationContent("Can now rate '" + rating.getRatedUser());
+                        notificationService.sendNotification(notification);
+
+                    }
+                });
                 if(!attendee.getUsername().equals(meeting.getUsername())) {
                     System.out.println("ATTENDEE: " + attendee.getUsername());
+
                     Notification notification = new Notification();
                     notification.setReciever(attendee);
                     notification.setSender(userService.findByUsernameExists(meeting.getUsername()));
