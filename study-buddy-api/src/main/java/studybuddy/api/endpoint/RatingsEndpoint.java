@@ -143,6 +143,32 @@ public class RatingsEndpoint {
         }
         return ResponseEntity.ok(ratings);
     }
+    @RequestMapping(
+            value = "/updateRating/{ratingId}",
+            method = RequestMethod.PUT,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<Rating> updateRating(@PathVariable long ratingId, @RequestBody Rating updatedRating) {
+        // Find the existing rating by its ID
+        Optional<Rating> existingRating = ratingService.findRatingByID(ratingId);
+
+        if (existingRating.isPresent()) {
+            // Update the existing rating with the new data
+            Rating ratingToUpdate = existingRating.get();
+            ratingToUpdate.setRating(updatedRating.getRating());
+            ratingToUpdate.setReview(updatedRating.getReview());
+
+            // Save the updated rating
+            Rating savedRating = ratingService.saveRating(ratingToUpdate);
+
+            // Return the updated rating in the response
+            return ResponseEntity.ok(savedRating);
+        } else {
+            // If the rating with the given ID doesn't exist, return a bad request response
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @DeleteMapping("/deleteRating/{id}")
     public void deleteRating(@PathVariable Long id) {

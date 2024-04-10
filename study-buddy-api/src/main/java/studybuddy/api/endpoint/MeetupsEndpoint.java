@@ -87,13 +87,7 @@ public class MeetupsEndpoint {
                 // only send notif to attendees, not the creator
                 if(!attendee.getUsername().equals(meeting.getUsername())) {
                     System.out.println("ATTENDEE: " + attendee.getUsername());
-                    Notification notification = new Notification();
-                    notification.setReciever(attendee);
-                    notification.setSender(userService.findByUsernameExists(meeting.getUsername()));
-                    notification.setTimestamp(new Date());
-                    notification.setNotificationUrl("/invitations");
-                    notification.setNotificationContent("The meetup '" + meeting.getTitle() + "' by '" + meeting.getUsername() + "' has ended.");
-                    notificationService.sendNotification(notification);
+
 
                 }
             });
@@ -109,6 +103,13 @@ public class MeetupsEndpoint {
         remindedMeetings.forEach(meeting -> {
             meeting.getAttendees().forEach(attendee -> {
                 // only send notif to attendees, not the creator
+                Notification rateNotification = new Notification();
+                rateNotification.setReciever(attendee);
+                rateNotification.setSender(userService.findByUsernameExists(meeting.getUsername()));
+                rateNotification.setTimestamp(new Date());
+                rateNotification.setNotificationUrl("/makeRating");
+                rateNotification.setNotificationContent("Can now rate your meeting members");
+                notificationService.sendNotification(rateNotification);
                 meeting.getAttendees().forEach(reviewed -> {
                     if (!attendee.equals(reviewed)) {
                         System.out.println("Reviewer: " + attendee.getUsername());
@@ -117,14 +118,6 @@ public class MeetupsEndpoint {
                         rating.setRatingUser(attendee);
                         rating.setRatedUser(reviewed);
                         ratingService.saveRating(rating);
-                        Notification notification = new Notification();
-                        notification.setReciever(attendee);
-                        notification.setSender(userService.findByUsernameExists(meeting.getUsername()));
-                        notification.setTimestamp(new Date());
-                        notification.setNotificationUrl("/makeRating");
-                        notification.setNotificationContent("Can now rate '" + rating.getRatedUser());
-                        notificationService.sendNotification(notification);
-
                     }
                 });
                 if(!attendee.getUsername().equals(meeting.getUsername())) {
