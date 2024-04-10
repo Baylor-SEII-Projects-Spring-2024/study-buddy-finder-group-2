@@ -40,4 +40,8 @@ public class ConnectionService {
         return connectionRepository.getConnections(username);
     }
 
+    public List<Connection> getRequests(String username) {
+        return connectionRepository.getRequests(username);
+    }
+
 }

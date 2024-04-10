@@ -21,6 +21,7 @@ import NotificationPage from "@/pages/Notification";
 
 
 function SearchUsersPage() {
+    const[thisUser, setThisUser] = useState(null);
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
@@ -63,6 +64,7 @@ function SearchUsersPage() {
         }
 
         setRequester(user);
+        setThisUser(user);
     }, [])
 
     // search for users matching the specifications
@@ -75,7 +77,10 @@ function SearchUsersPage() {
         }
 
         // this search will NOT return the current user
-        api.post(`api/searchUsers/${requester}`, user)
+        //axios.post(`http://localhost:8080/api/searchUsers/${thisUser}`, user) // for local testing
+        //axios.post(`http://34.16.169.60:8080/api/searchUsers/${thisUser}`, user)
+
+        api.post(`api/searchUsers/${thisUser}`, user)
             .then((res) => {
                 if(res.status === 200){
                     console.log(res.data[0]);
@@ -109,9 +114,16 @@ function SearchUsersPage() {
                     console.log(err);
                 });
         }
-            // TODO: test what happens if a user requests a connection twice
+        // the connection is pending
+        else if(selectedConnection.requester === thisUser) {
+            console.log(thisUser + " oops");
+            // TODO: cancel connection??
+        }
         // the users are not currently connected
         else {
+            //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
+            //axios.post(`http://34.16.169.60:8080/api/searchUsers/addConnection`, connection)
+
             api.post("api/searchUsers/addConnection", connection)
                 .then((res) => {
                     console.log("CONNECTION ADDED.");
@@ -121,7 +133,7 @@ function SearchUsersPage() {
                 })
                 .catch((err) => {
                     console.log("ERROR ADDING CONNECTION.");
-                    console.log(err.value);
+                    console.log(err);
                 });
         }
     }
@@ -129,6 +141,7 @@ function SearchUsersPage() {
     // set connection values
     const handleSetConnection = () => {
         if(!isConnected) {
+            setRequester(thisUser);
             setRequested(selectedUser.username);
             setIsConnected(false);
         }
@@ -151,14 +164,21 @@ function SearchUsersPage() {
         setSchool(user.school);
 
         // set connection values for existing connection
-        api.post(`api/searchUsers/getConnection/${requester}`, user.username)
+        //axios.post(`http://localhost:8080/api/searchUsers/getConnection/${thisUser}`, user.username)
+        //axios.post(`http://34.16.169.60:8080/api/searchUsers/getConnection/${thisUser}`, user.username)
+        api.post(`api/searchUsers/getConnection/${thisUser}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
+                setRequester(res.data.requester);
+                setRequested(res.data.requested);
                 setIsConnected(res.data.isConnected);
                 setId(res.data.id);
 
                 if(res.data.isConnected) {
                     setText("Disconnect");
+                }
+                else if(res.data.requester === thisUser) {
+                    setText("Pending");
                 }
             })
             .catch((err) => {
@@ -182,7 +202,10 @@ function SearchUsersPage() {
         setSchool(null);
 
         setSelectedConnection(null);
+        setRequested(null);
+        setRequester(null);
         setIsConnected(false);
+
         setText("Connect");
     };
 
@@ -334,7 +357,10 @@ function SearchUsersPage() {
                                 id="connection"
                                 variant="contained"
                                 sx={{
-                                    backgroundColor: isConnected ? 'purple' : 'light blue',
+                                    backgroundColor: isConnected ? '#9c27b0' : 'light blue',
+                                    '&:hover': {
+                                        backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
+                                    },
                                 }}
                                 type="submit"
                                 onClick={handleSetConnection}
