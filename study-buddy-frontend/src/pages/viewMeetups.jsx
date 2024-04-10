@@ -62,10 +62,9 @@ function MeetupsPage() {
 
     const fetchCourses = () => {
         api.get(`api/get-all-courses/`)
-            .then(response => response.data)
             .then(data =>{
-                setCourses(Array.from(data))
-                console.log(data);}
+                setCourses(data.data)
+                console.log(data.data);}
             )
             .catch(error => console.error('Error fetching courses:', error));
     };
