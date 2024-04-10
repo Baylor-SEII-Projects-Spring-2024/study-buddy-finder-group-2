@@ -37,7 +37,7 @@ function StudentLandingPage() {
                             <Button variant='contained' color="primary"> My Profile</Button>
                         </Link>
 
-                        <Link href="/invitations" passHref>
+                        <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> Invitations</Button>
                         </Link>
                         <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
