@@ -54,8 +54,15 @@ public class Meeting {
     @Column(name = "EXPIRED", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean expired;
 
+    @Column(name = "REMINDED", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean reminded;
+
     public boolean getExpired(){
         return this.expired;
+    }
+
+    public boolean getReminded(){
+        return this.reminded;
     }
 
 }

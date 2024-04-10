@@ -46,16 +46,12 @@ public class MeetupsEndpoint {
 
         List<Long> meetingIds = meetingService.findByUserId(user.getId());
         List<Meeting> endedMeetings = new ArrayList<Meeting>();
+        List<Meeting> remindedMeetings = new ArrayList<Meeting>();
 
         ZoneId timeZoneId = ZoneId.of(timeZone);
+        ZonedDateTime currentTime = ZonedDateTime.now(ZoneId.of(timeZone));
 
-//        LocalDateTime currentTime = LocalDateTime.now().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime();
-
-//        System.out.println("THE CURRENT TIME: " + currentTime.toString());
-
-        ZonedDateTime zoned = ZonedDateTime.now(ZoneId.of(timeZone));
-
-        System.out.println("THE CURRENT TIME: " + zoned.toLocalDateTime().toString());
+        System.out.println("THE CURRENT TIME: " + currentTime.toLocalDateTime().toString());
 
         ZoneId timeZoneUTC = ZoneId.of("UTC");
         meetingIds.forEach(id -> {
@@ -68,11 +64,17 @@ public class MeetupsEndpoint {
             System.out.println("MEETING CHECK: " + m.get().getTitle());
             System.out.println("MEETING EXPIRED?: " + m.get().getExpired());
 
+            long durationUntil = java.time.Duration.between(currentTime, m.get().getStartDate().atZone(ZoneId.of(timeZone))).toMinutes();
+
             // check if meeting ended and they did not create meeting and notif about this meetup hasnt been sent before
-            if(m.get().getEndDate().isBefore(zoned.toLocalDateTime()) && !m.get().getUsername().equals(username)
+            if(m.get().getEndDate().isBefore(currentTime.toLocalDateTime()) && !m.get().getUsername().equals(username)
                     && !m.get().getExpired()){
                 System.out.println("MEETING ENDED: " + m.get().getTitle());
                 endedMeetings.add(m.get());
+            }
+            else if(!m.get().getReminded() && durationUntil >= 0 && durationUntil < 5){
+                System.out.println("MEETING TO REMIND: " + m.get().getTitle());
+                remindedMeetings.add(m.get());
             }
         });
 
@@ -93,6 +95,29 @@ public class MeetupsEndpoint {
 
             // update expired status in database for this meeting
             meeting.setExpired(true);
+            meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+            meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+            meetingService.save(meeting);
+        });
+
+
+        remindedMeetings.forEach(meeting -> {
+            meeting.getAttendees().forEach(attendee -> {
+                // only send notif to attendees, not the creator
+                if(!attendee.getUsername().equals(meeting.getUsername())) {
+                    System.out.println("ATTENDEE: " + attendee.getUsername());
+                    Notification notification = new Notification();
+                    notification.setReciever(attendee);
+                    notification.setSender(userService.findByUsernameExists(meeting.getUsername()));
+                    notification.setTimestamp(new Date());
+                    notification.setNotificationUrl("/invitations");
+                    notification.setNotificationContent("The meetup '" + meeting.getTitle() + "' by '" + meeting.getUsername() + "' is starting soon!");
+                    notificationService.sendNotification(notification);
+                }
+            });
+
+            // update reminded status in database for this meeting
+            meeting.setReminded(true);
             meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
             meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
             meetingService.save(meeting);
