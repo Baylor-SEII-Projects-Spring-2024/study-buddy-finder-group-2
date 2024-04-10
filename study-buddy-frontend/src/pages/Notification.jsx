@@ -45,6 +45,25 @@ function NotificationPage() {
         baseURL: 'http://34.16.169.60:8080/'
     });
 
+    const checkExpiredMeetups = async (user) => {
+        // get user local time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+    
+        console.log("Check " + user + "'s expired meetings");
+    
+        return api.get(`expiredMeetups/${user}`, {
+            headers: {
+                'timezone': timezone
+            }
+        })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Error checking expired meetups', error);
+            return null;
+        });
+    };
+
     const fetchUser = (name) => {
         console.log("User to fetch for: " + name);
 
@@ -60,6 +79,7 @@ function NotificationPage() {
                 viewNotifications(name);
                 setInterval(function () {
                     viewNotifications(name);
+                    checkExpiredMeetups(name);
                 }, 10000);
             })
             .catch(error => console.error('Error fetching user:', error));

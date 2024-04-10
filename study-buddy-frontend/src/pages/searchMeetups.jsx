@@ -30,8 +30,8 @@ function SearchMeetupsPage() {
     const [courses, setCourses] = useState([]);
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/'
-        //baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
     });
 
     useEffect(() => {
@@ -176,7 +176,7 @@ function SearchMeetupsPage() {
         api.get(`api/get-all-courses/`)
             .then(response => response.data)
             .then(data => {
-                setCourses(data.data)
+                setCourses(Array.from(data))
                 console.log(data.data);
             })
             .catch(error => console.error('Error fetching courses:', error));

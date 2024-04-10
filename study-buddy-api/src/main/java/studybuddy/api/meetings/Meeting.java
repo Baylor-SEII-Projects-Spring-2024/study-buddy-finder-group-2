@@ -50,4 +50,12 @@ public class Meeting {
 
     @Column(name = "LOCATION")
     String location;
+
+    @Column(name = "EXPIRED", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean expired;
+
+    public boolean getExpired(){
+        return this.expired;
+    }
+
 }

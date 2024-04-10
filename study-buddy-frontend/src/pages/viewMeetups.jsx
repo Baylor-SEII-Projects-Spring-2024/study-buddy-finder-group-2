@@ -30,8 +30,8 @@ function MeetupsPage() {
     const [courses, setCourses] = useState([]);
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/'
-        //baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
     });
 
     useEffect(() => {
@@ -64,7 +64,7 @@ function MeetupsPage() {
         api.get(`api/get-all-courses/`)
             .then(response => response.data)
             .then(data =>{
-                setCourses(data.data)
+                setCourses(Array.from(data))
                 console.log(data);}
             )
             .catch(error => console.error('Error fetching courses:', error));
@@ -86,7 +86,6 @@ function MeetupsPage() {
             id, username, title, description, subject, startDate, endDate, location
         }
 
-        api.post("viewMeetups", meeting)
         api.post("viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
@@ -150,7 +149,6 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
-        api.delete(`viewMeetups/${selectedMeeting?.id}`)
         api.delete(`viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
