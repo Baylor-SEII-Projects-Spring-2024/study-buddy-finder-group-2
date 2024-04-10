@@ -54,7 +54,10 @@ function TutorLandingPage() {
                             <Button variant='contained' color="primary"> Connections</Button>
                         </Link>
 
-                        <Link href={`/myRatings?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={'/makeRating?username=${encodeURIComponent(username)}'}passHref>
+                            <Button variant='contained' color="primary"> make Rating</Button>
+                        </Link>
+                        <Link href={`/reviewings?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> Ratings</Button>
                         </Link>
                         

@@ -58,13 +58,13 @@ function StudentLandingPage() {
                         <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> Connections</Button>
                         </Link>
-
-                        <Link href={`/myRatings?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={'/makeRating?username=${encodeURIComponent(username)}'}passHref>
+                            <Button variant='contained' color="primary"> make Rating</Button>
+                        </Link>
+                        <Link href={`/reviewings?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> Ratings</Button>
                         </Link>
-                        <Link href={`/myRatings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button variant='contained' color="primary">My Reviews</Button>
-                        </Link>
+                        
                         
                         <Link href="/" passHref>
                             <Button variant='contained' color="secondary"> Log Out</Button>

@@ -20,6 +20,9 @@ public class RatingService {
     public List<Rating> getMyRatings(String thisUser){
         return ratingRepository.getMyRatings(thisUser);}
 
+    public List<Rating> getUnsubmittedRatings(String thisUser){
+        return ratingRepository.getUnsubmittedRatings(thisUser);
+    }
     public Rating saveRating(Rating rating) {
         return ratingRepository.save(rating);
     }

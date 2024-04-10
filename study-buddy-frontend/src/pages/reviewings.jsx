@@ -9,8 +9,7 @@ import {
 
 function viewRatingsPage(){
     const [thisUser, setThisUser] = useState(null);
-    const [ratingUser, setRatingUser] = useState(null);
-    const [ratedUser, setRatedUser] = useState(null);
+    
     const [ratingScore, setRatingScore] = useState(null);
     const [review, setReview] = useState(null);
     const [id, setId] = useState(null);
@@ -34,38 +33,15 @@ function viewRatingsPage(){
        
         console.log("User to fetch for: " + user);
 
-        fetch(`http://localhost:8080/viewMadeRatings/${user}`) // use this for local development
-        //fetch(`http://34.16.169.60:8080/viewMadeRatings/${user}`)
+        fetch(`http://localhost:8080/newRatings/${user}`) // use this for local development
+        //fetch(`http://34.16.169.60:8080/newRatings/${user}`)
             .then(res => res.json())
             .then(data => setRatings(data))
             .catch(error => console.error('Error fetching ratings:', error));
     };
 
-    //button for get ratings for me
-    const getRatingsForMe = (event) => {
-        
-        event.preventDefault();
-        const rating = {
-            ratingUser, ratedUser, ratingScore, review
-        }
-        // TODO: set error for empty search
-        axios.get("http://localhost:8080/viewMadeRatings", thisUser) // for local testing
-        //axios.get("http://34.16.169.60:8080/viewMadeRatings", thisUser)
-            .then((res) => {
-                console.log("how " + thisUser + "is rated")
-                if(res.status === 200){
-                    console.log(res.data[0])
-                    setRatings(res.data);
-                
-                }
-            })
-            .catch((err) => {
-                console.log(err.value);
-            });
-    }
     
-    const [open, setOpen] = React.useState(false);
-
+    
     const handleClickOpen = () => {
         setId(null);
         setSubject("");
@@ -76,6 +52,26 @@ function viewRatingsPage(){
     const handleClose = () => {
         setOpen(false);
         document.body.style.overflow = 'auto';
+    };
+
+    //DIALOG 2 (EDIT RATING)
+    const [openEdit, setOpenEdit] = React.useState(false);
+
+    // takes in selected meeting to display content of that rating
+    const handleClickOpenEdit = (rating) => {
+        setSelectedRating(rating);
+
+        // set state variables to the currently selected rating
+        setReview(rating.review);
+        setRatingScore(rating.ratingScore);
+
+    
+
+        setOpenEdit(true);
+    };
+
+    const handleCloseEdit = () => {
+        setOpenEdit(false);
     };
 
 

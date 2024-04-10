@@ -66,6 +66,29 @@ public class RatingsEndpoint {
         }
     }
 
+    @GetMapping("/newRatings/{username}")
+    public ResponseEntity<List<Rating>> newRatings(@PathVariable String username) {
+        User ratingUser = userService.findByUsername(username).orElse(null);
+        System.out.println("finding " + username);
+        if (ratingUser == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
+
+
+        List<Rating> ratings = ratingService.getUnsubmittedRatings(ratingUser.getUsername());
+
+        for (Rating r : ratings) {
+            System.out.println("ID is " + r.getRatingId());
+            System.out.println("User who you rated is " + r.getRatedUser());
+            if (r.getReview() != null) {
+                System.out.println("Review is " + r.getReview());
+            }
+
+
+        }
+        return ResponseEntity.ok(ratings);
+    }
     @GetMapping("/viewMadeRatings/{username}")
     public ResponseEntity<List<Rating>> fetchMyRatings(@PathVariable String username) {
         User ratingUser = userService.findByUsername(username).orElse(null);
