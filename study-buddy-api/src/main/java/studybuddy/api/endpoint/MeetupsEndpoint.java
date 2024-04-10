@@ -3,6 +3,7 @@ package studybuddy.api.endpoint;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,6 @@ public class MeetupsEndpoint {
     @GetMapping("expiredMeetups/{username}")
     public void checkExpiredMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone){
         System.out.println("CHECKING USER: " + username);
-        LocalDateTime currentTime = LocalDateTime.now();
 
         User user = userService.findByUsernameExists(username);
 
@@ -49,8 +49,13 @@ public class MeetupsEndpoint {
 
         ZoneId timeZoneId = ZoneId.of(timeZone);
 
-        ZonedDateTime currInTimeZone = currentTime.atZone(timeZoneId);
-        LocalDateTime currTimeReal = currInTimeZone.toLocalDateTime();
+//        LocalDateTime currentTime = LocalDateTime.now().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime();
+
+//        System.out.println("THE CURRENT TIME: " + currentTime.toString());
+
+        ZonedDateTime zoned = ZonedDateTime.now(ZoneId.of(timeZone));
+
+        System.out.println("THE CURRENT TIME: " + zoned.toLocalDateTime().toString());
 
         ZoneId timeZoneUTC = ZoneId.of("UTC");
         meetingIds.forEach(id -> {
@@ -64,7 +69,7 @@ public class MeetupsEndpoint {
             System.out.println("MEETING EXPIRED?: " + m.get().getExpired());
 
             // check if meeting ended and they did not create meeting and notif about this meetup hasnt been sent before
-            if(m.get().getEndDate().isBefore(currTimeReal) && !m.get().getUsername().equals(username)
+            if(m.get().getEndDate().isBefore(zoned.toLocalDateTime()) && !m.get().getUsername().equals(username)
                     && !m.get().getExpired()){
                 System.out.println("MEETING ENDED: " + m.get().getTitle());
                 endedMeetings.add(m.get());
