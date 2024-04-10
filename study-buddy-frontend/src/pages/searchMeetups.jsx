@@ -210,6 +210,11 @@ function SearchMeetupsPage() {
                                 <Typography><strong>Start:</strong> {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')}</Typography>
                                 <Typography><strong>End:</strong> {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</Typography>
                                 <Typography><strong>Description:</strong> {meetup.description}</Typography>
+                                <Button variant='contained' id={`join-button-${meetup.id}`} color="primary" size="small" onClick={() => {
+                                    handleJoin(meetup);
+                                }}>
+                                    Join Meetup
+                                </Button>
                             </CardContent>
                         </Card>
                     ))}

@@ -228,6 +228,13 @@ function SearchUsersPage() {
                         <Card key={index} sx={{marginBottom: 2}}>
                             <CardContent>
                                 <Typography variant='subtitle1'>{user.username}</Typography>
+                                <Button
+                                    variant='contained'
+                                    color= "primary"
+                                    size="small"
+                                    onClick={() => handleClickOpenProfile(user)}
+                                >
+                                    View Profile</Button>
                                 {/* Other user details here */}
                             </CardContent>
                         </Card>
