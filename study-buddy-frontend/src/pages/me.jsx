@@ -5,7 +5,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 //This is the page that the user themself sees (able to edit and such)
 
-//TODO: Display courses, links
+//TODO: Display profile pictures, links
 
 function MyInfoPage() {
   const [user, setUser] = useState(null);
@@ -15,14 +15,15 @@ function MyInfoPage() {
   const [username, setUsername] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [userCourses, setUserCourses] = useState([]);
+
   const api = axios.create({
     //baseURL: 'http://localhost:8080/'
     baseURL: 'http://34.16.169.60:8080/'
   });
+
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/me/${user}`) // use this for local development
     api.get(`me/${user}`)
       .then(data => setUser(data.data))
       .catch(error => console.error('Error fetching user:', error));
@@ -49,7 +50,7 @@ function MyInfoPage() {
     }, []);
 
   const fetchUserCourses = (user) => {
-      //fetch(`http://localhost:8080/api/get-courses-user/${user}`)
+
       api.get(`api/get-courses-user/${user}`)
           .then(data =>{
               setUserCourses(data.data)
@@ -66,8 +67,7 @@ function MyInfoPage() {
     const profile = {
       id, username, bio
     }
-  
-    //axios.put("http://localhost:8080/me", profile)
+
     api.put("me", profile)
       .then((res) => {
         if (res.status === 200) {

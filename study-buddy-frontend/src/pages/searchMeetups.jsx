@@ -28,11 +28,11 @@ function SearchMeetupsPage() {
     const [meetups, setMeetups] = useState([]);
     const [recommendedMeetups, setRecommendedMeetups] = useState([]);
     const [courses, setCourses] = useState([]);
+
     const api = axios.create({
         //baseURL: 'http://localhost:8080/'
         baseURL: 'http://34.16.169.60:8080/'
     });
-
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -40,8 +40,6 @@ function SearchMeetupsPage() {
         setCurrentUser(user);
         fetchCourses();
         fetchRecommendedMeetups(user);
-
-        // console.log("Users in meetups:", meetups.map(meetup => meetup.attendees.map(attendee => attendee.username)).flat());
     }, []);
 
     const handleSearch = (str) => {
@@ -64,14 +62,9 @@ function SearchMeetupsPage() {
         console.log("TITLEEEEEE: " + title);
         console.log("COURSEEEEE: " + subject);
 
-        // TODO: set error for empty search
-        // axios.post("http://localhost:8080/api/searchMeetups", meetup, {
-        //     headers: {
-        //         'timezone': timezone
-        //     }}) // for local testing
         api.post("api/searchMeetups", meetup, {
-               headers: {
-               'timezone': timezone
+            headers: {
+                'timezone': timezone
             }})
             .then((res) => {
                 console.log(meetup.title)
@@ -88,11 +81,28 @@ function SearchMeetupsPage() {
     }
 
     const handleJoin = (meetup) => {
-        console.log("JOINING")
-        console.log(currentUser);
-        console.log(meetup.id);
+        // get up to date version of the meetup to make sure its not deleted
+        api.get(`viewMeetup/${meetup.id}`)
+            .then(response => {
+                if(response.data === null){
+                    alert("This meetup has been removed. You cannot join it.");
+                    return;
+                }
+            })
+            .catch(error => console.error('Error getting meetup', error));
 
-        api.post(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+
+        if(new Date(meetup.startDate) <= new Date()){
+            alert("This meetup has expired. You cannot join it.");
+            return;
+        }
+
+        console.log("JOINING")
+        console.log("Joiner: " + currentUser);
+        console.log("Creator: " + meetup.username);
+        console.log("Meeting Id: " + meetup.id);
+
+        api.post(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}&creator=${meetup.username}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
@@ -118,12 +128,27 @@ function SearchMeetupsPage() {
 
 
     const handleLeave = (meetup) => {
+        // get up to date version of the meetup to make sure its not deleted
+        api.get(`viewMeetup/${meetup.id}`)
+            .then(response => {
+                if(response.data === null){
+                    alert("This meetup has been removed. You cannot leave it.");
+                    return;
+                }
+            })
+            .catch(error => console.error('Error getting meetup', error));
+
+
+        if(new Date(meetup.startDate) <= new Date()){
+            alert("This meetup is ongoing or has expired. You cannot leave it.");
+            return;
+        }
+
         console.log("LEAVING")
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        //axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        api.delete(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Left meetup:', res.data);
@@ -148,22 +173,29 @@ function SearchMeetupsPage() {
     };
 
     const fetchCourses = () => {
-        api.get(`http://34.16.169.60:8080/api/get-all-courses/`)
+        api.get(`api/get-all-courses/`)
+            .then(response => response.data)
             .then(data => {
-                setCourses(data.data)
+                setCourses(Array.from(data))
                 console.log(data.data);
             })
             .catch(error => console.error('Error fetching courses:', error));
     };
 
-    const fetchRecommendedMeetups = (user) => {
-        api.get(`recommendMeetups/${user}`)
+    const fetchRecommendedMeetups = async (user) => {
+        // get user time zone
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+
+        api.get(`recommendMeetups/${user}`, {
+            headers: {
+                'timezone': timezone
+            }})
             .then(response => {
                 setRecommendedMeetups(response.data);
             })
             .catch(error => console.error('Error fetching recommended meetups:', error));
     };
-
 
     return (
         <ThemeProvider theme={theme}>
@@ -171,10 +203,12 @@ function SearchMeetupsPage() {
             <Box sx={{ display: 'flex', flexDirection: 'row', p: 2 }}>
                 <Box sx={{ width: '30%', marginRight: '2%' }}>
                     <Typography variant="h5" sx={{ mb: 2, color: 'primary.main' }}>Recommended Meetups</Typography>
-                    {recommendedMeetups.map((meetup, index) => (
+                    {recommendedMeetups.filter(r => new Date(r.startDate) > new Date()).map((meetup, index) => (
                         <Card key={index} sx={{ mb: 2 }} elevation={6}>
                             <CardContent>
                                 <Typography><strong>Title:</strong> {meetup.title}</Typography>
+                                <Typography><strong>Start:</strong> {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')}</Typography>
+                                <Typography><strong>End:</strong> {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</Typography>
                                 <Typography><strong>Description:</strong> {meetup.description}</Typography>
                             </CardContent>
                         </Card>
@@ -225,7 +259,7 @@ function SearchMeetupsPage() {
 
                 {/* Display meetup results */}
                 {meetups
-                .filter(meetup => meetup.username !== currentUser)
+                .filter(meetup => meetup.username !== currentUser && new Date(meetup.startDate) > new Date())
                 .map((meetup, index) => (
                     <Card key={index} sx={{ height: 'auto', marginBottom: 2, width: '80%'}} elevation={6}>
                         <CardContent>
