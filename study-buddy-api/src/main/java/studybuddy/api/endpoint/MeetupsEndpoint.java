@@ -16,6 +16,7 @@ import studybuddy.api.user.UserService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,8 +24,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://34.16.169.60:3000")
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
@@ -47,6 +48,10 @@ public class MeetupsEndpoint {
         List<Meeting> endedMeetings = new ArrayList<Meeting>();
 
         ZoneId timeZoneId = ZoneId.of(timeZone);
+
+        ZonedDateTime currInTimeZone = currentTime.atZone(timeZoneId);
+        LocalDateTime currTimeReal = currInTimeZone.toLocalDateTime();
+
         ZoneId timeZoneUTC = ZoneId.of("UTC");
         meetingIds.forEach(id -> {
             Optional<Meeting> m = meetingService.findById(id);
@@ -54,11 +59,12 @@ public class MeetupsEndpoint {
             m.get().setStartDate(m.get().getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
             m.get().setEndDate(m.get().getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
 
+
             System.out.println("MEETING CHECK: " + m.get().getTitle());
             System.out.println("MEETING EXPIRED?: " + m.get().getExpired());
 
             // check if meeting ended and they did not create meeting and notif about this meetup hasnt been sent before
-            if(m.get().getEndDate().isBefore(currentTime) && !m.get().getUsername().equals(username)
+            if(m.get().getEndDate().isBefore(currTimeReal) && !m.get().getUsername().equals(username)
                     && !m.get().getExpired()){
                 System.out.println("MEETING ENDED: " + m.get().getTitle());
                 endedMeetings.add(m.get());

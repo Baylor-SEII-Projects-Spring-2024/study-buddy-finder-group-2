@@ -51,6 +51,10 @@ function NotificationPage() {
         const timezone = options.timeZone;
     
         console.log("Check " + user + "'s expired meetings");
+
+        // TEST
+        const currentTimeInUserTimeZone = new Date().toLocaleString('en-US', { timeZone: timezone});
+        console.log("Current time in user's time zone:", currentTimeInUserTimeZone);
     
         return api.get(`expiredMeetups/${user}`, {
             headers: {
