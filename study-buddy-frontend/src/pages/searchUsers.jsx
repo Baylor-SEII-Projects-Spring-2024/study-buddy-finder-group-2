@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import axios from "axios";
+import axios from 'axios';
 
 import {
     Box,
@@ -17,7 +17,11 @@ import {
     TextField,
     Typography
 } from "@mui/material";
+import NotificationPage from "@/pages/Notification";
+
+
 function SearchUsersPage() {
+    const[thisUser, setThisUser] = useState(null);
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
@@ -29,23 +33,9 @@ function SearchUsersPage() {
     const [recommendedUsers, setRecommendedUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
-
     const [requester, setRequester] = useState(null);
     const [requested, setRequested] = useState(null);
     const [isConnected, setIsConnected] = useState(null);
-
-
-    const fetchRecommendations = (username) => {
-        //axios.get(`http://localhost:8080/api/recommendations/${username}`) // Adjust as needed
-        axios.get(`http://34.16.169.60:8080/api/recommendations/${username}`)
-
-            .then((response) => {
-                setRecommendedUsers(response.data);
-            })
-            .catch((error) => {
-                console.error('Error fetching recommendations:', error);
-            });
-    };
 
     // get the user's username
     useEffect(() => {
@@ -57,37 +47,35 @@ function SearchUsersPage() {
         }
 
         setRequester(user);
+        setThisUser(user);
     }, [])
 
-
+    // search for users matching the specifications
     const handleSubmit = (event) => {
         // prevents page reload
         event.preventDefault();
         const user = {
             username, firstName, lastName, emailAddress, userType, school
         }
-        // TODO: set error for empty search
-        //axios.post("http://localhost:8080/api/searchUsers", user) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers", user)
+
+        // this search will NOT return the current user
+        //axios.post(`http://localhost:8080/api/searchUsers/${thisUser}`, user) // for local testing
+        //axios.post(`http://34.16.169.60:8080/api/searchUsers/${thisUser}`, user)
+
+        api.post(`api/searchUsers/${thisUser}`, user)
             .then((res) => {
-                console.log(user.firstName)
-                console.log(user.lastName)
-                if (res.status === 200) {
-                    console.log(res.data[0])
+                if(res.status === 200){
+                    console.log(res.data[0]);
                     setUsers(res.data);
-                    //fetchUsers(searchStr);
                 }
             })
             .catch((err) => {
-                console.log(err.value);
+                console.log(err);
             });
     }
 
-    // TODO: add connections
-    // use this to close the profile view as well??
-    // *const handleAddConnection = (event) => {
-    // TODO: note that a connection exists (is there a way to change the UI accordingly??)
-    const handleAddConnection = (event) => {
+    // delete or add connection base off of current connection status
+    const handleConnection = (event) => {
         // prevents page reload
         event.preventDefault();
 
@@ -97,34 +85,56 @@ function SearchUsersPage() {
         const connection = {
             requester, requested, isConnected
         }
-        console.log(connection.requester);
-        console.log(connection.requested);
 
-        //axios.post(`http://localhost:8080/api/searchUsers/addConnection/${username}`, selectedUser) // for local testing
-            //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
-        //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchUsers/addConnection", connection)
-            .then((res) => {
-                console.log("CONNECTION ADDED.");
-                if(res.status === 200) {
-                    handleCloseProfile();
-                }
-            })
-            .catch((err) => {
-                console.log("ERROR ADDING CONNECTION.");
-                console.log(err.value);
-            });
+        // if the users are currently connected
+        if(isConnected) {
+            api.delete(`api/searchUsers/deleteConnection/${selectedConnection?.id}`)
+                .then((res) => {
+                    if(res.status === 200) {
+                        handleCloseProfile();
+                    }
+                })
+                .catch((err) => {
+                    console.log("ERROR DELETING CONNECTION.");
+                    console.log(err);
+                });
+        }
+        // the connection is pending
+        else if(selectedConnection.requester === thisUser) {
+            console.log(thisUser + " oops");
+            // TODO: cancel connection??
+        }
+        // the users are not currently connected
+        else {
+            //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
+            //axios.post(`http://34.16.169.60:8080/api/searchUsers/addConnection`, connection)
+
+            api.post("api/searchUsers/addConnection", connection)
+                .then((res) => {
+                    console.log("CONNECTION ADDED.");
+                    if(res.status === 200) {
+                        handleCloseProfile();
+                    }
+                })
+                .catch((err) => {
+                    console.log("ERROR ADDING CONNECTION.");
+                    console.log(err);
+                });
+        }
     }
 
-
+    // set connection values
     const handleSetConnection = () => {
-        setRequested(selectedUser.username);
-        setIsConnected(false);
+        if(!isConnected) {
+            setRequester(thisUser);
+            setRequested(selectedUser.username);
+            setIsConnected(false);
+        }
     }
 
-//DIALOG 2 (Add connection)
-//DIALOG (Add connection)
-    const [openProfile, setOpenProfile] = React.useState(false);
+    const [openProfile, setOpenProfile] = useState(false);
+    const [text, setText] = useState("Connect");
+    // look at document.getElementById("connection")
 
 // takes in selected user to display profile
     const handleClickOpenProfile = (user) => {
@@ -136,18 +146,51 @@ function SearchUsersPage() {
         setEmail(user.emailAddress);
         setType(user.userType);
         setSchool(user.school);
+
+        // set connection values for existing connection
+        //axios.post(`http://localhost:8080/api/searchUsers/getConnection/${thisUser}`, user.username)
+        //axios.post(`http://34.16.169.60:8080/api/searchUsers/getConnection/${thisUser}`, user.username)
+        api.post(`api/searchUsers/getConnection/${thisUser}`, user.username)
+            .then((res) => {
+                setSelectedConnection(res.data);
+                setRequester(res.data.requester);
+                setRequested(res.data.requested);
+                setIsConnected(res.data.isConnected);
+                setId(res.data.id);
+
+                if(res.data.isConnected) {
+                    setText("Disconnect");
+                }
+                else if(res.data.requester === thisUser) {
+                    setText("Pending");
+                }
+            })
+            .catch((err) => {
+                console.error('Error getting connection:', err)
+            });
+
         setOpenProfile(true);
     };
-// close the profile
+
+    // close the profile
+    // reset connection and user values
     const handleCloseProfile = () => {
         setOpenProfile(false);
-        // must reset user values for continued search!!
+
+        // must reset values for continued search!!
         setUsername(searchStr);
         setFirstName(searchStr);
         setLastName(searchStr);
         setEmail(null);
         setType(null);
         setSchool(null);
+
+        setSelectedConnection(null);
+        setRequested(null);
+        setRequester(null);
+        setIsConnected(false);
+
+        setText("Connect");
     };
 // get the string the to search with
     const handleSearch = (str) => {
@@ -157,29 +200,38 @@ function SearchUsersPage() {
         setUsername(str);
     };
     return (
-        <div style={{display: 'flex', flexDirection: 'row'}}>
-            <Box sx={{width: '30%'}}>
-                <Typography variant='h6'>Recommended Users</Typography>
-                {recommendedUsers.map((user, index) => (
-                    <Card key={index} sx={{marginBottom: 2}}>
-                        <CardContent>
-                            <Typography variant='subtitle1'>{user.username}</Typography>
-                            {/* Other user details here */}
-                        </CardContent>
-                    </Card>
-                ))}
-            </Box>
-            <Box sx={{width: '70%'}}>
-                <div>
-                    <Stack sx={{paddingTop: 4}} alignItems='center' gap={2}>
-                        <Card sx={{width: 520, margin: 'auto'}} elevation={4}>
+        <Box>
+        <NotificationPage></NotificationPage> <br/>
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+                <Box sx={{width: '30%'}}>
+                    <Typography variant='h6'>Recommended Users</Typography>
+                    {recommendedUsers.map((user, index) => (
+                        <Card key={index} sx={{marginBottom: 2}}>
+                            <CardContent>
+                                <Typography variant='subtitle1'>{user.username}</Typography>
+                                <Button
+                                    variant='contained'
+                                    color= "primary"
+                                    size="small"
+                                    onClick={() => handleClickOpenProfile(user)}
+                                >
+                                    View Profile</Button>
+                                {/* Other user details here */}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Box>
+                <Box sx={{width: '70%'}}>
+                    <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
+                        <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
                             <CardContent>
                                 <Typography variant='h4' align='center'>Search Users</Typography>
                             </CardContent>
                         </ Card>
+
                         {/* this is the search area, submits a form */}
                         <Box component="form" noValidate onSubmit={handleSubmit}
-                             sx={{paddingTop: 3, width: 550, margin: 'auto'}}>
+                             sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
                             <Stack spacing={4} direction="row" justifyContent="center">
                                 {/* get search string for name and username */}
                                 <TextField
@@ -190,8 +242,9 @@ function SearchUsersPage() {
                                     variant="outlined"
                                     onChange={(e) => handleSearch(e.target.value)}
                                 />
+
                                 {/* get requested user type (none, student, tutor) */}
-                                <FormControl variant="filled" sx={{m: 1, minWidth: 120}}>
+                                <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
                                     <InputLabel required id="userType">User Type</InputLabel>
                                     <Select
                                         labelId="select userType"
@@ -206,6 +259,7 @@ function SearchUsersPage() {
                                         <MenuItem value={"tutor"}>Tutor</MenuItem>
                                     </Select>
                                 </FormControl>
+
                                 {/* submit the search form to get results */}
                                 <Button
                                     variant='contained'
@@ -215,28 +269,30 @@ function SearchUsersPage() {
                                     Search</Button>
                             </Stack>
                         </Box>
+
                         {/* display all matches on separate cards */}
                         {users.map((user, index) => (
                             <Card key={index}
-                                  sx={{width: 520, margin: 'auto', marginTop: 1, cursor: 'pointer'}}
+                                  sx={{ width: 520, margin: 'auto', marginTop: 1, cursor: 'pointer' }}
                                   elevation={6}>
                                 <CardContent>
-                                    <Box sx={{paddingTop: 3, width: 400, margin: 'auto'}}>
+                                    <Box sx={{ paddingTop: 3, width: 400, margin: 'auto' }}>
                                         <Stack spacing={13} direction="row" justifyContent="space-evenly">
-                                            <Box sx={{width: 200}}>
-                                                <ul style={{listStyleType: 'none', padding: 0, margin: 0}}>
+                                            <Box sx={{ width: 200 }}>
+                                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                                     <li>
                                                         <strong>Username: </strong> {user.username}
-                                                        <br/>
+                                                        <br />
                                                         <strong>Name: </strong> {user.firstName + " " + user.lastName}
-                                                        <br/>
+                                                        <br />
                                                     </li>
                                                 </ul>
                                             </Box>
+
                                             {/* view the profile of that user */}
                                             <Button
                                                 variant='contained'
-                                                color="primary"
+                                                color= "primary"
                                                 size="small"
                                                 onClick={() => handleClickOpenProfile(user)}
                                             >
@@ -246,6 +302,7 @@ function SearchUsersPage() {
                                 </CardContent>
                             </Card>
                         ))}
+
                         {/* add button back to user's landing page */}
                         {/*<Button
                         variant="outlined"
@@ -253,7 +310,9 @@ function SearchUsersPage() {
                         href="/"
                     >
                         Back</Button>*/}
+
                     </Stack>
+
                     {/*View user profile and add as connection*/}
                     <Dialog
                         open={openProfile}
@@ -261,7 +320,7 @@ function SearchUsersPage() {
                         fullWidth
                         component="form"
                         validate="true"
-                        onSubmit={handleAddConnection}
+                        onSubmit={handleConnection}
                     >
                         <DialogTitle variant='s2'>{firstName + " " + lastName}'s Profile</DialogTitle>
                         <DialogContent>
@@ -274,6 +333,7 @@ function SearchUsersPage() {
                                 <Typography variant='s1'>Courses...</Typography>
                             </Stack>
                         </DialogContent>
+
                         <DialogActions>
                             <Button
                                 variant="outlined"
@@ -282,22 +342,23 @@ function SearchUsersPage() {
                             >
                                 Cancel</Button>
                             <Button
+                                id="connection"
                                 variant="contained"
-                                color="primary"
+                                sx={{
+                                    backgroundColor: isConnected ? '#9c27b0' : 'light blue',
+                                    '&:hover': {
+                                        backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
+                                    },
+                                }}
                                 type="submit"
-                                //onSubmit={handleAddConnection}
                                 onClick={handleSetConnection}
                             >
-                                Connect</Button>
+                                {text}</Button>
                         </DialogActions>
                     </Dialog>
-                    =
-                </div>
-                {/* Existing UI for searching and listing users */}
-            </Box>
-        </div>
-
-
+                </Box>
+            </div>
+        </Box>
     );
 }
 

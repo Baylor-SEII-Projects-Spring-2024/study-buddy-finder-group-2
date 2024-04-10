@@ -2,10 +2,7 @@ package studybuddy.api.endpoint;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import studybuddy.api.connection.Connection;
 import studybuddy.api.connection.ConnectionService;
 import studybuddy.api.user.User;
@@ -13,6 +10,7 @@ import studybuddy.api.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @RestController
@@ -26,7 +24,7 @@ public class viewConnectionsEndpoint {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/viewConnections/{username}")
+    @GetMapping("/api/viewConnections/{username}")
     public List<User> fetchConnections(@PathVariable String username) {
         List<Connection> connections = connectionService.getConnections(username);
         List<String> conUsernames = new ArrayList<>();
@@ -52,5 +50,18 @@ public class viewConnectionsEndpoint {
             }
         }
         return conUsers;
+    }
+
+    @DeleteMapping("/api/viewConnections/{id}")
+    public void deleteConnection(@PathVariable Long id) {
+        connectionService.delete(id);
+    }
+
+    @RequestMapping (
+            value = "/api/viewConnections/getConnection/{username}",
+            method = RequestMethod.POST
+    )
+    public Connection getConnection(@PathVariable String username, @RequestBody String requested) {
+        return connectionService.getConnection(username, requested);
     }
 }
