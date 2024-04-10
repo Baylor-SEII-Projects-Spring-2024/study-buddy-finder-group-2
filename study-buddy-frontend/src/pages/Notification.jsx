@@ -41,8 +41,8 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/'
+        //baseURL: 'http://34.16.169.60:8080/'
     });
 
     const checkExpiredMeetups = async (user) => {
@@ -244,6 +244,7 @@ function NotificationPage() {
                                             <Button size="small" onClick={() => {
                                                 selectNotif(value);
                                                 deleteNotif(value);
+                                                notificationList.splice(notificationList.indexOf(value),1);
                                             }}>
                                                 X
                                             </Button>
