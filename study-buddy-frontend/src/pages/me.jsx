@@ -25,17 +25,16 @@ function MyInfoPage() {
     console.log("User to fetch for: " + user);
 
     api.get(`me/${user}`)
-      .then(response => response.data)
-      .then(data => setUser(data))
+      .then(data => setUser(data.data))
       .catch(error => console.error('Error fetching user:', error));
   };
 
   const fetchProfile = (user) => {
     console.log("Profile to fetch for: " + user);
 
+    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
     api.get(`profile/${user}`)
-      .then(response => response.data)
-      .then(data => setProfile(data))
+      .then(data => setProfile(data.data))
       .catch(error => console.error('Error fetching profile:', error));
   };
 
@@ -51,11 +50,11 @@ function MyInfoPage() {
     }, []);
 
   const fetchUserCourses = (user) => {
+
       api.get(`api/get-courses-user/${user}`)
-          .then(response => response.data)
           .then(data =>{
-              setUserCourses(Array.from(data))
-              console.log(data);}
+              setUserCourses(data.data)
+              console.log(data.data);}
           )
           .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
   };
@@ -68,7 +67,7 @@ function MyInfoPage() {
     const profile = {
       id, username, bio
     }
-  
+
     api.put("me", profile)
       .then((res) => {
         if (res.status === 200) {

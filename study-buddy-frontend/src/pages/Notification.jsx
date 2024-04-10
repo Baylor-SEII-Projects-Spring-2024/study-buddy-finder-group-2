@@ -69,11 +69,11 @@ function NotificationPage() {
 
         api.get(`users/${name}`)
             .then(async data => {
-                await setUser(data);
-                if(data.userType === "student"){
+                await setUser(data.data);
+                if(data.data.userType === "student"){
                     setRef(`/studentLanding?username=${encodeURIComponent(name)}`)
                 }
-                else{
+                else if (data.data.userType == "tutor"){
                     setRef(`/tutorLanding?username=${encodeURIComponent(name)}`)
                 }
                 viewNotifications(name);
@@ -224,9 +224,16 @@ function NotificationPage() {
                                         <MenuItem
                                             selected={ notif === value}
                                         >
-                                            <Checkbox checked={false}
+                                            <Checkbox checked={value.read}
                                                 onClick={() => {
+                                                    if(value.read) {
+                                                        setCount(count+1);
+                                                    }
+                                                    else {
+                                                        setCount(count-1);
+                                                    }
                                                     switchNotifReadStatus(value);
+                                                    value.read = !value.read
                                                 }}>
                                             </Checkbox>
                                             <Link href={value.notificationUrl}>

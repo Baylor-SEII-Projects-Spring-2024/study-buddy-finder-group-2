@@ -12,6 +12,7 @@ import {
     Typography
 } from "@mui/material";
 import axios from "axios";
+import NotificationPage from "@/pages/Notification";
 
 function InvitationsPage() {
     const [thisUser, setThisUser] = useState(null);
@@ -33,6 +34,11 @@ function InvitationsPage() {
     const [isConnected, setIsConnected] = useState(null);
     const [selectedConnection, setSelectedConnection] = useState(null);
 
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+
     // get the user's username
     // show all connections for that user
     useEffect(() => {
@@ -47,10 +53,8 @@ function InvitationsPage() {
     const fetchInRequests = (user) => {
         console.log("User to fetch for: " + user);
 
-        //fetch(`http://localhost:8080/api/viewInRequests/${user}`) // use this for local development
-        fetch(`http://34.16.169.60:8080/api/viewInRequests/${user}`)
-            .then(res => res.json())
-            .then(data => setUsers(data))
+       api.get(`http://34.16.169.60:8080/api/viewInRequests/${user}`)
+            .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };
 
@@ -58,10 +62,8 @@ function InvitationsPage() {
     const fetchOutRequests = (user) => {
         console.log("User to fetch for: " + user);
 
-        //fetch(`http://localhost:8080/api/viewOutRequests/${user}`) // use this for local development
-        fetch(`http://34.16.169.60:8080/api/viewOutRequests/${user}`)
-            .then(res => res.json())
-            .then(data => setUsers(data))
+        api.get(`http://34.16.169.60:8080/api/viewOutRequests/${user}`)
+            .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };
 
@@ -104,8 +106,7 @@ function InvitationsPage() {
             console.log(connection);
             setIsConnected(true);
 
-            //axios.post("http://localhost:8080/api/viewRequests/addConnection", connection) // for local testing
-            axios.post(`http://34.16.169.60:8080/api/viewRequests/addConnection`, connection)
+            api.post(`api/viewRequests/addConnection`, connection)
                 .then((res) => {
                     console.log("CONNECTION ADDED.");
                     if(res.status === 200) {
@@ -133,8 +134,7 @@ function InvitationsPage() {
         setSchool(user.school);
 
         // set connection values for existing connection
-        //axios.post(`http://localhost:8080/api/viewRequests/getConnection/${thisUser}`, user.username)
-        axios.post(`http://34.16.169.60:8080/api/viewRequests/getConnection/${thisUser}`, user.username)
+        api.post(`api/viewRequests/getConnection/${thisUser}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
 
@@ -173,6 +173,7 @@ function InvitationsPage() {
 
     return (
         <div>
+            <NotificationPage></NotificationPage><br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
                     <CardContent>
