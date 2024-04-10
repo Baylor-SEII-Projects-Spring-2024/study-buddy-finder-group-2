@@ -11,6 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import axios from "axios";
+import NotificationPage from "@/pages/Notification";
 
 function viewConnectionsPage() {
     const [thisUser, setThisUser] = useState(null);
@@ -27,6 +28,12 @@ function viewConnectionsPage() {
 
     const [selectedConnection, setSelectedConnection] = useState();
 
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+
+
     // get the user's username
     // show all connections for that user
     useEffect(() => {
@@ -41,10 +48,8 @@ function viewConnectionsPage() {
     const fetchConnections = (user) => {
         console.log("User to fetch for: " + user);
 
-        //fetch(`http://localhost:8080/api/viewConnections/${user}`) // use this for local development
-        fetch(`http://34.16.169.60:8080/api/viewConnections/${user}`)
-            .then(res => res.json())
-            .then(data => setUsers(data))
+        api.get(`http://34.16.169.60:8080/api/viewConnections/${user}`)
+            .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };
 
@@ -52,8 +57,7 @@ function viewConnectionsPage() {
     const deleteConnection = (event) => {
         event.preventDefault();
 
-        //axios.delete(`http://localhost:8080/api/viewConnections/${selectedConnection?.id}`) // for local testing
-        axios.delete(`http://34.16.169.60:8080/api/viewConnections/${selectedConnection?.id}`)
+        api.delete(`api/viewConnections/${selectedConnection?.id}`)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseProfile();
@@ -81,8 +85,7 @@ function viewConnectionsPage() {
         setSchool(user.school);
 
         // set connection
-        //axios.post(`http://localhost:8080/api/viewConnections/getConnection/${thisUser}`, user.username)
-        axios.post(`http://34.16.169.60:8080/api/viewConnections/getConnection/${thisUser}`, user.username)
+        api.post(`api/viewConnections/getConnection/${thisUser}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
             })
@@ -111,6 +114,7 @@ function viewConnectionsPage() {
 
     return (
         <div>
+            <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
                     <CardContent>

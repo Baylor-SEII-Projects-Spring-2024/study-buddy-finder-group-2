@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import AddIcon from '@mui/icons-material/Add';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import NotificationPage from "@/pages/Notification";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CreateIcon from '@mui/icons-material/Create';
@@ -63,7 +64,7 @@ function MeetupsPage() {
         api.get(`api/get-all-courses/`)
             .then(response => response.data)
             .then(data =>{
-                setCourses(Array.from(data))
+                setCourses(data.data)
                 console.log(data);}
             )
             .catch(error => console.error('Error fetching courses:', error));
@@ -85,6 +86,7 @@ function MeetupsPage() {
             id, username, title, description, subject, startDate, endDate, location
         }
 
+        api.post("viewMeetups", meeting)
         api.post("viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
@@ -148,6 +150,7 @@ function MeetupsPage() {
     const handleDelete = (event) =>{
         event.preventDefault();
 
+        api.delete(`viewMeetups/${selectedMeeting?.id}`)
         api.delete(`viewMeetups/${selectedMeeting?.id}`)
             .then((res) => {
                 if(res.status === 200) {
@@ -253,6 +256,7 @@ function MeetupsPage() {
 
     return (
         <div>
+            <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 'auto', margin: 'auto' }} elevation={4}>
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

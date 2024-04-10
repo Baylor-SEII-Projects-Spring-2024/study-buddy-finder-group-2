@@ -38,10 +38,15 @@ function RegistrationPage() {
     const [errSchool, setErrSchool] = useState(false);
     const [errUserType, setErrUserType] = useState(false);
 
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+
+
     //getting list of schools from database
     useEffect(() => {
-        axios.get("http://34.16.169.60:8080/api/request-school-options")
-        //axios.get("http://localhost:8080/api/request-school-options")
+        api.get("api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -82,8 +87,7 @@ function RegistrationPage() {
          setErrPwd(!verPwd);
          setErrCPwd(!verMatch);
 
-         axios.get(`http://34.16.169.60:8080/api/find-username/${username}`)
-         //axios.get(`http://localhost:8080/api/find-username/${username}`)
+         api.get(`api/find-username/${username}`)
              .then(() => {
                  setErrUser(false);
              })
@@ -93,8 +97,7 @@ function RegistrationPage() {
                  right = false;
              })
 
-         axios.get(`http://34.16.169.60:8080/api/find-email/${emailAddress}`)
-         //axios.get(`http://localhost:8080/api/find-email/${emailAddress}`)
+         api.get(`api/find-email/${emailAddress}`)
              .then(()=>{
                  setErrEmail(false);
 
@@ -125,8 +128,7 @@ function RegistrationPage() {
             password: password
         });
 
-        //axios.post("http://localhost:8080/api/register", user) // for local testing
-        axios.post("http://34.16.169.60:8080/api/register", user)
+        api.post("api/register", user)
             .then((res) => {
                 console.log('No Existing User! User is now registered!')
                 if (res.data.userType.includes("student")) {

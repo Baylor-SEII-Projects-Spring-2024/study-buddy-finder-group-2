@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import dayjs from 'dayjs';
 import { Box, Button, Card, CardContent, Typography, TextField, FormControl, InputLabel, Select, MenuItem, ThemeProvider, createTheme } from "@mui/material";
+import NotificationPage from "@/pages/Notification";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CreateIcon from '@mui/icons-material/Create';
@@ -175,8 +176,8 @@ function SearchMeetupsPage() {
         api.get(`api/get-all-courses/`)
             .then(response => response.data)
             .then(data => {
-                setCourses(Array.from(data))
-                console.log(data);
+                setCourses(data.data)
+                console.log(data.data);
             })
             .catch(error => console.error('Error fetching courses:', error));
     };
@@ -198,6 +199,7 @@ function SearchMeetupsPage() {
 
     return (
         <ThemeProvider theme={theme}>
+            <NotificationPage></NotificationPage> <br/>
             <Box sx={{ display: 'flex', flexDirection: 'row', p: 2 }}>
                 <Box sx={{ width: '30%', marginRight: '2%' }}>
                     <Typography variant="h5" sx={{ mb: 2, color: 'primary.main' }}>Recommended Meetups</Typography>
