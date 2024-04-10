@@ -203,19 +203,26 @@ function SearchUsersPage() {
         <Box>
         <NotificationPage></NotificationPage> <br/>
             <div style={{display: 'flex', flexDirection: 'row'}}>
-                <Box sx={{width: '30%'}}>
-                    <Typography variant='h6'>Recommended Users</Typography>
+                <Box sx={{width: '30%', paddingTop:4}}>
+                    <Card sx={{height: 50, marginBottom: 2, elevation: 6}}>
+                        <Typography align='center' variant='h6'>Recommended Users</Typography>
+                    </Card>
                     {recommendedUsers.map((user, index) => (
                         <Card key={index} sx={{marginBottom: 2}}>
                             <CardContent>
-                                <Typography variant='subtitle1'>{user.username}</Typography>
-                                <Button
-                                    variant='contained'
-                                    color= "primary"
-                                    size="small"
-                                    onClick={() => handleClickOpenProfile(user)}
-                                >
-                                    View Profile</Button>
+                                <Stack spacing={13} direction="row" justifyContent="space-evenly">
+                                    <Box sx={{ width: 50 }}>
+                                        <Typography variant='subtitle1'>{user.username}</Typography>
+                                    </Box>
+
+                                    <Button
+                                        variant='contained'
+                                        color= "primary"
+                                        size="small"
+                                        onClick={() => handleClickOpenProfile(user)}
+                                    >
+                                        View Profile</Button>
+                                </Stack>
                                 {/* Other user details here */}
                             </CardContent>
                         </Card>
@@ -227,48 +234,48 @@ function SearchUsersPage() {
                             <CardContent>
                                 <Typography variant='h4' align='center'>Search Users</Typography>
                             </CardContent>
-                        </ Card>
 
-                        {/* this is the search area, submits a form */}
-                        <Box component="form" noValidate onSubmit={handleSubmit}
-                             sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
-                            <Stack spacing={4} direction="row" justifyContent="center">
-                                {/* get search string for name and username */}
-                                <TextField
-                                    required
-                                    id="search"
-                                    name="search"
-                                    label="Name or Username"
-                                    variant="outlined"
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                />
+                            {/* this is the search area, submits a form */}
+                            <Box component="form" noValidate onSubmit={handleSubmit}
+                                 sx={{ paddingTop: 2, paddingBottom:5, margin: 'auto' }}>
+                                <Stack spacing={4} direction="row" justifyContent="center">
+                                    {/* get search string for name and username */}
+                                    <TextField
+                                        required
+                                        id="search"
+                                        name="search"
+                                        label="Name or Username"
+                                        variant="outlined"
+                                        onChange={(e) => handleSearch(e.target.value)}
+                                    />
 
-                                {/* get requested user type (none, student, tutor) */}
-                                <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-                                    <InputLabel required id="userType">User Type</InputLabel>
-                                    <Select
-                                        labelId="select userType"
-                                        id="select userType"
-                                        label="userType"
-                                        onChange={(e) => setType(e.target.value)}
+                                    {/* get requested user type (none, student, tutor) */}
+                                    <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                        <InputLabel required id="userType">User Type</InputLabel>
+                                        <Select
+                                            labelId="select userType"
+                                            id="select userType"
+                                            label="userType"
+                                            onChange={(e) => setType(e.target.value)}
+                                        >
+                                            <MenuItem value={null}>
+                                                <em>None</em>
+                                            </MenuItem>
+                                            <MenuItem value={"student"}>Student</MenuItem>
+                                            <MenuItem value={"tutor"}>Tutor</MenuItem>
+                                        </Select>
+                                    </FormControl>
+
+                                    {/* submit the search form to get results */}
+                                    <Button
+                                        variant='contained'
+                                        color="primary"
+                                        type="submit"
                                     >
-                                        <MenuItem value={null}>
-                                            <em>None</em>
-                                        </MenuItem>
-                                        <MenuItem value={"student"}>Student</MenuItem>
-                                        <MenuItem value={"tutor"}>Tutor</MenuItem>
-                                    </Select>
-                                </FormControl>
-
-                                {/* submit the search form to get results */}
-                                <Button
-                                    variant='contained'
-                                    color="primary"
-                                    type="submit"
-                                >
-                                    Search</Button>
-                            </Stack>
-                        </Box>
+                                        Search</Button>
+                                </Stack>
+                            </Box>
+                        </Card>
 
                         {/* display all matches on separate cards */}
                         {users.map((user, index) => (
