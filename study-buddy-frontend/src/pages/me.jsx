@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
+import NotificationPage from "@/pages/Notification";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -100,6 +101,7 @@ function MyInfoPage() {
 
   return (
     <div>
+        <NotificationPage></NotificationPage><br/>
 
       {user && profile ? (
         <Card sx={{ width: 1200, margin: 'auto', height: 400, marginTop: '125px', marginBottom: '10px'}} elevation={4}>
