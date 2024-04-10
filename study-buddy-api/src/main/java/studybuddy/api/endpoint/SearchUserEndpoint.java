@@ -5,10 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.connection.Connection;
 import studybuddy.api.connection.ConnectionService;
+import studybuddy.api.notifications.Notification;
+import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +24,9 @@ public class SearchUserEndpoint {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private ConnectionService connectionService;
@@ -77,6 +83,14 @@ public class SearchUserEndpoint {
             return ResponseEntity.ok(connectionService.saveConnection(connection));
         }
         else {
+            //Sending notification
+            Notification notification = new Notification();
+            notification.setReciever(userService.findByUsernameExists(connection.getRequested()));
+            notification.setSender(userService.findByUsernameExists(connection.getRequester()));
+            notification.setTimestamp(new Date());
+            notification.setNotificationUrl("/invitations");
+            notification.setNotificationContent(connection.getRequester()+" wants to be your buddy!");
+            notificationService.sendNotification(notification);
 
             return ResponseEntity.ok(connectionService.saveConnection(connection));
         }

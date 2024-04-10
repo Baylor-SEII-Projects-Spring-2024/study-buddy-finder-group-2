@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Head from "next/head";
 import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import Link from "next/link";
+import NotificationPage from "@/pages/Notification";
 
 function TutorLandingPage() {
     var [username, setUsername] = useState(null);
@@ -20,6 +21,7 @@ function TutorLandingPage() {
             </Head>
 
             <main>
+                <NotificationPage></NotificationPage> <br/>
                 <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
 
                     <Card sx={{ width: 600 }} elevation={4}>

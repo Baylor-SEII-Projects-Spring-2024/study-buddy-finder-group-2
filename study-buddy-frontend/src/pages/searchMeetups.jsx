@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import dayjs from 'dayjs';
 import { Box, Button, Card, CardContent, Typography, TextField, FormControl, InputLabel, Select, MenuItem, ThemeProvider, createTheme } from "@mui/material";
+import NotificationPage from "@/pages/Notification";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PersonIcon from '@mui/icons-material/Person';
+import CreateIcon from '@mui/icons-material/Create';
+import EventIcon from '@mui/icons-material/Event';
 
 const theme = createTheme({
     palette: {
@@ -11,17 +16,22 @@ const theme = createTheme({
 });
 
 function SearchMeetupsPage() {
-    const [searchStr, setStr] = useState(null);
-    const [username, setUsername] = useState(null);
+    const [searchStr, setStr] = useState('');
+    const [username, setUsername] = useState('');
     const [title, setTitle] = useState('');
-    const [description, setDescription] = useState(null);
+    const [description, setDescription] = useState('');
     const [subject, setSubject] = useState('');
-    const [date, setDate] = useState(null);
-    const [location, setLocation] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [location, setLocation] = useState('');
     const [currentUser, setCurrentUser] = useState('');
     const [meetups, setMeetups] = useState([]);
     const [recommendedMeetups, setRecommendedMeetups] = useState([]);
     const [courses, setCourses] = useState([]);
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
 
 
     useEffect(() => {
@@ -30,6 +40,8 @@ function SearchMeetupsPage() {
         setCurrentUser(user);
         fetchCourses();
         fetchRecommendedMeetups(user);
+
+        // console.log("Users in meetups:", meetups.map(meetup => meetup.attendees.map(attendee => attendee.username)).flat());
     }, []);
 
     const handleSearch = (str) => {
@@ -46,7 +58,7 @@ function SearchMeetupsPage() {
         const timezone = options.timeZone;
 
         const meetup = {
-            username, title, description, subject, date, location
+            username, title, description, subject, startDate, endDate, location
         }
 
         console.log("TITLEEEEEE: " + title);
@@ -57,7 +69,7 @@ function SearchMeetupsPage() {
         //     headers: {
         //         'timezone': timezone
         //     }}) // for local testing
-        axios.post("http://34.16.169.60:8080/api/searchMeetups", meetup, {
+        api.post("api/searchMeetups", meetup, {
                headers: {
                'timezone': timezone
             }})
@@ -76,11 +88,11 @@ function SearchMeetupsPage() {
     }
 
     const handleJoin = (meetup) => {
+        console.log("JOINING")
         console.log(currentUser);
         console.log(meetup.id);
 
-        axios.post(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
-        //axios.post(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        api.post(`api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
             .then((res) => {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
@@ -104,20 +116,48 @@ function SearchMeetupsPage() {
             });
     };
 
+
+    const handleLeave = (meetup) => {
+        console.log("LEAVING")
+        console.log(currentUser);
+        console.log(meetup.id);
+
+        axios.delete(`http://34.16.169.60:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+        //axios.delete(`http://localhost:8080/api/searchMeetups/${currentUser}?meetingId=${meetup.id}`)
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log('Left meetup:', res.data);
+
+                // remove user from meetups state variable
+                const updatedMeetups = meetups.map(m => {
+                    if (m.id === meetup.id) {
+                        return {
+                            ...m,
+                            attendees: m.attendees.filter(attendee => attendee.username !== currentUser)
+                        };
+                    }
+                    return m;
+                });
+
+                setMeetups(updatedMeetups);
+                }
+            })
+            .catch((err) => {
+                console.error('Error leaving meetup:', err);
+            });
+    };
+
     const fetchCourses = () => {
-        fetch(`http://34.16.169.60:8080/api/get-all-courses/`)
-        //fetch(`http://localhost:8080/api/get-all-courses/`)
-            .then(response => response.json())
+        api.get(`http://34.16.169.60:8080/api/get-all-courses/`)
             .then(data => {
-                setCourses(Array.from(data))
-                console.log(data);
+                setCourses(data.data)
+                console.log(data.data);
             })
             .catch(error => console.error('Error fetching courses:', error));
     };
 
     const fetchRecommendedMeetups = (user) => {
-        axios.get(`http://34.16.169.60:8080/recommendMeetups/${user}`)
-        //axios.get(`http://localhost:8080/recommendMeetups/${user}`)
+        api.get(`recommendMeetups/${user}`)
             .then(response => {
                 setRecommendedMeetups(response.data);
             })
@@ -127,6 +167,7 @@ function SearchMeetupsPage() {
 
     return (
         <ThemeProvider theme={theme}>
+            <NotificationPage></NotificationPage> <br/>
             <Box sx={{ display: 'flex', flexDirection: 'row', p: 2 }}>
                 <Box sx={{ width: '30%', marginRight: '2%' }}>
                     <Typography variant="h5" sx={{ mb: 2, color: 'primary.main' }}>Recommended Meetups</Typography>
@@ -186,24 +227,76 @@ function SearchMeetupsPage() {
                 {meetups
                 .filter(meetup => meetup.username !== currentUser)
                 .map((meetup, index) => (
-                    <Card key={index} sx={{ marginBottom: 2, width: '80%'}} elevation={6}>
+                    <Card key={index} sx={{ height: 'auto', marginBottom: 2, width: '80%'}} elevation={6}>
                         <CardContent>
-                            <Typography><strong>Title:</strong> {meetup.title}</Typography>
-                            <Typography><strong>Creator:</strong> {meetup.username}</Typography>
-                            <Typography><strong>Description:</strong> {meetup.description}</Typography>
-                            <Typography><strong>Course:</strong> {meetup.subject}</Typography>
-                            <Typography><strong>Date:</strong> {dayjs(meetup.date).format('MMMM DD, YYYY h:mm A')}</Typography>
-                            <Typography><strong>Location:</strong> {meetup.location}</Typography>
-                            <strong>Attendees:</strong>
-                            <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
-                                {meetup.attendees.map((attendee, index) => (
-                                    <li key={index}>{'\u00A0\u00A0'}{attendee.username}</li>
-                                ))}
-                            </ul>
+                            <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end'}}>
+                                {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60)) !== 0 && (
+                                    <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                        {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60))}D
+                                    </span>
+                                )}
+                                {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
+                                    <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                        {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60)}HR
+                                    </span>
+                                )}
+                                {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60 !== 0 && (
+                                    <span style={{ fontSize: '30px', color: 'gray' }}>
+                                        {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60}MIN
+                                    </span>
+                                )}
+                            </div>
+                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{meetup.title}</Typography>
+                                    
+                                    {/* TODO: FIX INDENTATION */}
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
+                                    </div>
 
-                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)} disabled={meetup.attendees.some(attendee => attendee.username === currentUser)}>
-                                {meetup.attendees.some(attendee => attendee.username === currentUser) ? "Already Joined" : "Join Meetup"}
+                                    <br />
+
+                                    
+                                    <span style={{ marginLeft: '30px'}}>{meetup.description}</span>
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{meetup.subject}</span>
+                                    </div>
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                                    </div>
+
+                                    
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{meetup.location}</span>
+                                    </div>
+
+                                    <br />
+
+                                    
+                                    <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px'}}>Attendees</Typography>
+                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                        {meetup.attendees.map((attendee, index) => (
+                                            <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
+                                        ))}
+                                    </ul>
+
+                        {meetup.attendees.some(attendee => attendee.username === currentUser) ? (
+                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
+                                Leave Meetup
                             </Button>
+                        ) : (
+                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)}>
+                                Join Meetup
+                            </Button>
+                        )}
                         </CardContent>
                     </Card>
                 ))}

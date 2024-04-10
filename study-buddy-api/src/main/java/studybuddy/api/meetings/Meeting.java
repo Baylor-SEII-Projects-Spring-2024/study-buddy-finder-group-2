@@ -42,8 +42,11 @@ public class Meeting {
     @Column(name = "SUBJECT")
     String subject;
 
-    @Column(name = "DATE")
-    LocalDateTime date;
+    @Column(name = "STARTDATE")
+    LocalDateTime startDate;
+
+    @Column(name = "ENDDATE")
+    LocalDateTime endDate;
 
     @Column(name = "LOCATION")
     String location;
