@@ -11,8 +11,8 @@ import java.util.List;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://34.16.169.60:3000") // Adjust as necessary
-//@CrossOrigin(origins = "http://localhost:3000") // Adjust as necessary
+//@CrossOrigin(origins = "http://34.16.169.60:3000") // Adjust as necessary
+@CrossOrigin(origins = "http://localhost:3000") // Adjust as necessary
 public class RecommendationEndpoint {
 
     @Autowired

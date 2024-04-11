@@ -28,7 +28,7 @@ public class Rating {
     @JoinColumn(name = "RATED_USER", referencedColumnName = "username")
     User ratedUser;
 
-    @Column(name = "RATINGS", nullable = true)
+    @Column(name = "RATING_SCORE", nullable = true)
     Double rating;
 
     @Column(name = "REVIEW", nullable = true)

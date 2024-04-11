@@ -33,9 +33,26 @@ function SearchUsersPage() {
     const [recommendedUsers, setRecommendedUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
+    const [id, setId] = useState(null);
     const [requester, setRequester] = useState(null);
     const [requested, setRequested] = useState(null);
     const [isConnected, setIsConnected] = useState(null);
+    const [selectedConnection, setSelectedConnection] = useState(null);
+
+    const api = axios.create({
+        baseURL: 'http://localhost:8080/'
+        //baseURL: 'http://34.16.169.60:8080/'
+    });
+
+    const fetchRecommendations = (username) => {
+        api.get(`api/recommendations/${username}`)
+            .then((response) => {
+                setRecommendedUsers(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching recommendations:', error);
+            });
+    };
 
     // get the user's username
     useEffect(() => {
@@ -54,6 +71,7 @@ function SearchUsersPage() {
     const handleSubmit = (event) => {
         // prevents page reload
         event.preventDefault();
+
         const user = {
             username, firstName, lastName, emailAddress, userType, school
         }
@@ -79,9 +97,6 @@ function SearchUsersPage() {
         // prevents page reload
         event.preventDefault();
 
-        const user = {
-            username, name
-        }
         const connection = {
             requester, requested, isConnected
         }
@@ -136,9 +151,10 @@ function SearchUsersPage() {
     const [text, setText] = useState("Connect");
     // look at document.getElementById("connection")
 
-// takes in selected user to display profile
+    // takes in selected user to display profile
     const handleClickOpenProfile = (user) => {
         setSelectedUser(user);
+
         // set state variables to the currently selected user
         setUsername(user.username);
         setFirstName(user.firstName);
@@ -192,13 +208,16 @@ function SearchUsersPage() {
 
         setText("Connect");
     };
-// get the string the to search with
+
+    // get the string the to search with
     const handleSearch = (str) => {
         setStr(str);
+
         setFirstName(str);
         setLastName(str);
         setUsername(str);
     };
+
     return (
         <Box>
         <NotificationPage></NotificationPage> <br/>
