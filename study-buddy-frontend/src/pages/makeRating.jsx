@@ -1,105 +1,124 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import {
-    Box, Button,
-    Card,
-    CardContent, Dialog, DialogActions, DialogContent, DialogTitle,
-    Stack,
-    Typography
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  Typography
 } from "@mui/material";
 
-function viewNewRatingsPage(){
-    const [thisUser, setThisUser] = useState(null);
-    const [ratingScore, setRatingScore] = useState(null);
-    const [review, setReview] = useState(null);
-    const [id, setId] = useState(null);
-    const [ratings, setRatings] = useState([]);
-    const [selectedRating, setSelectedRating] = useState(null);
-    //WIP get all useStates needed
+function viewNewRatingsPage() {
+  const [thisUser, setThisUser] = useState(null);
+  const [ratingScore, setRatingScore] = useState(0);
+  const [review, setReview] = useState('');
+  const [id, setId] = useState(null);
+  const [ratings, setRatings] = useState([]);
+  const [selectedRating, setSelectedRating] = useState(null);
+  const [openEdit, setOpenEdit] = useState(false); // Define openEdit state variable
+  const api = axios.create({
+    baseURL: 'http://localhost:8080/'
+    //baseUrl: 'http://34.16.169.60:8080/'
+  });
 
-    // get the user's username
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get("username");
 
-        setThisUser(user);
-        fetchRatings(user);
-    }, [])
+    setThisUser(user);
+    fetchRatings(user);
+}, []);
 
+const fetchRatings = async (user) => {
+    try {
+        const res = await api.get(`newRatings/${user}`);
+        console.log(res);
+        setRatings(res.data);
+    } catch (error) {
+        console.error('Error fetching ratings:', error);
+    }
+};
 
+const handleClickOpenEdit = (rating) => {
+    console.log(rating);
     
-    //automatic get ratings for me
-    const fetchRatings = async (user) => {
-       
-        console.log("User to fetch for: " + user);
+    setSelectedRating(rating);
+    setRatingScore(rating.ratingScore);
+    setReview(rating.review);
+    setOpenEdit(true);
+    console.log(rating.id);
+    console.log(review);
+    setId(rating.id);
+    console.log("Selected Rating:", rating);
+    console.log(id);
+};
 
-        fetch(`http://localhost:8080/newRatings/${user}`) // use this for local development
-        //fetch(`http://34.16.169.60:8080/newRatings/${user}`)
-            .then(res => res.json())
-            .then(data => setRatings(data))
-            .catch(error => console.error('Error fetching ratings:', error));
-    };
+const handleCloseEdit = () => {
+    setOpenEdit(false);
+};
 
-    
-    
-    
+const handleUpdateRating = async (id) => {
+    try {
+        console.log(id);
+        // Check if id is valid
+        if (!id || isNaN(id)) {
+            console.error("Invalid rating ID");
+            return;
+        }
 
-    
-    const [openEdit, setOpenEdit] = React.useState(false);
+        // Create a new object with updated properties
+        const updatedRating = {
+            id: id,
+            ratingScore: parseFloat(ratingScore),
+            review: review
+        };
 
-    // takes in selected meeting to display content of that rating
-    const handleClickOpenEdit = (rating) => {
-        setSelectedRating(rating);
+        const response = await api.put(`updateRating/${id}`, updatedRating);
+        if (response.status === 200) {
+            handleCloseEdit();
+            fetchRatings(thisUser);
+        } else {
+            console.error("Failed to update rating.");
+        }
+    } catch (error) {
+        console.error("Error updating rating:", error);
+    }
+};
 
-        // set state variables to the currently selected rating
-        setRatingScore(rating.ratingScore);
-        setReview(rating.review);
+return (
+    <div>
+        <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
+            {ratings.map((rating, index) => (
+                
+                <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
+                    <CardContent>
+                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{rating.ratingUser.username}'s Rating</Typography>
+                        <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginTop: '10px' }}>
+                            Make Rating
+                        </Button>
+                    </CardContent>
+                </Card>
+            ))}
+        </Stack>
 
-        
-
-        setOpenEdit(true);
-    };
-
-    const handleCloseEdit = () => {
-        setOpenEdit(false);
-    };
-
-    return (
-        <div>
-            <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
-                {ratings.map((rating, index) => (
-                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
-                        <CardContent>
-                            <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{rating.ratingUser}'s Rating</Typography>
-                            
-                            <Typography variant='h6' align='center' sx={{ marginTop: '10px'}}>{rating.ratingScore} / 5 Stars</Typography>
-                            
-                            <Typography variant='body1' align='center' sx={{ marginTop: '10px'}}>{rating.review}</Typography>
-    
-                            {/* Button to edit rating */}
-                            <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginTop: '10px' }}>
-                                Edit Rating
-                            </Button>
-                        </CardContent>
-                    </Card>
-                ))}
-            </Stack>
-    
-            {/* Edit Rating Dialog */}
-            <Dialog open={openEdit} onClose={handleCloseEdit}>
-                <DialogTitle>Edit Rating</DialogTitle>
-                <DialogContent>
-                    {/* Form elements for editing rating */}
-                    {/* For example: */}
-                    <input type="number" value={ratingScore} onChange={(e) => setRatingScore(e.target.value)} />
-                    <textarea value={review} onChange={(e) => setReview(e.target.value)} />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseEdit}>Cancel</Button>
-                    <Button onClick={handleUpdateRating}>Save Changes</Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    );
+        <Dialog open={openEdit} onClose={handleCloseEdit}>
+            <DialogTitle>Edit Rating</DialogTitle>
+            <DialogContent>
+                <input type="number" value={ratingScore} onChange={(e) => 
+                setRatingScore(parseFloat(e.target.value))}  />
+                <textarea value={review} onChange={(e) => setReview(e.target.value)} />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleCloseEdit}>Cancel</Button>
+                <Button onClick={() => handleUpdateRating(id)}>Save Changes</Button>
+            </DialogActions>
+        </Dialog>
+    </div>
+);
 }
 export default viewNewRatingsPage;

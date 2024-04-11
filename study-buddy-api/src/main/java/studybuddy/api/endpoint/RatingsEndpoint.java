@@ -49,22 +49,7 @@ public class RatingsEndpoint {
         return ResponseEntity.badRequest().build();
     }
 
-    @RequestMapping(
-            value = "/updateRating/{username}",
-            method = RequestMethod.PUT,
-            consumes = "application/json",
-            produces = "application/json"
-    )
-    public ResponseEntity<Rating> updateRating(@RequestBody Rating rating) {
-        Optional<Rating> oldRating = ratingService.findRatingByID(rating.getRatingId());
 
-        if(oldRating.isPresent()){
-            return ResponseEntity.ok(ratingService.saveRating(rating));
-        }
-        else{
-            return ResponseEntity.badRequest().build();
-        }
-    }
 
     @GetMapping("/newRatings/{username}")
     public ResponseEntity<List<Rating>> newRatings(@PathVariable String username) {

@@ -32,6 +32,7 @@ function viewRatingsPage() {
   const fetchRatings = async (user) => {
     try {
       const res = await api.get(`viewRatingsForMe/${user}`);
+      console.log(res);
       setRatings(res.data);
     } catch (error) {
       console.error('Error fetching ratings:', error);
@@ -40,13 +41,12 @@ function viewRatingsPage() {
 
   // Function to remove a rating
   const removeRating = (ratingId) => {
-    console.log("Deleting rating with ID:", ratingId); // Add this line to log the rating ID
+    console.log("Deleting rating with ID:", ratingId);
   
-    fetch(`http://localhost:8080/deleteRating/${ratingId}`, {
-      method: 'DELETE'
-    })
+    // Use axios to send a DELETE request to the API
+    api.delete(`deleteRating/${ratingId}`)
       .then(() => {
-        console.log("Rating deleted successfully."); // Add this line to log successful deletion
+        console.log("Rating deleted successfully.");
         // Remove the deleted rating from the state
         setRatings(prevRatings => prevRatings.filter(rating => rating.id !== ratingId));
       })
