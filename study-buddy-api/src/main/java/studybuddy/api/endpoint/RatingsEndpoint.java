@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.meetings.Meeting;
+import studybuddy.api.meetings.MeetingService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 import studybuddy.api.rating.Rating;
@@ -27,6 +28,8 @@ public class RatingsEndpoint {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private MeetingService meetingService;
     @RequestMapping(
             value = "/makeRating",
             method = RequestMethod.POST,
@@ -36,8 +39,9 @@ public class RatingsEndpoint {
     public ResponseEntity<Rating> createRating(@RequestBody Rating rating) {
         Optional<User> ratingUser = userService.findByUsername(rating.getRatingUser().getUsername());
         Optional<User> ratedUser = userService.findByUsername(rating.getRatedUser().getUsername());
+        Optional<Meeting> meetingId = meetingService.findById(rating.getMeeting().getId());
         if (ratingUser.isPresent() & ratedUser.isPresent()){
-            Rating savedRating = ratingService.saveRating(new Rating(ratingUser, ratedUser, rating.getScore(),rating.getReview()));
+            Rating savedRating = ratingService.saveRating(new Rating(meetingId, ratingUser, ratedUser, rating.getScore(),rating.getReview()));
             return ResponseEntity.ok(savedRating);
         }
         if (ratingUser.isEmpty()) {
@@ -113,7 +117,7 @@ public class RatingsEndpoint {
             log.warn("User not found");
             return ResponseEntity.badRequest().build();
         }
-        List<Rating> ratings = ratingService.getMyRatings(ratedUser.getUsername());
+        List<Rating> ratings = ratingService.getRatingsForMe(ratedUser.getUsername());
 
         for(Rating r : ratings) {
 

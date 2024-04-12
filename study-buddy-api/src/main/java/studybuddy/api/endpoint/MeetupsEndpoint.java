@@ -81,7 +81,7 @@ public class MeetupsEndpoint {
                 remindedMeetings.add(m.get());
             }
         });
-
+        System.out.println("Cameron was here");
         endedMeetings.forEach(meeting -> {
             meeting.getAttendees().forEach(attendee -> {
                 System.out.println("WineCrow's test");
@@ -99,15 +99,10 @@ public class MeetupsEndpoint {
                         Rating rating = new Rating();
                         rating.setRatingUser(attendee);
                         rating.setRatedUser(reviewed);
+                        rating.setMeeting(meeting);
                         ratingService.saveRating(rating);
                     }
                 });
-                // only send notif to attendees, not the creator
-                if(!attendee.getUsername().equals(meeting.getUsername())) {
-                    System.out.println("ATTENDEE: " + attendee.getUsername());
-
-
-                }
             });
 
             // update expired status in database for this meeting

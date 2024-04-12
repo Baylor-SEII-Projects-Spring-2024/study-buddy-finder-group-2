@@ -1,6 +1,7 @@
 package studybuddy.api.rating;
 import jakarta.persistence.*;
 import lombok.Data;
+import studybuddy.api.meetings.Meeting;
 import studybuddy.api.user.User;
 
 import java.util.Optional;
@@ -21,6 +22,10 @@ public class Rating {
     Long ratingId;
 
     @ManyToOne
+    @JoinColumn(name = "MEETING_ID", referencedColumnName = "MEETING_ID")
+    Meeting meeting;
+
+    @ManyToOne
     @JoinColumn(name = "RATING_USER", referencedColumnName = "username")
     User ratingUser;
 
@@ -34,7 +39,8 @@ public class Rating {
     @Column(name = "REVIEW", nullable = true)
     String review = null;
 
-    public Rating(Optional<User> ratingUser, Optional<User> ratedUser, Double score, String review) {
+    public Rating(Optional<Meeting> meeting, Optional<User> ratingUser, Optional<User> ratedUser, Double score, String review) {
+        this.meeting = meeting.orElseThrow(() -> new IllegalArgumentException("meeting must be provided"));
         this.ratingUser = ratingUser.orElseThrow(() -> new IllegalArgumentException("Rating user must be provided"));
         this.ratedUser = ratedUser.orElseThrow(() -> new IllegalArgumentException("Rated user must be provided"));
         this.score = score;

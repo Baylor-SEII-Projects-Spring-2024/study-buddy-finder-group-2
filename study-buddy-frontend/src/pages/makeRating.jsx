@@ -60,6 +60,18 @@ const handleClickOpenEdit = (rating) => {
 const handleCloseEdit = () => {
     setOpenEdit(false);
 };
+const removeRating = (ratingId) => {
+    console.log("Deleting rating with ID:", ratingId);
+  
+    // Use axios to send a DELETE request to the API
+    api.delete(`deleteRating/${ratingId}`)
+      .then(() => {
+        console.log("Rating deleted successfully.");
+        // Remove the deleted rating from the state
+        setRatings(prevRatings => prevRatings.filter(rating => rating.ratingId !== ratingId));
+      })
+      .catch(error => console.error('Error deleting rating:', error));
+  };
 
 const handleUpdateRating = async (id) => {
     try {
@@ -96,10 +108,15 @@ return (
                 
                 <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
                     <CardContent>
-                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{rating.ratingUser.username}'s Rating</Typography>
+                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}> Rating for {rating.ratedUser.username}</Typography>
                         <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginTop: '10px' }}>
                             Make Rating
                         </Button>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                            <Button onClick={() => removeRating(rating.ratingId)} variant="outlined" color="secondary">
+                                Remove Rating
+                            </Button>
+                        </Box>
                     </CardContent>
                 </Card>
             ))}
