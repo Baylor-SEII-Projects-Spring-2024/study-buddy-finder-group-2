@@ -193,6 +193,15 @@ function NotificationPage() {
                         <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
                             <Button color="inherit">Connections</Button>
                         </Link>
+                        <Link href={`/makeRating?username=${encodeURIComponent(username)}`}passHref>
+                            <Button variant='inherit' color="primary"> Make Rating</Button>
+                        </Link>
+                        <Link href={`/madeRatings?username=${encodeURIComponent(username)}`} passHref>
+                            <Button variant='inherit' color="primary">Made Ratings</Button>
+                        </Link>
+                        <Link href={`/reviewings?username=${encodeURIComponent(username)}`} passHref>
+                            <Button variant='inherit' color="primary"> Ratings For Me</Button>
+                        </Link>
                     <Badge badgeContent={count} color="warning">
                     <IconButton
                         aria-label="notifications of current user"

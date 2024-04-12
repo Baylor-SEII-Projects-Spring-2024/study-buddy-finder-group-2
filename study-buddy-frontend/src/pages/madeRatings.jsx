@@ -9,7 +9,7 @@ import {
   Typography
 } from "@mui/material";
 
-function viewRatingsPage() {
+function viewMadeRatingsPage() {
   const [thisUser, setThisUser] = useState(null);
   const [ratings, setRatings] = useState([]);
   const api = axios.create({
@@ -31,7 +31,7 @@ function viewRatingsPage() {
   // Fetch ratings for the current user
   const fetchRatings = async (user) => {
     try {
-      const res = await api.get(`viewRatingsForMe/${user}`);
+      const res = await api.get(`viewMadeRatings/${user}`);
       console.log(res);
       setRatings(res.data);
     } catch (error) {
@@ -39,7 +39,19 @@ function viewRatingsPage() {
     }
   };
 
+  // Function to remove a rating
+  const removeRating = (ratingId) => {
+    console.log("Deleting rating with ID:", ratingId);
   
+    // Use axios to send a DELETE request to the API
+    api.delete(`deleteRating/${ratingId}`)
+      .then(() => {
+        console.log("Rating deleted successfully.");
+        // Remove the deleted rating from the state
+        setRatings(prevRatings => prevRatings.filter(rating => rating.ratingId !== ratingId));
+      })
+      .catch(error => console.error('Error deleting rating:', error));
+  };
 
   return (
     <div>
@@ -49,7 +61,7 @@ function viewRatingsPage() {
             <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
               <CardContent>
                 <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>
-                  {rating.ratedUser.username}'s Rating
+                  Rating for {rating.ratingUser.username}
                 </Typography>
                 <Typography variant='h6' align='center' sx={{ marginTop: '10px'}}>
                   {rating.score} / 5 Stars
@@ -58,6 +70,11 @@ function viewRatingsPage() {
                   Review: 
                   {rating.review}
                 </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                  <Button onClick={() => removeRating(rating.ratingId)} variant="outlined" color="secondary">
+                    Remove Rating
+                  </Button>
+                </Box>
               </CardContent>
             </Card>
           ))
@@ -70,4 +87,4 @@ function viewRatingsPage() {
     </div>
   );
 }
-export default viewRatingsPage;
+export default viewMadeRatingsPage;

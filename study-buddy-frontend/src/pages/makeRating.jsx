@@ -12,6 +12,7 @@ import {
   Stack,
   Typography
 } from "@mui/material";
+import { Score } from "@mui/icons-material";
 
 function viewNewRatingsPage() {
   const [thisUser, setThisUser] = useState(null);
@@ -20,7 +21,7 @@ function viewNewRatingsPage() {
   const [id, setId] = useState(null);
   const [ratings, setRatings] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
-  const [openEdit, setOpenEdit] = useState(false); // Define openEdit state variable
+  const [openEdit, setOpenEdit] = useState(false); 
   const api = axios.create({
     baseURL: 'http://localhost:8080/'
     //baseUrl: 'http://34.16.169.60:8080/'
@@ -51,11 +52,9 @@ const handleClickOpenEdit = (rating) => {
     setRatingScore(rating.ratingScore);
     setReview(rating.review);
     setOpenEdit(true);
-    console.log(rating.id);
-    console.log(review);
-    setId(rating.id);
-    console.log("Selected Rating:", rating);
+    setId(rating.ratingId);
     console.log(id);
+    
 };
 
 const handleCloseEdit = () => {
@@ -73,8 +72,8 @@ const handleUpdateRating = async (id) => {
 
         // Create a new object with updated properties
         const updatedRating = {
-            id: id,
-            ratingScore: parseFloat(ratingScore),
+            ratingId: id,
+            score: parseFloat(ratingScore),
             review: review
         };
 

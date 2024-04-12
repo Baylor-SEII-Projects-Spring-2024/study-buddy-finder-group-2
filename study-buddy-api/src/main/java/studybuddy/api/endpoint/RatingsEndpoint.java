@@ -37,7 +37,7 @@ public class RatingsEndpoint {
         Optional<User> ratingUser = userService.findByUsername(rating.getRatingUser().getUsername());
         Optional<User> ratedUser = userService.findByUsername(rating.getRatedUser().getUsername());
         if (ratingUser.isPresent() & ratedUser.isPresent()){
-            Rating savedRating = ratingService.saveRating(new Rating(ratingUser, ratedUser, rating.getRating(),rating.getReview()));
+            Rating savedRating = ratingService.saveRating(new Rating(ratingUser, ratedUser, rating.getScore(),rating.getReview()));
             return ResponseEntity.ok(savedRating);
         }
         if (ratingUser.isEmpty()) {
@@ -89,7 +89,7 @@ public class RatingsEndpoint {
         for(Rating r : ratings) {
             System.out.println("ID is " + r.getRatingId());
             System.out.println("User who you rated is " + r.getRatedUser());
-            System.out.println("Rating is " + r.getRating());
+            System.out.println("Rating is " + r.getScore());
             if (r.getReview() != null) {
                 System.out.println("Review is " + r.getReview());
             }
@@ -119,7 +119,7 @@ public class RatingsEndpoint {
 
             System.out.println("ID is " + r.getRatingId());
             System.out.println("User rated you is " + r.getRatingUser());
-            System.out.println("Rating is " + r.getRating());
+            System.out.println("Rating is " + r.getScore());
             if (r.getReview() != null) {
                 System.out.println("Review is " + r.getReview());
             }
@@ -141,7 +141,7 @@ public class RatingsEndpoint {
         if (existingRating.isPresent()) {
             // Update the existing rating with the new data
             Rating ratingToUpdate = existingRating.get();
-            ratingToUpdate.setRating(updatedRating.getRating());
+            ratingToUpdate.setScore(updatedRating.getScore());
             ratingToUpdate.setReview(updatedRating.getReview());
 
             // Save the updated rating

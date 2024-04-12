@@ -49,9 +49,7 @@ function StudentLandingPage() {
                         <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> View Meetups</Button>
                         </Link>
-                        <Link href="/searchUsers" passHref>
-                            <Button variant='contained' color="primary"> Search Users</Button>    
-                        </Link>
+                        
 
                         <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> Search Users</Button>
@@ -66,10 +64,13 @@ function StudentLandingPage() {
                         </Link>
 
                         <Link href={`/makeRating?username=${encodeURIComponent(username)}`}passHref>
-                            <Button variant='contained' color="primary"> make Rating</Button>
+                            <Button variant='contained' color="primary"> Make Rating</Button>
+                        </Link>
+                        <Link href={`/madeRatings?username=${encodeURIComponent(username)}`} passHref>
+                            <Button variant='contained' color="primary">Made Ratings</Button>
                         </Link>
                         <Link href={`/reviewings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button variant='contained' color="primary"> Ratings</Button>
+                            <Button variant='contained' color="primary"> Ratings For Me</Button>
                         </Link>
 
                         <Link href={`/Notification?username=${encodeURIComponent(username)}`} passHref>

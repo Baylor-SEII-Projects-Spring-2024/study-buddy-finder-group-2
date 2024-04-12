@@ -29,15 +29,15 @@ public class Rating {
     User ratedUser;
 
     @Column(name = "RATING_SCORE", nullable = true)
-    Double rating;
+    Double score;
 
     @Column(name = "REVIEW", nullable = true)
     String review = null;
 
-    public Rating(Optional<User> ratingUser, Optional<User> ratedUser, Double rating, String review) {
+    public Rating(Optional<User> ratingUser, Optional<User> ratedUser, Double score, String review) {
         this.ratingUser = ratingUser.orElseThrow(() -> new IllegalArgumentException("Rating user must be provided"));
         this.ratedUser = ratedUser.orElseThrow(() -> new IllegalArgumentException("Rated user must be provided"));
-        this.rating = rating;
+        this.score = score;
         this.review = review;
     }
 
