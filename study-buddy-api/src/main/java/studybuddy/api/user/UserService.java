@@ -2,14 +2,24 @@ package studybuddy.api.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import studybuddy.api.connection.Connection;
+import studybuddy.api.connection.ConnectionRepository;
 import studybuddy.api.course.Course;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+
+
+    @Autowired
+    private ConnectionRepository connectionRepository;
+
     @Autowired
     private UserRepository userRepository;
+
+
     /**
      * findByNameOrUsername
      *
@@ -150,44 +160,75 @@ public class UserService {
         userRepository.deleteCourseByCourseId(c.getCourseId(), u.id);
     }
 
-
     public List<User> recommendUsersForUser(long userId) {
-        Set<User> uniqueRecommendations = new HashSet<>();
-
-        // try to get users from the same course
-        uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCourse(userId));
-        if (uniqueRecommendations.size() >= 5) {
-            return new ArrayList<>(uniqueRecommendations).subList(0, 5);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            return Collections.emptyList();
         }
 
-        // print what we have so far
-        System.out.println("Recommendations so far: ");
-        for (User user : uniqueRecommendations) {
-            System.out.println(user.getUsername());
+        User currentUser = optionalUser.get();
+        Set<String> directConnections = getDirectConnections(currentUser.getUsername());
+        Set<String> secondDegreeConnections = getSecondDegreeConnections(directConnections);
+
+        List<User> allUsers = userRepository.findAll().stream()
+                .filter(user -> !user.getId().equals(currentUser.getId()) && !directConnections.contains(user.getUsername()))
+                .collect(Collectors.toList());
+
+        Map<User, Integer> userScores = new HashMap<>();
+        for (User user : allUsers) {
+            int score = calculateRelevanceScore(currentUser, user, secondDegreeConnections);
+            userScores.put(user, score);
         }
 
-        // try to get users with the same course prefix
-        uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCoursePrefix(userId));
+        List<User> recommendedUsers = userScores.entrySet().stream()
+                .sorted(Map.Entry.<User, Integer>comparingByValue(Comparator.reverseOrder()))
+                .map(Map.Entry::getKey)
+                .limit(5)
+                .collect(Collectors.toList());
 
-        // print what we have so far
-        System.out.println("Recommendations so far: ");
-        for (User user : uniqueRecommendations) {
-            System.out.println(user.getUsername());
+        return recommendedUsers;
+    }
+
+    private Set<String> getDirectConnections(String username) {
+        List<Connection> connections = connectionRepository.getConnections(username);
+        return connections.stream()
+                .map(conn -> conn.getRequester().equals(username) ? conn.getRequested() : conn.getRequester())
+                .collect(Collectors.toSet());
+    }
+
+    private Set<String> getSecondDegreeConnections(Set<String> directConnections) {
+        Set<String> secondDegreeConnections = new HashSet<>();
+        for (String friend : directConnections) {
+            List<Connection> friendConnections = connectionRepository.getConnections(friend);
+            friendConnections.stream()
+                    .map(conn -> conn.getRequester().equals(friend) ? conn.getRequested() : conn.getRequester())
+                    .filter(connUsername -> !directConnections.contains(connUsername))
+                    .forEach(secondDegreeConnections::add);
+        }
+        return secondDegreeConnections;
+    }
+
+    private int calculateRelevanceScore(User currentUser, User potentialFriend, Set<String> secondDegreeConnections) {
+        int score = 0;
+
+        Set<Course> sharedCourses = new HashSet<>(currentUser.getCourses());
+        sharedCourses.retainAll(potentialFriend.getCourses());
+        score += sharedCourses.size() * 2;
+
+        Set<String> currentUserPrefixes = currentUser.getCourses().stream()
+                .map(Course::getCoursePrefix)
+                .collect(Collectors.toSet());
+        Set<String> otherUserPrefixes = potentialFriend.getCourses().stream()
+                .map(Course::getCoursePrefix)
+                .collect(Collectors.toSet());
+        currentUserPrefixes.retainAll(otherUserPrefixes);
+        score += currentUserPrefixes.size();
+
+
+        if (secondDegreeConnections.contains(potentialFriend.getUsername())) {
+            score += 10;
         }
 
-        // if we still don't have enough, get random users
-        if (uniqueRecommendations.size() < 5) {
-            List<User> randomUsers = userRepository.recommendRandomUsers(userId);
-            for (User user : randomUsers) {
-                if (uniqueRecommendations.size() >= 5) {
-                    break; // stop if we have enough
-                }
-                uniqueRecommendations.add(user);
-            }
-        }
-
-        // create a list from the set
-        List<User> recommendations = new ArrayList<>(uniqueRecommendations);
-        return recommendations.size() > 5 ? recommendations.subList(0, 5) : recommendations;
+        return score;
     }
 }
