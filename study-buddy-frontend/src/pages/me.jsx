@@ -186,6 +186,7 @@ function MyInfoPage() {
             <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
             <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
             <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.jpg')} src="/devil.jpg" />
           </div>
 
         </DialogContent>
