@@ -21,9 +21,8 @@ public class Rating {
     @Column(name = "RATING_ID")
     Long ratingId;
 
-    @ManyToOne
-    @JoinColumn(name = "MEETING_ID", referencedColumnName = "MEETING_ID")
-    Meeting meeting;
+    @Column(name = "Meeting_Title")
+    String meetingTitle;
 
     @ManyToOne
     @JoinColumn(name = "RATING_USER", referencedColumnName = "username")
@@ -39,8 +38,8 @@ public class Rating {
     @Column(name = "REVIEW", nullable = true)
     String review = null;
 
-    public Rating(Optional<Meeting> meeting, Optional<User> ratingUser, Optional<User> ratedUser, Double score, String review) {
-        this.meeting = meeting.orElseThrow(() -> new IllegalArgumentException("meeting must be provided"));
+    public Rating(String meetingTitle, Optional<User> ratingUser, Optional<User> ratedUser, Double score, String review) {
+        this.meetingTitle = meetingTitle;
         this.ratingUser = ratingUser.orElseThrow(() -> new IllegalArgumentException("Rating user must be provided"));
         this.ratedUser = ratedUser.orElseThrow(() -> new IllegalArgumentException("Rated user must be provided"));
         this.score = score;

@@ -39,9 +39,9 @@ public class RatingsEndpoint {
     public ResponseEntity<Rating> createRating(@RequestBody Rating rating) {
         Optional<User> ratingUser = userService.findByUsername(rating.getRatingUser().getUsername());
         Optional<User> ratedUser = userService.findByUsername(rating.getRatedUser().getUsername());
-        Optional<Meeting> meetingId = meetingService.findById(rating.getMeeting().getId());
+        String meetingTitle = rating.getMeetingTitle();
         if (ratingUser.isPresent() & ratedUser.isPresent()){
-            Rating savedRating = ratingService.saveRating(new Rating(meetingId, ratingUser, ratedUser, rating.getScore(),rating.getReview()));
+            Rating savedRating = ratingService.saveRating(new Rating(meetingTitle, ratingUser, ratedUser, rating.getScore(),rating.getReview()));
             return ResponseEntity.ok(savedRating);
         }
         if (ratingUser.isEmpty()) {

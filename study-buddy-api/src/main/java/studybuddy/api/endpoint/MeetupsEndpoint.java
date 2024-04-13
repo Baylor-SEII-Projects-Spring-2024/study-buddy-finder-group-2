@@ -93,13 +93,13 @@ public class MeetupsEndpoint {
                 rateNotification.setNotificationContent("Can now rate your meeting members");
                 notificationService.sendNotification(rateNotification);
                 meeting.getAttendees().forEach(reviewed -> {
-                    if (!attendee.equals(reviewed)) {
+                    if (!attendee.equals(reviewed) && !reviewed.getUserType().equals("student")) {
                         System.out.println("Reviewer: " + attendee.getUsername());
                         System.out.println("Reviewed: " + reviewed.getUsername());
                         Rating rating = new Rating();
                         rating.setRatingUser(attendee);
                         rating.setRatedUser(reviewed);
-                        rating.setMeeting(meeting);
+                        rating.setMeetingTitle(meeting.getTitle());
                         ratingService.saveRating(rating);
                     }
                 });

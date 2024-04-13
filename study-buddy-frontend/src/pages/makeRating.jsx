@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Score } from "@mui/icons-material";
 
-function viewNewRatingsPage() {
+function ViewNewRatingsPage() {
   const [thisUser, setThisUser] = useState(null);
   const [ratingScore, setRatingScore] = useState(0);
   const [review, setReview] = useState('');
@@ -33,9 +33,9 @@ function viewNewRatingsPage() {
 
     setThisUser(user);
     fetchRatings(user);
-}, []);
+  }, []);
 
-const fetchRatings = async (user) => {
+  const fetchRatings = async (user) => {
     try {
         const res = await api.get(`newRatings/${user}`);
         console.log(res);
@@ -43,9 +43,9 @@ const fetchRatings = async (user) => {
     } catch (error) {
         console.error('Error fetching ratings:', error);
     }
-};
+  };
 
-const handleClickOpenEdit = (rating) => {
+  const handleClickOpenEdit = (rating) => {
     console.log(rating);
     
     setSelectedRating(rating);
@@ -54,13 +54,13 @@ const handleClickOpenEdit = (rating) => {
     setOpenEdit(true);
     setId(rating.ratingId);
     console.log(id);
-    
-};
+  };
 
-const handleCloseEdit = () => {
+  const handleCloseEdit = () => {
     setOpenEdit(false);
-};
-const removeRating = (ratingId) => {
+  };
+
+  const removeRating = (ratingId) => {
     console.log("Deleting rating with ID:", ratingId);
   
     // Use axios to send a DELETE request to the API
@@ -73,7 +73,7 @@ const removeRating = (ratingId) => {
       .catch(error => console.error('Error deleting rating:', error));
   };
 
-const handleUpdateRating = async (id) => {
+  const handleUpdateRating = async (id) => {
     try {
         console.log(id);
         // Check if id is valid
@@ -99,42 +99,55 @@ const handleUpdateRating = async (id) => {
     } catch (error) {
         console.error("Error updating rating:", error);
     }
-};
+  };
 
-return (
+  return (
     <div>
+      {ratings.length === 0 ? (
+        <Typography variant="body1" align="center">
+          No ratings available.
+        </Typography>
+      ) : (
         <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
-            {ratings.map((rating, index) => (
-                
-                <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
-                    <CardContent>
-                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}> Rating for {rating.ratedUser.username}</Typography>
-                        <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginTop: '10px' }}>
-                            Make Rating
-                        </Button>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-                            <Button onClick={() => removeRating(rating.ratingId)} variant="outlined" color="secondary">
-                                Remove Rating
-                            </Button>
-                        </Box>
-                    </CardContent>
-                </Card>
-            ))}
+          {ratings.map((rating, index) => (
+            <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
+              <CardContent>
+                <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}> Rating for {rating.ratedUser.username}</Typography>
+                <Typography variant='h6' align='center' sx={{ marginTop: '20px', fontWeight: 'normal'}}>
+                  Meeting: {rating.meetingTitle}
+                </Typography>
+                <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginTop: '10px' }}>
+                  Make Rating
+                </Button>
+                <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                  <Button onClick={() => removeRating(rating.ratingId)} variant="outlined" color="secondary">
+                    Remove Rating
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          ))}
         </Stack>
+      )}
 
-        <Dialog open={openEdit} onClose={handleCloseEdit}>
-            <DialogTitle>Edit Rating</DialogTitle>
-            <DialogContent>
-                <input type="number" value={ratingScore} onChange={(e) => 
-                setRatingScore(parseFloat(e.target.value))}  />
-                <textarea value={review} onChange={(e) => setReview(e.target.value)} />
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleCloseEdit}>Cancel</Button>
-                <Button onClick={() => handleUpdateRating(id)}>Save Changes</Button>
-            </DialogActions>
-        </Dialog>
+      <Dialog open={openEdit} onClose={handleCloseEdit}>
+        <DialogTitle>Edit Rating</DialogTitle>
+        <DialogContent>
+          <input 
+            type="number" 
+            value={ratingScore} 
+            onChange={(e) => setRatingScore(parseFloat(e.target.value))}  
+            onBlur={() => setRatingScore(Math.min(Math.max(ratingScore, 0.5), 5))}
+          />
+          <textarea value={review} onChange={(e) => setReview(e.target.value)} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEdit}>Cancel</Button>
+          <Button onClick={() => handleUpdateRating(id)}>Save Changes</Button>
+        </DialogActions>
+      </Dialog>
     </div>
-);
+  );
 }
-export default viewNewRatingsPage;
+
+export default ViewNewRatingsPage;

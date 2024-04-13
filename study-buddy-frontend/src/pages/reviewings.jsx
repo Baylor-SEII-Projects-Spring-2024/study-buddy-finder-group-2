@@ -51,6 +51,9 @@ function viewRatingsPage() {
                 <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>
                   {rating.ratedUser.username}'s Rating
                 </Typography>
+                <Typography variant='h6' align='center' sx={{ marginTop: '20px', fontWeight: 'normal'}}>
+                  Meeting: {rating.meetingTitle}
+                </Typography>
                 <Typography variant='h6' align='center' sx={{ marginTop: '10px'}}>
                   {rating.score} / 5 Stars
                 </Typography>
