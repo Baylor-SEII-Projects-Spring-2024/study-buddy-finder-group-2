@@ -81,29 +81,37 @@ public class MeetupsEndpoint {
                 remindedMeetings.add(m.get());
             }
         });
-        System.out.println("Cameron was here");
+
         endedMeetings.forEach(meeting -> {
-            meeting.getAttendees().forEach(attendee -> {
-                System.out.println("WineCrow's test");
-                Notification rateNotification = new Notification();
-                rateNotification.setReciever(attendee);
-                rateNotification.setSender(userService.findByUsernameExists(meeting.getUsername()));
-                rateNotification.setTimestamp(new Date());
-                rateNotification.setNotificationUrl("/makeRating");
-                rateNotification.setNotificationContent("Can now rate your meeting members");
-                notificationService.sendNotification(rateNotification);
-                meeting.getAttendees().forEach(reviewed -> {
-                    if (!attendee.equals(reviewed) && !reviewed.getUserType().equals("student")) {
-                        System.out.println("Reviewer: " + attendee.getUsername());
-                        System.out.println("Reviewed: " + reviewed.getUsername());
-                        Rating rating = new Rating();
-                        rating.setRatingUser(attendee);
-                        rating.setRatedUser(reviewed);
-                        rating.setMeetingTitle(meeting.getTitle());
-                        ratingService.saveRating(rating);
-                    }
+            //make it so no notification if no tutor
+            for (User checkTutor : meeting.getAttendees()){
+                if (!checkTutor.getUserType().equals("tutor")) {
+                    continue; // Skip to the next iteration of the checkTutor loop
+                }
+                meeting.getAttendees().forEach(attendee -> {
+                    Notification rateNotification = new Notification();
+                    rateNotification.setReciever(attendee);
+                    rateNotification.setSender(userService.findByUsernameExists(meeting.getUsername()));
+                    rateNotification.setTimestamp(new Date());
+                    rateNotification.setNotificationUrl("/makeRating");
+                    rateNotification.setNotificationContent("Can now rate your meeting members");
+                    notificationService.sendNotification(rateNotification);
+                    meeting.getAttendees().forEach(reviewed -> {
+                        if (!attendee.equals(reviewed) && !reviewed.getUserType().equals("student")) {
+                            System.out.println("Reviewer: " + attendee.getUsername());
+                            System.out.println("Reviewed: " + reviewed.getUsername());
+                            Rating rating = new Rating();
+                            rating.setRatingUser(attendee);
+                            rating.setRatedUser(reviewed);
+                            rating.setMeetingTitle(meeting.getTitle());
+                            ratingService.saveRating(rating);
+                        }
+                    });
                 });
-            });
+                break;
+
+            }
+
 
             // update expired status in database for this meeting
             meeting.setExpired(true);

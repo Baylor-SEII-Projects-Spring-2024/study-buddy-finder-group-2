@@ -17,14 +17,14 @@ import {
 } from "@mui/material";
 
 function RatingsPage() {
-  const [ratingType, setRatingType] = useState("Made");
+  const [ratingType, setRatingType] = useState("Pending");
   const [thisUser, setThisUser] = useState(null);
   const [ratingScore, setRatingScore] = useState(0);
   const [review, setReview] = useState('');
   const [id, setId] = useState(null);
   const [ratings, setRatings] = useState([]);
   const [openEdit, setOpenEdit] = useState(false); 
-  const [text, setText] = useState("Made Ratings");
+  const [text, setText] = useState("Pending Ratings");
   const api = axios.create({
     //baseURL: 'http://localhost:8080/'
     baseUrl: 'http://34.16.169.60:8080/'
