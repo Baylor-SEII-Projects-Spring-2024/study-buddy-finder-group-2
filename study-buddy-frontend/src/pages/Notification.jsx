@@ -15,12 +15,12 @@ import {
     List,
     Checkbox,
     ThemeProvider,
-    createTheme
+    createTheme, Tooltip
 } from '@mui/material';
 
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 import Link from "next/link";
 
 function NotificationPage() {
@@ -190,15 +190,17 @@ function NotificationPage() {
                             <Button color="inherit">Connections</Button>
                         </Link>
                     <Badge badgeContent={count} color="warning">
-                    <IconButton
-                        aria-label="notifications of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        size="large"
-                        onClick={handleOpen}
-                        color="inherit">
-                        <NotificationsIcon/>
-                    </IconButton>
+                        <Tooltip title={"notifications"}>
+                            <IconButton
+                                aria-label="notifications of current user"
+                                aria-controls="menu-appbar"
+                                aria-haspopup="true"
+                                size="large"
+                                onClick={handleOpen}
+                                color="inherit">
+                                <NotificationsIcon/>
+                            </IconButton>
+                        </Tooltip>
                     </Badge>
                         <Menu
                             id="menu-appbar"
@@ -254,6 +256,11 @@ function NotificationPage() {
                                 })}
                             </List>
                         </Menu>
+                        <Tooltip title={"profile"}>
+                            <IconButton>
+                                <AccountCircle/>
+                            </IconButton>
+                        </Tooltip>
                     </div>
                 </Toolbar>
             </AppBar>
