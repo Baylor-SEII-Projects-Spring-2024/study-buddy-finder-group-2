@@ -13,10 +13,12 @@
     "@emotion/react": "^11.11.3",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.13",
     "@mui/material": "^5.15.11",
     "@mui/material-nextjs": "^5.15.3",
     "@mui/x-date-pickers": "^6.19.5",
     "@reduxjs/toolkit": "^2.0.1",
+    "@stomp/stompjs": "^7.0.0",
     "axios": "^1.6.5",
     "jwt-decode": "^4.0.0",
     "dayjs": "^1.11.10",
@@ -24,6 +26,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.0.4",
-    "redux-thunk": "^3.1.0"
+    "react-use-websocket": "^4.8.1",
+    "redux-thunk": "^3.1.0",
+    "socket.io": "^4.7.5"
   }
 }

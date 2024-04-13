@@ -3,21 +3,16 @@ package studybuddy.api.endpoint;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.school.School;
-import studybuddy.api.school.SchoolRepository;
 import studybuddy.api.school.SchoolService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Log4j2
 @RestController
@@ -40,23 +35,26 @@ public class RegistrationEndpoint {
     }
 
     @RequestMapping(
-            value = "/api/find-username",
+            value = "/api/find-username/{username}",
             method = RequestMethod.GET
     )
-    public ResponseEntity<String> usernameNotFound(@RequestBody String username){
+    public ResponseEntity<String> usernameNotFound(@PathVariable String username){
         if(userService.findByUsername(username).isEmpty()){
+            System.out.println("USER IS EMPTY");
             return ResponseEntity.ok(username);
         }
         else{
+            System.out.println("USER EXISTS");
             return ResponseEntity.badRequest().build();
         }
     }
 
     @RequestMapping(
-            value = "/api/find-email",
-            method = RequestMethod.GET
+            value = "/api/find-email/{email}",
+            method = RequestMethod.GET,
+            produces = "application/json"
     )
-    public ResponseEntity<String>  emailNotFound(@RequestBody String email){
+    public ResponseEntity<String>  emailNotFound(@PathVariable String email){
         if(userService.findByEmail(email).isEmpty()){
             return ResponseEntity.ok(email);
         }
@@ -70,7 +68,6 @@ public class RegistrationEndpoint {
     @RequestMapping (
             value = "/api/register",
             method = RequestMethod.POST,
-            consumes = "application/json",
             produces = "application/json"
     )
     public ResponseEntity<User> registerUser(@RequestBody User user) {
@@ -84,7 +81,7 @@ public class RegistrationEndpoint {
         }
         else{
             System.out.println("User is available!");
-            return ResponseEntity.ok(userService.saveUser(user));
+            return new ResponseEntity<>(userService.saveUser(user),HttpStatus.OK);
             //return ResponseEntity.ok(user);
         }
     }

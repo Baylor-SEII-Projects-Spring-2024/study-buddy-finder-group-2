@@ -2,16 +2,10 @@ package studybuddy.api.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import studybuddy.api.course.Course;
 import studybuddy.api.roles.Role;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.hibernate.annotations.Cascade;
-import studybuddy.api.course.Course;
-import studybuddy.api.school.School;
-
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -28,14 +22,11 @@ public class User {
     @Column(name = "USER_ID")
     Long id;
 
-    /*@Column(name = "FIRSTNAME")
+    @Column(name = "FIRSTNAME")
     String firstName;
 
     @Column(name = "LASTNAME")
-    String lastName;*/
-
-    @Column(name = "NAME")
-    String name;
+    String lastName;
 
     @Column(name = "USERNAME")
     String username;
@@ -49,26 +40,19 @@ public class User {
     @Column(name = "USER_TYPE")
     String userType;
 
-    // creates join table with Role
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
-    private List<Role> roles = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_courses",
             joinColumns = @JoinColumn(name = "username"),
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     Set<Course> courses;
 
-    /*@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_connections",
-            joinColumns = @JoinColumn(name = "parentUsername", referencedColumnName = "username"),
-            inverseJoinColumns = @JoinColumn(name = "childUsername", referencedColumnName = "username"))
-    Set<User> connections;*/
+    // creates join table with Role
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
+    private List<Role> roles = new ArrayList<>();
 
     /*
     @ManyToOne(fetch = FetchType.LAZY)
@@ -82,8 +66,10 @@ public class User {
         if(!courses.contains(c)) courses.add(c);
     }
 
+
     public void removeCourse(Course c){
-            courses.remove(c);
+        courses.remove(c);
     }
+
 
 }

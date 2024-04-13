@@ -19,9 +19,8 @@ function RegistrationPage() {
     // Database looks for attribute name, not column name when assigning attributes to new row
     // emailAddress and userType need no underscores
     const [username, setUsername] = useState(null);
-    //const [firstName, setFirstName] = useState(null);
-    //const [lastName, setLastName] = useState(null);
-    const [name, setName] = useState(null);
+    const [firstName, setFirstName] = useState(null);
+    const [lastName, setLastName] = useState(null);
     const [password, setPassword] = useState(null);
     const [confirmPassword, setConfirmPassword] = useState(null);
     const [emailAddress, setEmail] = useState(null);
@@ -32,18 +31,22 @@ function RegistrationPage() {
     //errors
     const [errUser, setErrUser] = useState(false);
     const [errPwd, setErrPwd] = useState(false);
-    //const [errFirstName, setErrFirstName] = useState(false);
-    //const [errLastName, setErrLastName] = useState(false);
-    const [errName, setErrName] = useState(false);
+    const [errFirstName, setErrFirstName] = useState(false);
+    const [errLastName, setErrLastName] = useState(false);
     const [errEmail, setErrEmail] = useState(false);
     const [errCPwd, setErrCPwd] = useState(false);
     const [errSchool, setErrSchool] = useState(false);
     const [errUserType, setErrUserType] = useState(false);
 
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+
+
     //getting list of schools from database
     useEffect(() => {
-        //axios.get("http://34.16.169.60:8080/api/request-school-options")
-        axios.get("http://localhost:8080/api/request-school-options")
+        api.get("api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -58,57 +61,66 @@ function RegistrationPage() {
     const USER_REGEX = /^[A-z,0-9]{3,23}$/;
     // handles submission of form
 
-     const submitInfo = () => {
-         //TODO: verify that username is valid
-         console.log(USER_REGEX.test(username));
-         const verUser = USER_REGEX.test(username) && username !== null;
-         //TODO: verify that password is valid
-         const verPwd = PWD_REGEX.test(password) && password !== null;
-         console.log(PWD_REGEX.test(password));
-         console.log(verPwd);
-         //verify that password is equal to confirm password
-         const verMatch = password === confirmPassword;
+    const submitInfo = (event) => {
+        let right = true;
+        //TODO: verify that username is valid
+        console.log(USER_REGEX.test(username));
+        const verUser = USER_REGEX.test(username) && username !== null;
+        //TODO: verify that password is valid
+        const verPwd = PWD_REGEX.test(password) && password !== null;
+        console.log(PWD_REGEX.test(password));
+        console.log(verPwd);
+        //verify that password is equal to confirm password
+        const verMatch = password === confirmPassword;
 
 
-         //setErrFirstName(firstName == null || firstName === '');
-         //setErrLastName(lastName === null || lastName === '');
-         setErrName(name === null || name === '');
-         setErrSchool(school === null);
-         setErrEmail(emailAddress === null || emailAddress === '');
-         if (school !== null && emailAddress !== null && emailAddress !== '') {
-             //console.log(emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length));
-             setErrEmail(emailAddress.length < school.emailDomain.length && emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain);
-         }
-         setErrUserType(userType === null);
-         setErrUser(!verUser);
-         setErrPwd(!verPwd);
-         setErrCPwd(!verMatch);
+        setErrFirstName(firstName == null || firstName === '');
+        setErrLastName(lastName === null || lastName === '');
+        setErrSchool(school === null);
+        setErrEmail(emailAddress === null || emailAddress === '');
+        if (school !== null && emailAddress !== null && emailAddress !== '') {
+            console.log(emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length));
+            setErrEmail(emailAddress.length < school.emailDomain.length && emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain);
+        }
+        setErrUserType(userType === null);
+        setErrUser(!verUser);
+        setErrPwd(!verPwd);
+        setErrCPwd(!verMatch);
 
-         //axios.get("http://34.16.169.60:8080/api/find-username", username)
-         axios.get("http://localhost:8080/api/find-username", username)
-             .catch((res) => {
-                 window.alert("Username already exists! Find a different one");
-                 setErrUser(true);
-             })
+        api.get(`api/find-username/${username}`)
+            .then(() => {
+                setErrUser(false);
+            })
+            .catch((res) => {
+                window.alert("Username already exists! Find a different one");
+                setErrUser(true);
+                right = false;
+            })
 
-         //axios.get("http://34.16.169.60:8080/api/find-email", emailAddress)
-         axios.get("http://localhost:8080/api/find-email", emailAddress)
-             .catch((res) => {
-                 window.alert("Email already exists!");
-                 setErrEmail(true);
-             })
-     }
+        api.get(`api/find-email/${emailAddress}`)
+            .then(()=>{
+                setErrEmail(false);
+
+            })
+            .catch((res) => {
+                window.alert("Email already exists!");
+                setErrEmail(true);
+                right = false;
+            })
+
+        if(right){
+            handleSubmit();
+        }
+    }
 
     const registerUser = () => {
         const user = {
-            // firstName, lastName
-            username, password, name, emailAddress, userType//, school
+            username, password, firstName, lastName, emailAddress, userType//, school
         }
 
         console.log({
-            //firstName: firstName,
-            //lastName: lastName,
-            name: name,
+            firstName: firstName,
+            lastName: lastName,
             emailAddress: emailAddress,
             username: username,
             userType: userType,
@@ -116,30 +128,26 @@ function RegistrationPage() {
             password: password
         });
 
-        axios.post("http://localhost:8080/api/authorization/register", user) // for local testing
-        //axios.post("http://34.16.169.60:8080/api/register", user)
+        api.post("api/register", user)
             .then((res) => {
-                if (res.status === 200) {
-                    console.log('No Existing User! User is now registered!')
-                    //TODO: Redirect
-                    if (res.data.userType.includes("student")) {
+                console.log('No Existing User! User is now registered!')
+                if (res.data.userType.includes("student")) {
 
-                        console.log(res.data);
-                        //temporary fix
-                        var params = new URLSearchParams();
-                        params.append("username", res.data.get("username").toString());
-                        console.log("going to /studentLanding?" + params.toString())
-                        location.href = "/studentLanding?" + params.toString();
+                    console.log(res.data);
+                    //temporary fix
+                    var params = new URLSearchParams();
+                    console.log(1);
+                    params.append("username", res.data.username.toString());
+                    console.log(2);
+                    console.log("going to /studentLanding?" + params.toString());
+                    console.log(3);
+                    location.href = "/studentLanding?" + params.toString();
 
-                    } else if (res.data.userType.includes("tutor")) {
-                        var params = new URLSearchParams();
-                        params.append("username", data.get("username"));
-                        console.log("going to /tutorLanding?" + params.toString());
-                        location.href = "/tutorLanding?" + params.toString();
-                    }
-                } else if (res.status.valueOf() === 400) { //if username + email already exists
-                    console.log('Username or email already exists!');
-                    window.alert("Username or email already exists!")
+                } else if (res.data.userType.includes("tutor")) {
+                    var params = new URLSearchParams();
+                    params.append("username", res.data.username);
+                    console.log("going to /tutorLanding?" + params.toString());
+                    location.href = "/tutorLanding?" + params.toString();
                 }
             })
             .catch((err) => {
@@ -150,12 +158,9 @@ function RegistrationPage() {
 
     }
 
-    const handleSubmit = async (event) => {
-        await submitInfo();
-        event.preventDefault();
+    const handleSubmit =  () => {
         //check if fields are valid
-        // errLastName || errFirstName
-        if(errName || errSchool || errEmail || errPwd || errCPwd || errUserType || errUser){
+        if(errLastName || errFirstName || errSchool || errEmail || errPwd || errCPwd || errUserType || errUser){
             window.alert("Please fill out all fields");
         }
         else {
@@ -170,7 +175,7 @@ function RegistrationPage() {
 
     return (
         <Box>
-            <Box component="form" validate="true" onSubmit={handleSubmit}
+            <Box component="form" validate="true"
                  sx={{
                      marginTop: 5,
                      display: 'flex',
@@ -207,14 +212,11 @@ function RegistrationPage() {
                     )}
                 /> <br/>
 
-                {/*<TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
+                <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
                            onChange={(e) => setFirstName(e.target.value)}
                            error={errFirstName} helperText={errFirstName ? 'Please input a first name' : ''}/><br/>
                 <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
                            onChange={(e) => setLastName(e.target.value)}
-                           error={errLastName} helperText={errLastName ? 'Please input a last name' : ''}/><br/>*/}
-                <TextField autoComplete="name" id="name" name="name" label="Name"
-                           onChange={(e) => setName(e.target.value)}
                            error={errLastName} helperText={errLastName ? 'Please input a last name' : ''}/><br/>
                 <TextField autoComplete="email" id="email" name="email" label="Email"
                            onChange={(e) => setEmail(e.target.value)}
@@ -239,7 +241,10 @@ function RegistrationPage() {
                 </RadioGroup>
                 <Box row>
                     <Button id="cancel" variant="outlined" color="error" href="/">Cancel</Button>
-                    <Button id="register" variant="contained" type="submit" >Next</Button>
+                    <Button id="register" variant="contained" onClick={ () => {
+                        submitInfo();
+                        //handleSubmit();
+                    }} >Next</Button>
                 </Box>
             </Box>
         </Box>

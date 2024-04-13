@@ -44,6 +44,12 @@ dependencies {
 	// Utility libraries
 	implementation 'com.google.guava:guava:33.0.0-jre'
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+	// https://mvnrepository.com/artifact/javax.websocket/javax.websocket-api
+	compileOnly 'javax.websocket:javax.websocket-api:1.1'
+	implementation("org.springframework.boot:spring-boot-starter-websocket")
+	implementation("org.springframework:spring-messaging:6.1.5")
+
 }
 
 tasks.named('test') {

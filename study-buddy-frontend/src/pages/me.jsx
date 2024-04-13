@@ -1,26 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
+import axios from 'axios';
+import SettingsIcon from '@mui/icons-material/Settings';
+import NotificationPage from "@/pages/Notification";
 
 //This is the page that the user themself sees (able to edit and such)
 
-//TODO: Display username, name, courses, links, and a bio
-//TODO: Add a settings panel (dialog)
-//TODO: Use userID instead of username
+//TODO: Display profile pictures, links
 
 function MyInfoPage() {
-  const [text, setText] = useState('');
-  const [realText, setRealText] = useState('');
-  const [username, setUsername] = useState(null);
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [id, setId] = useState(null);
+  const [bio, setBio] = useState('');
+  const [username, setUsername] = useState(null);
+  const [profilePic, setProfilePic] = useState(null);
+  const [userCourses, setUserCourses] = useState([]);
+
+  const api = axios.create({
+    //baseURL: 'http://localhost:8080/'
+    baseURL: 'http://34.16.169.60:8080/'
+  });
 
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
-    fetch(`http://localhost:8080/me/${user}`) // use this for local development
-    //fetch(`http://34.16.169.60:8080/viewMeetups/${user}`)
-      .then(response => response.json())
-      .then(data => setUser(data))
+    api.get(`me/${user}`)
+      .then(data => setUser(data.data))
       .catch(error => console.error('Error fetching user:', error));
+  };
+
+  const fetchProfile = (user) => {
+    console.log("Profile to fetch for: " + user);
+
+    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
+    api.get(`profile/${user}`)
+      .then(data => setProfile(data.data))
+      .catch(error => console.error('Error fetching profile:', error));
   };
 
   useEffect(() => {
@@ -30,47 +46,67 @@ function MyInfoPage() {
         setUsername(user);
 
         fetchUser(user);
+        fetchProfile(user);
+        fetchUserCourses(user);
     }, []);
 
-  const handleText = (event) =>{
-    //event.preventDefault();
-    //handleSettingsClose();
-    setText(event.target.value);
-    console.log("BIO TEXT: " + event.target.value);
-  }
+  const fetchUserCourses = (user) => {
 
-  const handleSubmit = () =>{
+      api.get(`api/get-courses-user/${user}`)
+          .then(data =>{
+              setUserCourses(data.data)
+              console.log(data.data);}
+          )
+          .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
+  };
+
+
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setRealText(text);
+    const data = new FormData(event.currentTarget);
 
-    handleSettingsClose();
+    const profile = {
+      id, username, bio
+    }
+
+    api.put("me", profile)
+      .then((res) => {
+        if (res.status === 200) {
+          handleSettingsClose();
+          fetchProfile(username);
+        }
+      })
+      .catch((err) => {
+        console.log("ERROR UPDATING PROFILE.");
+        console.log(err);
+      });
   }
+  
+
 
   //DIALOG (Settings)
   const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   const handleSettingsOpen = () => {
       setSettingsOpen(true);
+      setId(profile.id);
+      setBio(profile.bio);
+      setProfilePic(profile.profilePic);
   };
 
   const handleSettingsClose = () => {
       setSettingsOpen(false);
-      setText(realText);
   };
+  
 
   return (
     <div>
-      <Stack sx={{ paddingTop: 4 , paddingBottom: 4}} alignItems='center' gap={2}>
-        <Card sx={{ width: 300, margin: 'auto' }} elevation={4}>
-          <CardContent>
-            <Typography variant='h4' align='center'>My Profile</Typography>
-          </CardContent>
-        </ Card>
-      </Stack>
+        <NotificationPage></NotificationPage><br/>
 
-      {user ? (
-        <Card sx={{ width: 1200, margin: 'auto', height: 400, marginBottom: '10px'}} elevation={4}>
+      {user && profile ? (
+        <Card sx={{ width: 1200, margin: 'auto', height: 400, marginTop: '125px', marginBottom: '10px'}} elevation={4}>
           <CardContent>
+
             {/* Name and username */}
             <Grid container alignItems="center">
               <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
@@ -79,25 +115,38 @@ function MyInfoPage() {
               </Grid>
 
               <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px'}}>
-                <Button variant='contained' color="primary" onClick={handleSettingsOpen}>Edit Profile</Button>
+                {/* <Button variant='contained' color="primary" onClick={handleSettingsOpen}>Edit Profile</Button> */}
+                <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
               </Grid>
             </Grid>
             <br />
 
             <Typography variant="body1" style={{ marginLeft: '100px'}}>
-              {realText}
+              {profile.bio}
             </Typography>
+
+            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px'}}>
+              Courses
+            </Typography>
+
+            {userCourses && userCourses.length > 0 ? (
+              userCourses.map((course, index) => (
+                <div key={index} style={{ marginLeft: '100px', color: 'gray'}}>
+                  {course.coursePrefix} {course.courseNumber}
+                </div>
+              )))
+            : (
+              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px'}}>
+                Not enrolled in any courses.
+              </Typography>
+            )}
           </CardContent>
         </Card>
 
       ) : null}
 
 
-
-
-
-
-      {/*CREATE SETTINGS DIALOG BOX*/}
+      {/* SETTINGS DIALOG BOX */}
             <Dialog
                 open={settingsOpen}
                 onClose={handleSettingsClose}
@@ -120,8 +169,8 @@ function MyInfoPage() {
             type="string"
             fullWidth
             variant="standard"
-            defaultValue={realText}
-            onChange={(e) => setText(e.target.value)}
+            defaultValue={profile?.bio || ''}
+            onChange={(e) => setBio(e.target.value)}
           />
 
         </DialogContent>

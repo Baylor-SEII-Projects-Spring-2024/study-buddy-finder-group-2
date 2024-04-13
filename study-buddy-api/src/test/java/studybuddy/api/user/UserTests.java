@@ -124,4 +124,35 @@ public class UserTests {
         String userType = userService.findUserType(newUser.username);
         assertEquals(newUser.userType, userType);
     }
+
+    @Test
+    void testFindByNameOrUsernameAndUserType() {
+        User newUser = new User();
+        newUser.setFirstName("Alex");
+        newUser.setLastName("Smith");
+        newUser.setUsername("alex_smith");
+        newUser.setUserType("STUDENT");
+        userService.saveUser(newUser);
+
+        List<User> users = userService.findByNameOrUsernameAndUserType("Alex", "STUDENT");
+        assertFalse(users.isEmpty());
+        users.forEach(user -> assertTrue(
+                (user.getUsername().contains("Alex") || user.getFirstName().contains("Alex") || user.getLastName().contains("Alex")) &&
+                        user.getUserType().equals("STUDENT")
+        ));
+    }
+
+    @Test
+    void testFindByNameOrUsername() {
+        User newUser = new User();
+        newUser.setFirstName("Billy");
+        newUser.setLastName("Bob");
+        newUser.setUsername("billy_bob");
+        newUser.setUserType("STUDENT");
+        userService.saveUser(newUser);
+        List<User> users = userService.findByNameOrUsername("Billy");
+        assertFalse(users.isEmpty());
+        users.forEach(user -> assertTrue(user.getUsername().contains("billy") || user.getFirstName().contains("Billy") || user.getLastName().contains("Billy")));
+    }
+
 }

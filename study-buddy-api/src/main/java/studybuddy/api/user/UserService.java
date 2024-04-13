@@ -1,41 +1,43 @@
 package studybuddy.api.user;
 
-import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import studybuddy.api.course.Course;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
     /**
-     * findByNameStartingWith
-     * This functions uses findByNameStartingWith in JPA
-     *    Repository to query for the user that starts with the given string.
+     * findByNameOrUsername
+     *
+     * This function queries for all the users information with the given
+     * part of the name or username
      *
      * @param partialName
      *
-     * @return a List of Users that matches
-     *        empty List if no matches
+     * @return List of Users that contain the partialName in their
+     *         username, first name, or last name
+     *         empty List if no matches
      */
     public List<User> findByNameOrUsername(String partialName){
         return userRepository.findByNameOrUsername(partialName);
     }
 
     /**
-     * FIXME comments
-     * findByNameStartingWith
-     * This functions uses findByNameStartingWith in JPA
-     *    Repository to query for the user that starts with the given string.
+     * findByNameOrUsernameAndUserType
+     *
+     * This function queries for all the users information with the given
+     * part of the name or username and the user type
      *
      * @param partialName
+     * @param type
      *
-     * @return a List of Users that matches
-     *        empty List if no matches
+     * @return List of Users that contain the partialName in their
+     *      *  username, first name, or last name and natches the user type
+     *      *  empty List if no matches
      */
     public List<User> findByNameOrUsernameAndUserType(String partialName, String type){
         return userRepository.findByNameOrUsernameAndUserType(partialName, type);
@@ -82,7 +84,7 @@ public class UserService {
      * @return user if user with username exists, NULL if not
      * */
     public Optional<User> findByUsername(String username) {
-    return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username);
     }
 
     /**
@@ -128,6 +130,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User findByUsernameExists(String username) {
+        return userRepository.findByUsernameExists(username);
+    }
+
     /**
      *
      * @param c
@@ -142,5 +148,46 @@ public class UserService {
      */
     public void deleteCourseFromUser(Course c, User u){
         userRepository.deleteCourseByCourseId(c.getCourseId(), u.id);
+    }
+
+
+    public List<User> recommendUsersForUser(long userId) {
+        Set<User> uniqueRecommendations = new HashSet<>();
+
+        // try to get users from the same course
+        uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCourse(userId));
+        if (uniqueRecommendations.size() >= 5) {
+            return new ArrayList<>(uniqueRecommendations).subList(0, 5);
+        }
+
+        // print what we have so far
+        System.out.println("Recommendations so far: ");
+        for (User user : uniqueRecommendations) {
+            System.out.println(user.getUsername());
+        }
+
+        // try to get users with the same course prefix
+        uniqueRecommendations.addAll(userRepository.recommendUsersFromSameCoursePrefix(userId));
+
+        // print what we have so far
+        System.out.println("Recommendations so far: ");
+        for (User user : uniqueRecommendations) {
+            System.out.println(user.getUsername());
+        }
+
+        // if we still don't have enough, get random users
+        if (uniqueRecommendations.size() < 5) {
+            List<User> randomUsers = userRepository.recommendRandomUsers(userId);
+            for (User user : randomUsers) {
+                if (uniqueRecommendations.size() >= 5) {
+                    break; // stop if we have enough
+                }
+                uniqueRecommendations.add(user);
+            }
+        }
+
+        // create a list from the set
+        List<User> recommendations = new ArrayList<>(uniqueRecommendations);
+        return recommendations.size() > 5 ? recommendations.subList(0, 5) : recommendations;
     }
 }

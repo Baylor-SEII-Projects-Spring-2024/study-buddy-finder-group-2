@@ -1,22 +1,20 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState} from "react";
 import {
-    Box,
-    Button,
+    Box, Button,
     Card,
     CardContent,
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle, FormControl, InputLabel, MenuItem, Select,
-    Stack, ToggleButton, ToggleButtonGroup,
+    DialogTitle,
+    Stack,
     Typography
 } from "@mui/material";
 import axios from "axios";
 import NotificationPage from "@/pages/Notification";
 
-function InvitationsPage() {
+function viewConnectionsPage() {
     const [thisUser, setThisUser] = useState(null);
-    const [requestType, setRequestType] = useState("incoming");
 
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
@@ -28,16 +26,13 @@ function InvitationsPage() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const [id, setId] = useState(null);
-    const [requester, setRequester] = useState(null);
-    const [requested, setRequested] = useState(null);
-    const [isConnected, setIsConnected] = useState(null);
-    const [selectedConnection, setSelectedConnection] = useState(null);
+    const [selectedConnection, setSelectedConnection] = useState();
 
     const api = axios.create({
         //baseURL: 'http://localhost:8080/'
         baseURL: 'http://34.16.169.60:8080/'
     });
+
 
     // get the user's username
     // show all connections for that user
@@ -46,76 +41,36 @@ function InvitationsPage() {
             user = params.get("username");
 
         setThisUser(user);
-        fetchInRequests(user);
+        fetchConnections(user);
     }, [])
 
-    // get all connections with isConnected = false
-    const fetchInRequests = (user) => {
-       api.get(`api/viewInRequests/${user}`)
+    // get all connections with isConnected = true
+    const fetchConnections = (user) => {
+        console.log("User to fetch for: " + user);
+
+        api.get(`api/viewConnections/${user}`)
             .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };
 
-    // get all connections with isConnected = false
-    const fetchOutRequests = (user) => {
-        api.get(`api/viewOutRequests/${user}`)
-            .then(data => setUsers(data.data))
-            .catch(error => console.error('Error fetching connections:', error));
+    // delete a connection
+    const deleteConnection = (event) => {
+        event.preventDefault();
+
+        api.delete(`api/viewConnections/${selectedConnection?.id}`)
+            .then((res) => {
+                if(res.status === 200) {
+                    handleCloseProfile();
+                    fetchConnections(thisUser);
+                }
+            })
+            .catch((err) => {
+                console.log("ERROR DELETING CONNECTION.");
+                console.log(err);
+            });
     };
 
     const [openProfile, setOpenProfile] = React.useState(false);
-    const [text, setText] = useState("Connect");
-
-    // get incoming or outgoing requests
-    const handleSubmit = (event) => {
-        // prevents page reload
-        event.preventDefault();
-
-        // outgoing
-        if(event.target.value === "incoming") {
-            setText("Connect");
-            fetchInRequests(thisUser);
-        }
-        // incoming
-        else if(event.target.value === "outgoing") {
-            setText("Pending");
-            fetchOutRequests(thisUser);
-        }
-        else {
-            console.log("error with request type?!");
-        }
-    }
-
-    // add connection
-    // TODO: cancel requests instead of nothing for pending??
-
-    const handleConnection = (event) => {
-        // prevents page reload
-        event.preventDefault();
-
-        const connection = {
-            requester, requested, isConnected
-        }
-
-        // if the user isn't the requester
-        if(text === "Connect") {
-            console.log(connection);
-            setIsConnected(true);
-
-            api.post(`api/viewRequests/addConnection`, connection)
-                .then((res) => {
-                    console.log("CONNECTION ADDED.");
-                    if(res.status === 200) {
-                        handleCloseProfile();
-                        fetchInRequests();
-                    }
-                })
-                .catch((err) => {
-                    console.log("ERROR ADDING CONNECTION.");
-                    console.log(err);
-                });
-        }
-    }
 
     // show the profile of the connected user
     const handleClickOpenProfile = (user) => {
@@ -129,15 +84,10 @@ function InvitationsPage() {
         setType(user.userType);
         setSchool(user.school);
 
-        // set connection values for existing connection
-        api.post(`api/viewRequests/getConnection/${thisUser}`, user.username)
+        // set connection
+        api.post(`api/viewConnections/getConnection/${thisUser}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
-
-                setRequester(res.data.requester);
-                setRequested(res.data.requested);
-                setIsConnected(res.data.isConnected);
-                setId(res.data.id);
             })
             .catch((err) => {
                 console.error('Error getting connection:', err)
@@ -160,48 +110,17 @@ function InvitationsPage() {
         setSchool(null);
 
         setSelectedConnection(null);
-        setRequested(null);
-        setRequester(null);
-        setIsConnected(false);
-
-        setText("Connect");
     };
 
     return (
         <div>
-            <NotificationPage></NotificationPage><br/>
+            <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
                     <CardContent>
-                        <Typography variant='h4' align='center'>Your Requests</Typography>
+                        <Typography variant='h4' align='center'>Your Connections</Typography>
                     </CardContent>
                 </ Card>
-
-                {/* this is the search area, submits a form */}
-                <Box component="form" noValidate
-                     sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
-                    <Stack spacing={4} direction="row" justifyContent="center">
-                        {/* get request type (incoming or outgoing) */}
-                        <ToggleButtonGroup
-                            color="success"
-                            value={requestType}
-                            exclusive
-                            onChange={(e) => {
-                                setRequestType(e.target.value);
-                                handleSubmit(e);
-                            }}
-                            label="request type"
-                            type="submit"
-                        >
-                            <ToggleButton value={"incoming"}>
-                                Incoming
-                            </ToggleButton>
-                            <ToggleButton value={"outgoing"}>
-                                Outgoing
-                            </ToggleButton>
-                        </ToggleButtonGroup>
-                    </Stack>
-                </Box>
 
                 {/* display all matches on separate cards */}
                 {users.map((user, index) => (
@@ -236,6 +155,14 @@ function InvitationsPage() {
                     </Card>
                 ))}
 
+                {/* add button back to user's landing page */}
+                {/*<Button
+                    variant="outlined"
+                    color="error"
+                    href="/"
+                >
+                    Back</Button>*/}
+
             </Stack>
 
             {/*View user profile and add as connection*/}
@@ -245,7 +172,6 @@ function InvitationsPage() {
                 fullWidth
                 component="form"
                 validate="true"
-                onSubmit={handleConnection}
             >
                 <DialogTitle variant='s2'>{firstName + " " + lastName}'s Profile</DialogTitle>
                 <DialogContent>
@@ -268,19 +194,14 @@ function InvitationsPage() {
                         Back</Button>
                     <Button
                         variant="contained"
-                        sx={{
-                            backgroundColor: isConnected ? '#9c27b0' : 'light blue',
-                            '&:hover': {
-                                backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
-                            },
-                        }}
-                        type="submit"
+                        color="secondary"
+                        onClick={deleteConnection}
                     >
-                        {text}</Button>
+                        Disconnect</Button>
                 </DialogActions>
             </Dialog>
         </div>
     );
 }
 
-export default InvitationsPage;
+export default viewConnectionsPage;
