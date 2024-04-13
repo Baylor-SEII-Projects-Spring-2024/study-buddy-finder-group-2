@@ -135,8 +135,8 @@ function NotificationPage() {
     }
 
 
-    const handleOpen = () => {
-        setAnchorEl(event.currentTarget);
+    const handleOpen = (e) => {
+        setAnchorEl(e.currentTarget);
     }
 
     const handleClose = () => {
@@ -200,29 +200,21 @@ function NotificationPage() {
                                 aria-controls="menu-appbar"
                                 aria-haspopup="true"
                                 size="large"
-                                onClick={handleOpen}
+                                onClick={(e) => handleOpen(e)}
                                 color="inherit">
                                 <NotificationsIcon/>
                             </IconButton>
                         </Tooltip>
                     </Badge>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            sx={{ minWidth: 250}}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <List component="notifications" aria-label="notifications">
+                        <Menu anchorEl={anchorEl}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'center'}}
+                              keepMounted
+                              sx={{ minWidth: 250
+                                    maxWidth: 400}}
+                              open={Boolean(anchorEl)}
+                              onClose={handleClose}
+                              id="notification-appbar" component="notifications" aria-label="notifications">
                                 {(notificationList === null || notificationList.length === 0) ? empty()
                                  : notificationList.map((value) => {
                                     const labelId = `checkbox-list-label-${value.notificationId}`;
@@ -258,7 +250,6 @@ function NotificationPage() {
                                         </MenuItem>
                                     );
                                 })}
-                            </List>
                         </Menu>
                         <Tooltip title={"profile"}>
                             <IconButton>
