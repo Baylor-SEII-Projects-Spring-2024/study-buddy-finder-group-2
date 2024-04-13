@@ -14,9 +14,9 @@ function viewRatingsPage() {
   const [ratings, setRatings] = useState([]);
   const api = axios.create({
     // For local testing
-    baseURL: 'http://localhost:8080/'
+    //baseURL: 'http://localhost:8080/'
     // For deployment
-    // baseURL: 'http://34.16.169.60:8080/'
+     baseURL: 'http://34.16.169.60:8080/'
   });
 
   // get the user's username

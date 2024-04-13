@@ -41,8 +41,8 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/'
-        //baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
     });
 
     const checkExpiredMeetups = async (user) => {
@@ -193,14 +193,11 @@ function NotificationPage() {
                         <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
                             <Button color="inherit">Connections</Button>
                         </Link>
-                        <Link href={`/makeRating?username=${encodeURIComponent(username)}`}passHref>
-                            <Button variant='inherit' color="primary"> Make Rating</Button>
-                        </Link>
-                        <Link href={`/madeRatings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button variant='inherit' color="primary">Made Ratings</Button>
+                        <Link href={`/ratings?username=${encodeURIComponent(username)}`} passHref>
+                            <Button  color="inherit"> Ratings</Button>
                         </Link>
                         <Link href={`/reviewings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button variant='inherit' color="primary"> Ratings For Me</Button>
+                            <Button color="inherit"> Ratings For Me</Button>
                         </Link>
                     <Badge badgeContent={count} color="warning">
                     <IconButton

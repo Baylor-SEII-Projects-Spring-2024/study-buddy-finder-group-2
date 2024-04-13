@@ -47,8 +47,8 @@ function ConnectionsPage() {
             username, name
         }
 
-        axios.post(`http://localhost:8080/api/searchUsers/addConnection/${username}`, selectedUser) // for local testing
-            //axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
+        //axios.post(`http://localhost:8080/api/searchUsers/addConnection/${username}`, selectedUser) // for local testing
+            axios.post("http://34.16.169.60:8080/viewMeetups", meeting)
             .then((res) => {
                 if(res.status === 200) {
                     handleCloseProfile();
