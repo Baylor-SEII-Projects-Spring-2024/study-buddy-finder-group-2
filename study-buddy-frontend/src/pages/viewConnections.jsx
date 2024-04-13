@@ -48,7 +48,7 @@ function viewConnectionsPage() {
     const fetchConnections = (user) => {
         console.log("User to fetch for: " + user);
 
-        api.get(`http://34.16.169.60:8080/api/viewConnections/${user}`)
+        api.get(`api/viewConnections/${user}`)
             .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };

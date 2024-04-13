@@ -3,6 +3,7 @@ package studybuddy.api.endpoint;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import studybuddy.api.user.UserService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,14 +41,18 @@ public class MeetupsEndpoint {
     @GetMapping("expiredMeetups/{username}")
     public void checkExpiredMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone){
         System.out.println("CHECKING USER: " + username);
-        LocalDateTime currentTime = LocalDateTime.now();
 
         User user = userService.findByUsernameExists(username);
 
         List<Long> meetingIds = meetingService.findByUserId(user.getId());
         List<Meeting> endedMeetings = new ArrayList<Meeting>();
+        List<Meeting> remindedMeetings = new ArrayList<Meeting>();
 
         ZoneId timeZoneId = ZoneId.of(timeZone);
+        ZonedDateTime currentTime = ZonedDateTime.now(ZoneId.of(timeZone));
+
+        System.out.println("THE CURRENT TIME: " + currentTime.toLocalDateTime().toString());
+
         ZoneId timeZoneUTC = ZoneId.of("UTC");
         meetingIds.forEach(id -> {
             Optional<Meeting> m = meetingService.findById(id);
@@ -54,14 +60,21 @@ public class MeetupsEndpoint {
             m.get().setStartDate(m.get().getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
             m.get().setEndDate(m.get().getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
 
+
             System.out.println("MEETING CHECK: " + m.get().getTitle());
             System.out.println("MEETING EXPIRED?: " + m.get().getExpired());
 
+            long durationUntil = java.time.Duration.between(currentTime, m.get().getStartDate().atZone(ZoneId.of(timeZone))).toMinutes();
+
             // check if meeting ended and they did not create meeting and notif about this meetup hasnt been sent before
-            if(m.get().getEndDate().isBefore(currentTime) && !m.get().getUsername().equals(username)
+            if(m.get().getEndDate().isBefore(currentTime.toLocalDateTime()) && !m.get().getUsername().equals(username)
                     && !m.get().getExpired()){
                 System.out.println("MEETING ENDED: " + m.get().getTitle());
                 endedMeetings.add(m.get());
+            }
+            else if(!m.get().getReminded() && durationUntil >= 0 && durationUntil < 5){
+                System.out.println("MEETING TO REMIND: " + m.get().getTitle());
+                remindedMeetings.add(m.get());
             }
         });
 
@@ -82,6 +95,29 @@ public class MeetupsEndpoint {
 
             // update expired status in database for this meeting
             meeting.setExpired(true);
+            meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+            meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+            meetingService.save(meeting);
+        });
+
+
+        remindedMeetings.forEach(meeting -> {
+            meeting.getAttendees().forEach(attendee -> {
+                // only send notif to attendees, not the creator
+                if(!attendee.getUsername().equals(meeting.getUsername())) {
+                    System.out.println("ATTENDEE: " + attendee.getUsername());
+                    Notification notification = new Notification();
+                    notification.setReciever(attendee);
+                    notification.setSender(userService.findByUsernameExists(meeting.getUsername()));
+                    notification.setTimestamp(new Date());
+                    notification.setNotificationUrl("/invitations");
+                    notification.setNotificationContent("The meetup '" + meeting.getTitle() + "' by '" + meeting.getUsername() + "' is starting soon!");
+                    notificationService.sendNotification(notification);
+                }
+            });
+
+            // update reminded status in database for this meeting
+            meeting.setReminded(true);
             meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
             meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
             meetingService.save(meeting);

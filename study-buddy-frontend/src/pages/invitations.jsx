@@ -8,7 +8,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle, FormControl, InputLabel, MenuItem, Select,
-    Stack,
+    Stack, ToggleButton, ToggleButtonGroup,
     Typography
 } from "@mui/material";
 import axios from "axios";
@@ -16,7 +16,7 @@ import NotificationPage from "@/pages/Notification";
 
 function InvitationsPage() {
     const [thisUser, setThisUser] = useState(null);
-    const [requestType, setRequestType] = useState(null);
+    const [requestType, setRequestType] = useState("incoming");
 
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
@@ -51,18 +51,14 @@ function InvitationsPage() {
 
     // get all connections with isConnected = false
     const fetchInRequests = (user) => {
-        console.log("User to fetch for: " + user);
-
-       api.get(`http://34.16.169.60:8080/api/viewInRequests/${user}`)
+       api.get(`api/viewInRequests/${user}`)
             .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };
 
     // get all connections with isConnected = false
     const fetchOutRequests = (user) => {
-        console.log("User to fetch for: " + user);
-
-        api.get(`http://34.16.169.60:8080/api/viewOutRequests/${user}`)
+        api.get(`api/viewOutRequests/${user}`)
             .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };
@@ -76,12 +72,12 @@ function InvitationsPage() {
         event.preventDefault();
 
         // outgoing
-        if(requestType === "incoming") {
+        if(event.target.value === "incoming") {
             setText("Connect");
             fetchInRequests(thisUser);
         }
         // incoming
-        else if(requestType === "outgoing") {
+        else if(event.target.value === "outgoing") {
             setText("Pending");
             fetchOutRequests(thisUser);
         }
@@ -182,30 +178,28 @@ function InvitationsPage() {
                 </ Card>
 
                 {/* this is the search area, submits a form */}
-                <Box component="form" noValidate onSubmit={handleSubmit}
+                <Box component="form" noValidate
                      sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
                     <Stack spacing={4} direction="row" justifyContent="center">
-                        {/* get requested user type (none, student, tutor) */}
-                        <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-                            <InputLabel required id="requestType">Request Type</InputLabel>
-                            <Select
-                                labelId="select requestType"
-                                id="select requestType"
-                                label="requestType"
-                                onChange={(e) => setRequestType(e.target.value)}
-                            >
-                                <MenuItem value={"incoming"}>Incoming</MenuItem>
-                                <MenuItem value={"outgoing"}>Outgoing</MenuItem>
-                            </Select>
-                        </FormControl>
-
-                        {/* submit the search form to get results */}
-                        <Button
-                            variant='contained'
-                            color="primary"
+                        {/* get request type (incoming or outgoing) */}
+                        <ToggleButtonGroup
+                            color="success"
+                            value={requestType}
+                            exclusive
+                            onChange={(e) => {
+                                setRequestType(e.target.value);
+                                handleSubmit(e);
+                            }}
+                            label="request type"
                             type="submit"
                         >
-                            Search</Button>
+                            <ToggleButton value={"incoming"}>
+                                Incoming
+                            </ToggleButton>
+                            <ToggleButton value={"outgoing"}>
+                                Outgoing
+                            </ToggleButton>
+                        </ToggleButtonGroup>
                     </Stack>
                 </Box>
 
@@ -241,14 +235,6 @@ function InvitationsPage() {
                         </CardContent>
                     </Card>
                 ))}
-
-                {/* add button back to user's landing page */}
-                {/*<Button
-                    variant="outlined"
-                    color="error"
-                    href="/"
-                >
-                    Back</Button>*/}
 
             </Stack>
 
