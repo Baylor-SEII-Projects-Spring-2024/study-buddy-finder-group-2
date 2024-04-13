@@ -17,6 +17,9 @@ public class Profile { //ok
     @Column(name = "PROFILE_ID")
     Long id;
 
+    @Column(name = "PICTURE_URL")
+    String pictureUrl;
+
     @Column(name = "USERNAME")
     String username;
 

@@ -3,6 +3,7 @@ import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActio
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
+import Avatar from '@mui/material/Avatar';
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -13,6 +14,7 @@ function MyInfoPage() {
   const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
   const [bio, setBio] = useState('');
+  const [pictureUrl, setPictureUrl] = useState('');
   const [username, setUsername] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [userCourses, setUserCourses] = useState([]);
@@ -60,13 +62,17 @@ function MyInfoPage() {
           .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
   };
 
+  const handleProfilePic = (pic) => {
+    setPictureUrl(pic);
+  }
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     const profile = {
-      id, username, bio
+      id, username, bio, pictureUrl
     }
 
     api.put("me", profile)
@@ -104,12 +110,14 @@ function MyInfoPage() {
         <NotificationPage></NotificationPage><br/>
 
       {user && profile ? (
-        <Card sx={{ width: 1200, margin: 'auto', height: 400, marginTop: '125px', marginBottom: '10px'}} elevation={4}>
+        <Card sx={{ width: 1200, margin: 'auto', height: 'auto', marginTop: '50px', marginBottom: '10px'}} elevation={4}>
           <CardContent>
 
             {/* Name and username */}
             <Grid container alignItems="center">
               <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
+                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
+
                 <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                 <div style={{ color: 'gray' }}>@{user.username}</div>
               </Grid>
@@ -172,6 +180,14 @@ function MyInfoPage() {
             defaultValue={profile?.bio || ''}
             onChange={(e) => setBio(e.target.value)}
           />
+
+          <div>Profile Picture</div>
+          <div style={{ display: 'flex' }}>
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.jpg')} src="/devil.jpg" />
+          </div>
 
         </DialogContent>
 
