@@ -21,8 +21,8 @@ function MyInfoPage() {
   const [connectionCount, setConnectionCount] = useState(0);
 
   const api = axios.create({
-    baseURL: 'http://localhost:8080/'
-    //baseURL: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/'
+    baseURL: 'http://34.16.169.60:8080/'
   });
 
   const fetchUser = (user) => {
