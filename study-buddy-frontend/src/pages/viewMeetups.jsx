@@ -30,8 +30,8 @@ function MeetupsPage() {
     const [courses, setCourses] = useState([]);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/'
+        //baseURL: 'http://34.16.169.60:8080/'
     });
 
     useEffect(() => {
@@ -74,6 +74,12 @@ function MeetupsPage() {
         // prevents page reload
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+
+        // check if start and end date are complete
+        if(isNaN(new Date(startDate)) || isNaN(new Date(endDate))) {
+            alert("Please select valid start and end dates.");
+            return;
+        }
 
         // validate start and end times
         if(new Date(endDate) <= new Date(startDate)) {
@@ -349,7 +355,7 @@ function MeetupsPage() {
 
                                 {/* appears when meetup you created is expired and you want to delete it */}
                                 {meetup.username === username && new Date(meetup.endDate) <= new Date() ? (
-                                    <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleDeleteExpire(meetup)}>
+                                    <Button variant='contained' size="small" style={{ backgroundColor: 'red', color:  'white' }} onClick={() => handleDeleteExpire(meetup)}>
                                         Delete Meetup
                                     </Button>
                                 ) : (null)}
