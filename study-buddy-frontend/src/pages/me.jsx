@@ -7,7 +7,7 @@ import Avatar from '@mui/material/Avatar';
 
 //This is the page that the user themself sees (able to edit and such)
 
-//TODO: Display profile pictures, links
+//TODO: Display links
 
 function MyInfoPage() {
   const [user, setUser] = useState(null);
@@ -18,10 +18,11 @@ function MyInfoPage() {
   const [username, setUsername] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [userCourses, setUserCourses] = useState([]);
+  const [connectionCount, setConnectionCount] = useState(0);
 
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    baseURL: 'http://localhost:8080/'
+    //baseURL: 'http://34.16.169.60:8080/'
   });
 
   const fetchUser = (user) => {
@@ -35,7 +36,6 @@ function MyInfoPage() {
   const fetchProfile = (user) => {
     console.log("Profile to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
     api.get(`profile/${user}`)
       .then(data => setProfile(data.data))
       .catch(error => console.error('Error fetching profile:', error));
@@ -50,7 +50,18 @@ function MyInfoPage() {
         fetchUser(user);
         fetchProfile(user);
         fetchUserCourses(user);
+        fetchConnectionCount(user);
     }, []);
+
+    const fetchConnectionCount = (user) => {
+
+      api.get(`/api/viewConnections/getConnectionCount/${user}`)
+          .then(data =>{
+              setConnectionCount(data.data)
+              console.log(data.data);}
+          )
+          .catch(error => console.error(`Error fetching connection count`, error));
+  };
 
   const fetchUserCourses = (user) => {
 
@@ -120,6 +131,19 @@ function MyInfoPage() {
 
                 <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                 <div style={{ color: 'gray' }}>@{user.username}</div>
+                <br/>
+                <div style={{ marginRight: '10px'}}>
+                  <span style={{ fontWeight: 'bold' }}>
+                    {connectionCount === 1 ? '1 ' : `${connectionCount} `}
+                  </span>
+                  <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                    {connectionCount === 1 ? 'connection' : 'connections'}
+                  </span>
+                </div>
+
+
+
+
               </Grid>
 
               <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px'}}>

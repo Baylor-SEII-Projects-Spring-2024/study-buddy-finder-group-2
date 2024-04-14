@@ -14,8 +14,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
-@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class viewConnectionsEndpoint {
 
     @Autowired
@@ -63,5 +63,15 @@ public class viewConnectionsEndpoint {
     )
     public Connection getConnection(@PathVariable String username, @RequestBody String requested) {
         return connectionService.getConnection(username, requested);
+    }
+
+    @RequestMapping (
+            value = "/api/viewConnections/getConnectionCount/{username}",
+            method = RequestMethod.GET
+    )
+    public int getConnectionCount(@PathVariable String username) {
+        System.out.println("USERNAME FOR CONNECTION COUNT: " + username);
+        System.out.println("CONNECTION COUNT: " + connectionService.getConnectionCount(username));
+        return connectionService.getConnectionCount(username);
     }
 }
