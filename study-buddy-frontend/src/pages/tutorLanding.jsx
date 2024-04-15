@@ -60,12 +60,6 @@ function TutorLandingPage() {
                         </Link>
 
                         
-                        <Link href={`/reviewings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button variant='contained' color="primary"> Ratings For Me</Button>
-                        </Link>
-                        <Link href={`/ratings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button variant='contained' color="primary"> Ratings</Button>
-                        </Link>
                         <Link href={`/Notification?username=${encodeURIComponent(username)}`} passHref>
                             <Button variant='contained' color="primary"> Notifications</Button>
                         </Link>

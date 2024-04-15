@@ -15,12 +15,12 @@ import {
     List,
     Checkbox,
     ThemeProvider,
-    createTheme
+    createTheme, Tooltip
 } from '@mui/material';
 
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 import Link from "next/link";
 
 function NotificationPage() {
@@ -29,14 +29,15 @@ function NotificationPage() {
     const [count, setCount] = useState(0);
     const [notificationList, setNotifList] = useState(null);
     const [notif, selectNotif] = useState(null)
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = React.useState(null)
+    const [anchorEl2, setAnchorEl2] = React.useState(null);
     const [ref, setRef] = useState("/login");
 
     const theme = createTheme({
         palette: {
             primary: { main: '#a0c334' },
-            secondary: { main: '#ffd700' }
-        }
+            secondary: { main: '#ffd700' },
+        },
     });
 
 
@@ -135,12 +136,20 @@ function NotificationPage() {
     }
 
 
-    const handleOpen = () => {
-        setAnchorEl(event.currentTarget);
+    const handleNotifOpen = (e) => {
+        setAnchorEl(e.currentTarget);
     }
 
-    const handleClose = () => {
+    const handleNotifClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleProfileOpen = (e) => {
+        setAnchorEl2(e.currentTarget);
+    }
+
+    const handleProfileClose = () => {
+        setAnchorEl2(null);
     };
 
     const empty = () => {
@@ -153,10 +162,8 @@ function NotificationPage() {
         <ThemeProvider theme={theme}>
         <Box>
             <AppBar  style={{
-                width: "93.5%",
-                right: "3.2%",
-                border: "2px solid white",
-                borderRadius: "30px"
+
+                boxShadow: "none"
             }}>
                 <Toolbar>
 
@@ -167,10 +174,6 @@ function NotificationPage() {
                     </Typography>
 
                     <div>
-                        <Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">My Profile</Button>
-                        </Link>
-
                         <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
                             <Button color="inherit">Invitations</Button>
                         </Link>
@@ -193,40 +196,30 @@ function NotificationPage() {
                         <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
                             <Button color="inherit">Connections</Button>
                         </Link>
-                        <Link href={`/ratings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button  color="inherit"> Ratings</Button>
-                        </Link>
-                        <Link href={`/reviewings?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit"> Ratings For Me</Button>
-                        </Link>
                     <Badge badgeContent={count} color="warning">
-                    <IconButton
-                        aria-label="notifications of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        size="large"
-                        onClick={handleOpen}
-                        color="inherit">
-                        <NotificationsIcon/>
-                    </IconButton>
+                        <Tooltip title={"notifications"}>
+                            <IconButton
+                                aria-label="notifications of current user"
+                                aria-controls="menu-appbar"
+                                aria-haspopup="true"
+                                size="large"
+                                onClick={(e) => handleNotifOpen(e)}
+                                color="inherit">
+                                <NotificationsIcon/>
+                            </IconButton>
+                        </Tooltip>
                     </Badge>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            sx={{ minWidth: 250}}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <List component="notifications" aria-label="notifications">
+                        <Menu anchorEl={anchorEl}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted
+                              sx={{ minWidth: 250,
+                                    maxWidth: 300,
+                                    maxHeight: 300}}
+                              open={Boolean(anchorEl)}
+                              onClose={handleNotifClose}>
+                            <List
+                              id="notification-appbar" component="notifications" aria-label="notifications">
                                 {(notificationList === null || notificationList.length === 0) ? empty()
                                  : notificationList.map((value) => {
                                     const labelId = `checkbox-list-label-${value.notificationId}`;
@@ -258,12 +251,30 @@ function NotificationPage() {
                                             }}>
                                                 X
                                             </Button>
-
                                         </MenuItem>
                                     );
                                 })}
                             </List>
                         </Menu>
+                        <Tooltip title={"profile"}>
+                            <IconButton onClick={(e) => handleProfileOpen(e)}>
+                                <AccountCircle/>
+                            </IconButton>
+                        </Tooltip>
+                            <Menu anchorEl={anchorEl2}
+                                  open={Boolean(anchorEl2)}
+                                  onClose={handleProfileClose}
+                                  anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                  transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                                  keepMounted>
+                                <MenuItem><Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
+                                    My Profile
+                                </Link></MenuItem>
+                                <MenuItem><Link href={`/`} passHref>
+                                    Logout
+                                </Link></MenuItem>
+                            </Menu>
+
                     </div>
                 </Toolbar>
             </AppBar>

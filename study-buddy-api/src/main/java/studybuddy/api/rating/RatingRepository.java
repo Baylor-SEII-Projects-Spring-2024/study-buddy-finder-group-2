@@ -19,7 +19,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     @Query(value = "SELECT * FROM ratings WHERE rating_id = ?1", nativeQuery = true)
     public Optional<Rating> findRatingByID(Long id);
 
-    @Query(value = "SELECT AVG(rating_score) FROM ratings WHERE ratedUser = ?1 AND rating_score IS NOT NULL", nativeQuery = true)
+    @Query(value = "SELECT AVG(rating_score) FROM ratings WHERE rated_User = ?1 AND rating_score IS NOT NULL", nativeQuery = true)
     public Double getRatingScore(String targetUser);
 
     @Query(value = "SELECT * FROM ratings WHERE RATED_USER = ?1 AND rating_score IS NOT NULL", nativeQuery = true)

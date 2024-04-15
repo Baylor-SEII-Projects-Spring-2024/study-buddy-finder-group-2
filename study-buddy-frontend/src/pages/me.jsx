@@ -1,161 +1,194 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
+import { Button, Grid, Card, CardContent, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
-
-//This is the page that the user themself sees (able to edit and such)
-
-//TODO: Display profile pictures, links
-
+import Rating from '@mui/material/Rating';
 function MyInfoPage() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
   const [bio, setBio] = useState('');
   const [username, setUsername] = useState(null);
-  const [profilePic, setProfilePic] = useState(null);
+  const [ratingScore, setRatingScore] = useState(0);
   const [userCourses, setUserCourses] = useState([]);
-
+  const [ratings, setRatings] = useState([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const api = axios.create({
     //baseURL: 'http://localhost:8080/'
     baseURL: 'http://34.16.169.60:8080/'
   });
 
-  const fetchUser = (user) => {
-    console.log("User to fetch for: " + user);
-
-    api.get(`me/${user}`)
-      .then(data => setUser(data.data))
-      .catch(error => console.error('Error fetching user:', error));
-  };
-
-  const fetchProfile = (user) => {
-    console.log("Profile to fetch for: " + user);
-
-    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
-    api.get(`profile/${user}`)
-      .then(data => setProfile(data.data))
-      .catch(error => console.error('Error fetching profile:', error));
-  };
-
   useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-        user = params.get("username");
+    const params = new URLSearchParams(window.location.search),
+      user = params.get("username");
 
-        setUsername(user);
+    setUsername(user);
 
-        fetchUser(user);
-        fetchProfile(user);
-        fetchUserCourses(user);
-    }, []);
+    const fetchData = async () => {
+      await fetchUser(user);
+      await fetchProfile(user);
+      await fetchUserCourses(user);
+      await fetchRatingsForMe(user);
+      await fetchAverageScore(user);
+    };
 
-  const fetchUserCourses = (user) => {
+    fetchData();
+  }, []);
 
-      api.get(`api/get-courses-user/${user}`)
-          .then(data =>{
-              setUserCourses(data.data)
-              console.log(data.data);}
-          )
-          .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
+  const fetchUser = async (user) => {
+    try {
+      const res = await api.get(`me/${user}`);
+      setUser(res.data);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
   };
 
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
-    const profile = {
-      id, username, bio
+  const fetchProfile = async (user) => {
+    try {
+      const res = await api.get(`profile/${user}`);
+      setProfile(res.data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
+  };
 
-    api.put("me", profile)
-      .then((res) => {
-        if (res.status === 200) {
-          handleSettingsClose();
-          fetchProfile(username);
-        }
-      })
-      .catch((err) => {
-        console.log("ERROR UPDATING PROFILE.");
-        console.log(err);
-      });
-  }
-  
+  const fetchAverageScore = async (user) => {
+    try {
+      const res = await api.get(`averageRating/${user}`);
+      setRatingScore(res.data);
+    } catch (error) {
+      console.error('Error fetching average rating:', error);
+    }
+  };
 
+  const fetchRatingsForMe = async (user) => {
+    try {
+      const res = await api.get(`viewRatingsForMe/${user}`);
+      setRatings(res.data);
+    } catch (error) {
+      console.error('Error fetching ratings:', error);
+    }
+  };
 
-  //DIALOG (Settings)
-  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const fetchUserCourses = async (user) => {
+    try {
+      const res = await api.get(`api/get-courses-user/${user}`);
+      setUserCourses(res.data);
+    } catch (error) {
+      console.error(`Error fetching ${username}'s courses:`, error);
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const profileData = {
+      id,
+      username,
+      bio
+    };
+
+    try {
+      const res = await api.put("me", profileData);
+      if (res.status === 200) {
+        handleSettingsClose();
+        fetchProfile(username);
+      }
+    } catch (err) {
+      console.error("ERROR UPDATING PROFILE:", err);
+    }
+  };
 
   const handleSettingsOpen = () => {
-      setSettingsOpen(true);
-      setId(profile.id);
-      setBio(profile.bio);
-      setProfilePic(profile.profilePic);
+    setSettingsOpen(true);
+    setId(profile.id);
+    setBio(profile.bio);
   };
 
   const handleSettingsClose = () => {
-      setSettingsOpen(false);
+    setSettingsOpen(false);
   };
-  
 
   return (
     <div>
-        <NotificationPage></NotificationPage><br/>
+      <NotificationPage></NotificationPage><br/>
 
-      {user && profile ? (
-        <Card sx={{ width: 1200, margin: 'auto', height: 400, marginTop: '125px', marginBottom: '10px'}} elevation={4}>
+      {user && profile && (
+        <Card sx={{ width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
           <CardContent>
-
-            {/* Name and username */}
             <Grid container alignItems="center">
-              <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
-                <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
+              <Grid item sx={{ marginLeft: '100px', marginTop: '40px' }}>
+                <strong style={{ fontSize: '20px' }}>{user.firstName} {user.lastName}</strong>
                 <div style={{ color: 'gray' }}>@{user.username}</div>
               </Grid>
 
-              <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px'}}>
-                {/* <Button variant='contained' color="primary" onClick={handleSettingsOpen}>Edit Profile</Button> */}
+              <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
                 <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
               </Grid>
             </Grid>
             <br />
 
-            <Typography variant="body1" style={{ marginLeft: '100px'}}>
+            <Typography variant="body1" style={{ marginLeft: '100px' }}>
               {profile.bio}
             </Typography>
 
-            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px'}}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+              <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                Average Rating Score:
+              </Typography>
+              <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+            </div>
+            {ratings.length > 0 ? (
+              ratings.map((rating, index) => (
+                <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                  <CardContent>
+                    <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                      Rating from {rating.ratingUser.username}
+                    </Typography>
+                    <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                      Meeting: {rating.meetingTitle}
+                    </Typography>
+                    <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                      {rating.score} / 5 Stars
+                    </Typography>
+                    <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                      Review: {rating.review}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Typography variant="body1" align="center">
+                No ratings available.
+              </Typography>
+            )}
+
+            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
               Courses
             </Typography>
-
             {userCourses && userCourses.length > 0 ? (
               userCourses.map((course, index) => (
-                <div key={index} style={{ marginLeft: '100px', color: 'gray'}}>
+                <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
                   {course.coursePrefix} {course.courseNumber}
                 </div>
-              )))
-            : (
-              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px'}}>
+              ))
+            ) : (
+              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
                 Not enrolled in any courses.
               </Typography>
             )}
           </CardContent>
         </Card>
+      )}
 
-      ) : null}
-
-
-      {/* SETTINGS DIALOG BOX */}
-            <Dialog
-                open={settingsOpen}
-                onClose={handleSettingsClose}
-                component="form" validate="true" onSubmit={handleSubmit}
-            >
-
+      <Dialog
+        open={settingsOpen}
+        onClose={handleSettingsClose}
+        component="form" validate="true" onSubmit={handleSubmit}
+      >
         <DialogTitle>Profile Settings</DialogTitle>
         <DialogContent>
-
           <DialogContentText>
             Edit your profile.
           </DialogContentText>
@@ -172,16 +205,13 @@ function MyInfoPage() {
             defaultValue={profile?.bio || ''}
             onChange={(e) => setBio(e.target.value)}
           />
-
         </DialogContent>
 
         <DialogActions>
-            <Button onClick={handleSettingsClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
+          <Button onClick={handleSettingsClose}>Cancel</Button>
+          <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
         </DialogActions>
-        
-        </Dialog>
-
+      </Dialog>
     </div>
   );
 }

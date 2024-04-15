@@ -103,7 +103,20 @@ public class RatingsEndpoint {
         }
         return ResponseEntity.ok(ratings);
     }
+    @GetMapping("/averageRating/{username}")
+    public ResponseEntity<Double> getAvgRating(@PathVariable String username){
+        System.out.println("finding " + username);
+        User ratedUser = userService.findByUsername(username).orElse(null);
+        if (ratedUser == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
 
+
+        Double avgScore = ratingService.getRatingScore(ratedUser.getUsername());
+        System.out.println("average rating is " + avgScore);
+        return ResponseEntity.ok(avgScore);
+    }
     @GetMapping("/viewRating/{ratingId}")
     public Optional<Rating> getRating(@PathVariable long ratingId) {
         return ratingService.findRatingByID(ratingId);
