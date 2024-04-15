@@ -17,7 +17,6 @@ import {
     ThemeProvider,
     createTheme, Tooltip
 } from '@mui/material';
-
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -213,9 +212,8 @@ function NotificationPage() {
                               anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                               transformOrigin={{vertical: 'top', horizontal: 'right'}}
                               keepMounted
-                              sx={{ minWidth: 250,
-                                    maxWidth: 300,
-                                    maxHeight: 300}}
+                              sx={{ minWidth: 250, maxWidth: 400,
+                                    maxHeight: 400}}
                               open={Boolean(anchorEl)}
                               onClose={handleNotifClose}>
                             <List
@@ -224,7 +222,9 @@ function NotificationPage() {
                                  : notificationList.map((value) => {
                                     const labelId = `checkbox-list-label-${value.notificationId}`;
                                     return (
-                                        <MenuItem
+                                        <MenuItem sx={{width:300,
+                                            whiteSpace: "normal",
+                                            }}
                                             selected={ notif === value}
                                         >
                                             <Checkbox checked={value.read}
@@ -248,9 +248,7 @@ function NotificationPage() {
                                                 selectNotif(value);
                                                 deleteNotif(value);
                                                 notificationList.splice(notificationList.indexOf(value),1);
-                                            }}>
-                                                X
-                                            </Button>
+                                            }}>X</Button>
                                         </MenuItem>
                                     );
                                 })}
