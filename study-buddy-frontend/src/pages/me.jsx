@@ -4,20 +4,44 @@ import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
 import Rating from '@mui/material/Rating';
+import Avatar from '@mui/material/Avatar';
+
+//This is the page that the user themself sees (able to edit and such)
+
+//TODO: Display links
+
 function MyInfoPage() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
   const [bio, setBio] = useState('');
+  const [pictureUrl, setPictureUrl] = useState('');
   const [username, setUsername] = useState(null);
   const [ratingScore, setRatingScore] = useState(0);
   const [userCourses, setUserCourses] = useState([]);
+  const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const api = axios.create({
     //baseURL: 'http://localhost:8080/'
     baseURL: 'http://34.16.169.60:8080/'
   });
+
+  const fetchUser = (user) => {
+    console.log("User to fetch for: " + user);
+
+    api.get(`me/${user}`)
+      .then(data => setUser(data.data))
+      .catch(error => console.error('Error fetching user:', error));
+  };
+
+  const fetchProfile = (user) => {
+    console.log("Profile to fetch for: " + user);
+
+    api.get(`profile/${user}`)
+      .then(data => setProfile(data.data))
+      .catch(error => console.error('Error fetching profile:', error));
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search),
@@ -29,12 +53,23 @@ function MyInfoPage() {
       await fetchUser(user);
       await fetchProfile(user);
       await fetchUserCourses(user);
+        fetchConnectionCount(user);
       await fetchRatingsForMe(user);
       await fetchAverageScore(user);
     };
 
     fetchData();
   }, []);
+
+    const fetchConnectionCount = (user) => {
+
+      api.get(`/api/viewConnections/getConnectionCount/${user}`)
+          .then(data =>{
+              setConnectionCount(data.data)
+              console.log(data.data);}
+          )
+          .catch(error => console.error(`Error fetching connection count`, error));
+  };
 
   const fetchUser = async (user) => {
     try {
@@ -81,12 +116,17 @@ function MyInfoPage() {
     }
   };
 
+  const handleProfilePic = (pic) => {
+    setPictureUrl(pic);
+  }
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const profileData = {
       id,
       username,
-      bio
+      bio, pictureUrl
     };
 
     try {
@@ -118,9 +158,24 @@ function MyInfoPage() {
         <Card sx={{ width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
           <CardContent>
             <Grid container alignItems="center">
-              <Grid item sx={{ marginLeft: '100px', marginTop: '40px' }}>
-                <strong style={{ fontSize: '20px' }}>{user.firstName} {user.lastName}</strong>
+              <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
+                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
+
+                <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                 <div style={{ color: 'gray' }}>@{user.username}</div>
+                <br/>
+                <div style={{ marginRight: '10px'}}>
+                  <span style={{ fontWeight: 'bold' }}>
+                    {connectionCount === 1 ? '1 ' : `${connectionCount} `}
+                  </span>
+                  <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                    {connectionCount === 1 ? 'connection' : 'connections'}
+                  </span>
+                </div>
+
+
+
+
               </Grid>
 
               <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
@@ -205,6 +260,15 @@ function MyInfoPage() {
             defaultValue={profile?.bio || ''}
             onChange={(e) => setBio(e.target.value)}
           />
+
+          <div>Profile Picture</div>
+          <div style={{ display: 'flex' }}>
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.jpg')} src="/devil.jpg" />
+          </div>
+
         </DialogContent>
 
         <DialogActions>

@@ -206,15 +206,51 @@ function SearchMeetupsPage() {
                     {recommendedMeetups.filter(r => new Date(r.startDate) > new Date()).map((meetup, index) => (
                         <Card key={index} sx={{ mb: 2 }} elevation={6}>
                             <CardContent>
-                                <Typography><strong>Title:</strong> {meetup.title}</Typography>
-                                <Typography><strong>Start:</strong> {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')}</Typography>
-                                <Typography><strong>End:</strong> {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</Typography>
-                                <Typography><strong>Description:</strong> {meetup.description}</Typography>
-                                <Button variant='contained' id={`join-button-${meetup.id}`} color="primary" size="small" onClick={() => {
-                                    handleJoin(meetup);
-                                }}>
-                                    Join Meetup
-                                </Button>
+                            <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold', fontSize: '20px' }}>{meetup.title}</Typography>
+
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '5px'}}>
+                                <PersonIcon sx={{ fontSize: '20px', marginRight: '5px' }} />
+                                <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', fontSize: '14px' }}>@{meetup.username}</span>
+                            </div>
+
+                            <br />
+
+                            <span style={{ marginLeft: '20px', fontSize: '14px' }}>{meetup.description}</span>
+
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '5px'}}>
+                                <CreateIcon sx={{ fontSize: '20px', marginRight: '5px' }} />
+                                <span style={{ fontSize: '14px' }}>{meetup.subject}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '5px'}}>
+                                <EventIcon sx={{ fontSize: '20px', marginRight: '5px' }} />
+                                <span style={{ fontSize: '14px' }}>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '5px'}}>
+                                <LocationOnIcon sx={{ fontSize: '20px', marginRight: '5px' }} />
+                                <span style={{ fontSize: '14px' }}>{meetup.location}</span>
+                            </div>
+
+                            <br />
+
+                            <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '5px'}}>Attendees</Typography>
+                            <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
+                                {meetup.attendees.map((attendee, index) => (
+                                    <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '10px', fontSize: '12px' }}>{attendee.username}</li>
+                                ))}
+                            </ul>
+
+                            {meetup.attendees.some(attendee => attendee.username === currentUser) ? (
+                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
+                                Leave Meetup
+                            </Button>
+                        ) : (
+                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)}>
+                                Join Meetup
+                            </Button>
+                        )}
+
                             </CardContent>
                         </Card>
                     ))}
@@ -286,46 +322,45 @@ function SearchMeetupsPage() {
                                 )}
                             </div>
                         <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{meetup.title}</Typography>
-                                    
-                                    {/* TODO: FIX INDENTATION */}
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
-                                    </div>
+                        
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
+                            </div>
 
-                                    <br />
-
-                                    
-                                    <span style={{ marginLeft: '30px'}}>{meetup.description}</span>
-                                    
-
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{meetup.subject}</span>
-                                    </div>
-                                    
-
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
-                                    </div>
+                            <br />
 
                                     
+                            <span style={{ marginLeft: '30px'}}>{meetup.description}</span>
+                                    
 
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{meetup.location}</span>
-                                    </div>
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                <span>{meetup.subject}</span>
+                            </div>
+                                    
 
-                                    <br />
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                <span>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                            </div>
 
                                     
-                                    <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px'}}>Attendees</Typography>
-                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
-                                        {meetup.attendees.map((attendee, index) => (
-                                            <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
-                                        ))}
-                                    </ul>
+
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                <span>{meetup.location}</span>
+                            </div>
+
+                            <br />
+
+                                    
+                            <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px'}}>Attendees</Typography>
+                            <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                {meetup.attendees.map((attendee, index) => (
+                                    <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
+                                ))}
+                            </ul>
 
                         {meetup.attendees.some(attendee => attendee.username === currentUser) ? (
                             <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>

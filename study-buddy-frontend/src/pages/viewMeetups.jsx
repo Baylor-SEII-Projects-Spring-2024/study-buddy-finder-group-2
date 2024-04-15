@@ -75,6 +75,12 @@ function MeetupsPage() {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
+        // check if start and end date are complete
+        if(isNaN(new Date(startDate)) || isNaN(new Date(endDate))) {
+            alert("Please select valid start and end dates.");
+            return;
+        }
+
         // validate start and end times
         if(new Date(endDate) <= new Date(startDate)) {
             alert("End times cannot occur before or on start times.");
@@ -349,7 +355,7 @@ function MeetupsPage() {
 
                                 {/* appears when meetup you created is expired and you want to delete it */}
                                 {meetup.username === username && new Date(meetup.endDate) <= new Date() ? (
-                                    <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleDeleteExpire(meetup)}>
+                                    <Button variant='contained' size="small" style={{ backgroundColor: 'red', color:  'white' }} onClick={() => handleDeleteExpire(meetup)}>
                                         Delete Meetup
                                     </Button>
                                 ) : (null)}

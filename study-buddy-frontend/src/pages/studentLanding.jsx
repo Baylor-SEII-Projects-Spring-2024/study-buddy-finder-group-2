@@ -4,28 +4,46 @@ import Head from "next/head";
 import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
+import axios from "axios";
+import {useRouter} from "next/router";
+import SearchUsersPage from "@/pages/searchUsers";
 
 function StudentLandingPage() {
-    var [username, setUsername] = useState(null);
-    useEffect(() => {
-        console.log(window.location.search);
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
+    const [username, setUsername] = useState(null);
+    const [user, setUser] = useState(null);
+    const api = axios.create({
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
+    });
+    const router = useRouter();
 
-            setUsername(user);
-    }, []);
+    useEffect( ()  => {
+        const params = new URLSearchParams(window.location.search),
+            name = params.get("username");
+        setUsername(name);
+        console.log(username);
+
+        api.get(`users/${name}`)
+            .then((res) => {
+                setUser(res.data);
+                console.log(res.data);
+            })
+            .catch((err) => {
+                window.alert("User not found");
+            })
+    }, [])
     console.log("hi " + username);
 
     return (
         <>
             <Head>
-                <title>LandingPage (Student)</title>
+                <title>Home - (Student)</title>
             </Head>
 
             <main>
                 <NotificationPage></NotificationPage> <br/>
                 <Stack sx={{paddingTop: 4}} alignItems='center' gap={2}>
-                    <Card sx={{width: 600}} elevation={4}>
+                    <Card sx={{width: 600}} elevation={1}>
                         <CardContent>
                             <Typography variant='h4' align='center'>Welcome {username}!</Typography>
                             <Typography variant='b1' align='center'>This is Study Buddies. Find fellow students and
@@ -74,7 +92,6 @@ function StudentLandingPage() {
                     </Stack>
 
                 </Stack>
-
                 <Box sx={{paddingTop: 60, paddingLeft: 70}}>
                     <Typography variant="s2">By: StuCon</Typography>
                 </Box>
