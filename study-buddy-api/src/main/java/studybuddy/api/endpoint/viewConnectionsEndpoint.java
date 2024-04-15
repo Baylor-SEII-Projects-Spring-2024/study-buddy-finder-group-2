@@ -64,4 +64,14 @@ public class viewConnectionsEndpoint {
     public Connection getConnection(@PathVariable String username, @RequestBody String requested) {
         return connectionService.getConnection(username, requested);
     }
+
+    @RequestMapping (
+            value = "/api/viewConnections/getConnectionCount/{username}",
+            method = RequestMethod.GET
+    )
+    public int getConnectionCount(@PathVariable String username) {
+        System.out.println("USERNAME FOR CONNECTION COUNT: " + username);
+        System.out.println("CONNECTION COUNT: " + connectionService.getConnectionCount(username));
+        return connectionService.getConnectionCount(username);
+    }
 }
