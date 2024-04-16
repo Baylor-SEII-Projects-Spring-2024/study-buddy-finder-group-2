@@ -190,7 +190,7 @@ function MyInfoPage() {
                       Meeting: {rating.meetingTitle}
                     </Typography>
                     <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                      {rating.score} / 5 Stars
+                    <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
                     </Typography>
                     <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
                       Review: {rating.review}
