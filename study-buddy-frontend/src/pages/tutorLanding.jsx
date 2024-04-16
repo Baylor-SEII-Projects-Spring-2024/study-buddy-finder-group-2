@@ -3,32 +3,15 @@ import Head from "next/head";
 import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
-import axios from "axios";
-import {useRouter} from "next/router";
 
 function TutorLandingPage() {
     var [username, setUsername] = useState(null);
-    const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
-    });
-    const router = useRouter();
-
-    useEffect( ()  => {
+    useEffect(() => {
+        console.log(window.location.search);
         const params = new URLSearchParams(window.location.search),
-            name = params.get("username");
-        setUsername(name);
-        console.log(username);
-
-        api.get(`users/${name}`)
-            .then((res) => {
-                setUser(res.data);
-                console.log(res.data);
-            })
-            .catch((err) => {
-                window.alert("User not found");
-            })
-    }, [
+            user = params.get("username");
+        setUsername(user);
+    }, []);
     console.log("hi " + username);
 
     return (

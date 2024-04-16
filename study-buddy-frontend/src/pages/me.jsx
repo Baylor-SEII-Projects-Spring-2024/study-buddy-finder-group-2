@@ -27,21 +27,7 @@ function MyInfoPage() {
     baseURL: 'http://34.16.169.60:8080/'
   });
 
-  const fetchUser = (user) => {
-    console.log("User to fetch for: " + user);
-
-    api.get(`me/${user}`)
-      .then(data => setUser(data.data))
-      .catch(error => console.error('Error fetching user:', error));
-  };
-
-  const fetchProfile = (user) => {
-    console.log("Profile to fetch for: " + user);
-
-    api.get(`profile/${user}`)
-      .then(data => setProfile(data.data))
-      .catch(error => console.error('Error fetching profile:', error));
-  };
+  
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search),
@@ -60,6 +46,21 @@ function MyInfoPage() {
 
     fetchData();
   }, []);
+  const fetchUser = (user) => {
+    console.log("User to fetch for: " + user);
+
+    api.get(`me/${user}`)
+      .then(data => setUser(data.data))
+      .catch(error => console.error('Error fetching user:', error));
+  };
+
+  const fetchProfile = (user) => {
+    console.log("Profile to fetch for: " + user);
+
+    api.get(`profile/${user}`)
+      .then(data => setProfile(data.data))
+      .catch(error => console.error('Error fetching profile:', error));
+  };
 
     const fetchConnectionCount = (user) => {
 
@@ -71,23 +72,7 @@ function MyInfoPage() {
           .catch(error => console.error(`Error fetching connection count`, error));
   };
 
-  const fetchUser = async (user) => {
-    try {
-      const res = await api.get(`me/${user}`);
-      setUser(res.data);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-    }
-  };
-
-  const fetchProfile = async (user) => {
-    try {
-      const res = await api.get(`profile/${user}`);
-      setProfile(res.data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
+  
 
   const fetchAverageScore = async (user) => {
     try {
