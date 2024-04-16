@@ -171,7 +171,7 @@ function ConnectionsPage() {
                         Connect</Button>
                 </DialogActions>
             </Dialog>
-=        </div>
+           </div>
     );
 }
 
