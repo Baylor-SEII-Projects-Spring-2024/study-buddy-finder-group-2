@@ -24,8 +24,8 @@ function RatingsPage() {
   const [ratings, setRatings] = useState([]);
   const [openEdit, setOpenEdit] = useState(false); 
   const api = axios.create({
-    baseURL: 'http://localhost:8080/'
-    //baseUrl: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/'
+    baseUrl: 'http://34.16.169.60:8080/'
   });
 
   // get the user's username
