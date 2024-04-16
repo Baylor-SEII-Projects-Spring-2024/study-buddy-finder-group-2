@@ -74,12 +74,12 @@ function InvitationsPage() {
         // prevents page reload
         event.preventDefault();
 
-        // outgoing
+        // incoming
         if(event.target.value === "incoming") {
             setText("Connect");
             fetchInRequests(thisUser);
         }
-        // incoming
+        // outgoing
         else if(event.target.value === "outgoing") {
             setText("Pending");
             fetchOutRequests(thisUser);
@@ -161,7 +161,7 @@ function InvitationsPage() {
             .then((res) => {
                 console.log("REQUEST CANCELLED.");
                 if(res.status === 200) {
-                    fetchInRequests(thisUser);
+                    fetchOutRequests(thisUser);
                 }
             })
             .catch((err) => {
