@@ -36,10 +36,10 @@ function MyInfoPage() {
     setUsername(user);
 
     const fetchData = async () => {
-      await fetchUser(user);
-      await fetchProfile(user);
+      fetchUser(user);
+      fetchProfile(user);
       await fetchUserCourses(user);
-        fetchConnectionCount(user);
+      fetchConnectionCount(user);
       await fetchRatingsForMe(user);
       await fetchAverageScore(user);
     };
