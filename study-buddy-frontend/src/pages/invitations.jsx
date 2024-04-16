@@ -150,7 +150,7 @@ function InvitationsPage() {
     };
 
     // cancel a request
-    const handleCancelRequest = (user) => {
+    const handleRemoveRequest = (user, in_out) => {
 
         const connection = {
             requester: thisUser,
@@ -161,7 +161,12 @@ function InvitationsPage() {
             .then((res) => {
                 console.log("REQUEST CANCELLED.");
                 if(res.status === 200) {
-                    fetchOutRequests(thisUser);
+                    if (in_out === "incoming") {
+                        fetchInRequests(thisUser);
+                    }
+                    else if (in_out === "outgoing") {
+                        fetchOutRequests(thisUser);
+                    }
                 }
             })
             .catch((err) => {
@@ -169,6 +174,8 @@ function InvitationsPage() {
                 console.log(err);
             });
     }
+
+
 
     // close the profile
     // reset user and connection values
@@ -259,7 +266,7 @@ function InvitationsPage() {
                                         color="error"
                                         size="small"
                                         startIcon={<CancelIcon />}
-                                        onClick={() => handleCancelRequest(user)}
+                                        onClick={() => handleRemoveRequest(user, requestType)}
                                         sx={{
                                             borderRadius: 20,
                                             textTransform: 'none',
@@ -270,7 +277,7 @@ function InvitationsPage() {
                                             }
                                         }}
                                     >
-                                        Cancel Request
+                                        {requestType === "incoming" ? "Decline" : "Cancel"} Request
                                     </Button>
                                 </Stack>
                             </Box>
