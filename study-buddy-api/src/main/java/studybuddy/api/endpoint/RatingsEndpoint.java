@@ -5,15 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import studybuddy.api.meetings.Meeting;
-import studybuddy.api.meetings.MeetingService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 import studybuddy.api.rating.Rating;
 import studybuddy.api.rating.RatingService;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +25,7 @@ public class RatingsEndpoint {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private MeetingService meetingService;
+
     @RequestMapping(
             value = "/makeRating",
             method = RequestMethod.POST,
