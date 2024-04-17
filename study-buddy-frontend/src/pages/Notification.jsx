@@ -21,6 +21,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Link from "next/link";
+import MenuIcon from "@mui/icons-material/Menu";
 
 function NotificationPage() {
     const [username, setUsername] = useState(null);
@@ -44,6 +45,66 @@ function NotificationPage() {
         baseURL: 'http://localhost:8080/'
         //baseURL: 'http://34.16.169.60:8080/'
     });
+
+    const DynamicNavbar = () => {
+        const [isActive, setIsActive] = useState(false);
+
+        const handleToggle = () => {
+            setIsActive(!isActive);
+            document.body.classList.toggle("no-scroll", isActive);
+        };
+
+        return (
+            <div className="dynamic-navbar">
+                <button onClick={handleToggle}>Toggle Navigation</button>
+                {isActive && (
+                    <div className="nav-links">
+                        {/* Your navigation links will go here */}
+                        <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
+                            <Button color="inherit">Invitations</Button>
+                        </Link><br/>
+                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
+                            <Button color="inherit">View Courses</Button>
+                        </Link><br/>
+
+                        <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
+                            <Button color="inherit">View Meetups</Button>
+                        </Link><br/>
+
+                        <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
+                            <Button color="inherit">Search Users</Button>
+                        </Link><br/>
+
+                        <Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
+                            <Button color="inherit">Search Meetups</Button>
+                        </Link><br/>
+
+                        <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
+                            <Button color="inherit">Connections</Button>
+                        </Link><br/>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const SideNavbar = () => {
+        const [isActive, setIsActive] = useState(false);
+
+        const handleToggle = () => {
+            setIsActive(!isActive);
+            document.body.classList.toggle("no-scroll", isActive);
+        };
+
+        return (
+            <>
+                <IconButton onClick={handleToggle}><MenuIcon/></IconButton>
+                <div className={`side-navbar ${isActive && "active"}`}>
+                    {/* Your navigation links will go here */}
+                </div>
+            </>
+        );
+    };
 
     const checkExpiredMeetups = async (user) => {
         // get user local time zone
@@ -159,106 +220,85 @@ function NotificationPage() {
 
     return (
         <ThemeProvider theme={theme}>
-        <Box>
-            <AppBar  style={{
+            <Box>
+                    {/* Render these two components based on the screen resolution */}
+                    <SideNavbar/>
+                    <DynamicNavbar/>
 
-                boxShadow: "none"
-            }}>
-                <Toolbar>
+                        <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
+                            <a href={ref}>
+                                StuddyBuddy
+                            </a>
+                        </Typography>
 
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        <a href={ref}>
-                            StuddyBuddy
-                        </a>
-                    </Typography>
-
-                    <div>
-                        <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Invitations</Button>
-                        </Link>
-                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">View Courses</Button>
-                        </Link>
-
-                        <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">View Meetups</Button>
-                        </Link>
-
-                        <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Search Users</Button>
-                        </Link>
-
-                        <Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Search Meetups</Button>
-                        </Link>
-
-                        <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Connections</Button>
-                        </Link>
-                    <Badge badgeContent={count} color="warning">
-                        <Tooltip title={"notifications"}>
-                            <IconButton
-                                aria-label="notifications of current user"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
-                                size="large"
-                                onClick={(e) => handleNotifOpen(e)}
-                                color="inherit">
-                                <NotificationsIcon/>
-                            </IconButton>
-                        </Tooltip>
-                    </Badge>
-                        <Menu anchorEl={anchorEl}
-                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
-                              keepMounted
-                              sx={{ minWidth: 250, maxWidth: 400,
-                                    maxHeight: 400}}
-                              open={Boolean(anchorEl)}
-                              onClose={handleNotifClose}>
-                            <List
-                              id="notification-appbar" component="notifications" aria-label="notifications">
-                                {(notificationList === null || notificationList.length === 0) ? empty()
-                                 : notificationList.map((value) => {
-                                    const labelId = `checkbox-list-label-${value.notificationId}`;
-                                    return (
-                                        <MenuItem sx={{width:300,
-                                            whiteSpace: "normal",
-                                            }}
-                                            selected={ notif === value}
-                                        >
-                                            <Checkbox checked={value.read}
-                                                onClick={() => {
-                                                    if(value.read) {
-                                                        setCount(count+1);
-                                                    }
-                                                    else {
-                                                        setCount(count-1);
-                                                    }
-                                                    switchNotifReadStatus(value);
-                                                    value.read = !value.read
-                                                }}>
-                                            </Checkbox>
-                                            <Link href={`${value.notificationUrl}?username=${encodeURIComponent(username)}`}>
-                                            <ListItemText id={labelId}
-                                                          fontWeight={value.read ? 400 : 1000 }
-                                                          primary={`${value.notificationContent}`} />
-                                            </Link>
-                                            <Button size="small" onClick={() => {
-                                                selectNotif(value);
-                                                deleteNotif(value);
-                                                notificationList.splice(notificationList.indexOf(value),1);
-                                            }}>X</Button>
-                                        </MenuItem>
-                                    );
-                                })}
-                            </List>
-                        </Menu>
-                        <Tooltip title={"profile"}>
-                            <IconButton onClick={(e) => handleProfileOpen(e)}>
-                                <AccountCircle/>
-                            </IconButton>
-                        </Tooltip>
+                        <div>
+                            <Badge badgeContent={count} color="warning">
+                                <Tooltip title={"notifications"}>
+                                    <IconButton
+                                        aria-label="notifications of current user"
+                                        aria-controls="menu-appbar"
+                                        aria-haspopup="true"
+                                        size="large"
+                                        onClick={(e) => handleNotifOpen(e)}
+                                        color="inherit">
+                                        <NotificationsIcon/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Badge>
+                            <Menu anchorEl={anchorEl}
+                                  anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                  transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                                  keepMounted
+                                  sx={{
+                                      minWidth: 250, maxWidth: 400,
+                                      maxHeight: 400
+                                  }}
+                                  open={Boolean(anchorEl)}
+                                  onClose={handleNotifClose}>
+                                <List
+                                    id="notification-appbar" component="notifications" aria-label="notifications">
+                                    {(notificationList === null || notificationList.length === 0) ? empty()
+                                        : notificationList.map((value) => {
+                                            const labelId = `checkbox-list-label-${value.notificationId}`;
+                                            return (
+                                                <MenuItem sx={{
+                                                    width: 300,
+                                                    whiteSpace: "normal",
+                                                }}
+                                                          selected={notif === value}
+                                                >
+                                                    <Checkbox checked={value.read}
+                                                              onClick={() => {
+                                                                  if (value.read) {
+                                                                      setCount(count + 1);
+                                                                  } else {
+                                                                      setCount(count - 1);
+                                                                  }
+                                                                  switchNotifReadStatus(value);
+                                                                  value.read = !value.read
+                                                              }}>
+                                                    </Checkbox>
+                                                    <Link
+                                                        href={`${value.notificationUrl}?username=${encodeURIComponent(username)}`}>
+                                                        <ListItemText id={labelId}
+                                                                      fontWeight={value.read ? 400 : 1000}
+                                                                      primary={`${value.notificationContent}`}/>
+                                                    </Link>
+                                                    <Button size="small" onClick={() => {
+                                                        selectNotif(value);
+                                                        deleteNotif(value);
+                                                        notificationList.splice(notificationList.indexOf(value), 1);
+                                                    }}>X</Button>
+                                                </MenuItem>
+                                            );
+                                        })}
+                                </List>
+                            </Menu>
+                            <Tooltip title={"profile"}>
+                                <IconButton onClick={(e) => handleProfileOpen(e)}>
+                                    <AccountCircle/>
+                                </IconButton>
+                            </Tooltip>
                             <Menu anchorEl={anchorEl2}
                                   open={Boolean(anchorEl2)}
                                   onClose={handleProfileClose}
@@ -273,14 +313,13 @@ function NotificationPage() {
                                 </Link></MenuItem>
                             </Menu>
 
-                    </div>
-                </Toolbar>
-            </AppBar>
-            <br/>
-            <br/>
-            <br/>
-        </Box>
+                        </div>
+                <br/>
+                <br/>
+                <br/>
+            </Box>
         </ThemeProvider>
     );
 }
+
 export default NotificationPage;
