@@ -1,22 +1,22 @@
 package studybuddy.api.endpoint;
 
-import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import studybuddy.api.meetings.MeetupBody;
+import studybuddy.api.meetupInvites.MeetupInvite;
+import studybuddy.api.meetupInvites.MeetupInvitesService;
 import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 import studybuddy.api.rating.Rating;
 import studybuddy.api.rating.RatingService;
-import java.time.LocalDateTime;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://34.16.169.60:3000")
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
@@ -41,6 +41,9 @@ public class MeetupsEndpoint {
 
     @Autowired
     private RatingService ratingService;
+
+    @Autowired
+    private MeetupInvitesService meetupInvitesService;
 
     @GetMapping("expiredMeetups/{username}")
     public void checkExpiredMeetups(@PathVariable String username, @RequestHeader("timezone") String timeZone){
@@ -185,10 +188,37 @@ public class MeetupsEndpoint {
     }
 
     @RequestMapping(value = "/viewMeetups", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Meeting> createMeeting(@RequestBody Meeting meeting) {
-        Meeting savedMeeting = meetingService.save(meeting);
+    public ResponseEntity<Meeting> createMeeting(@RequestBody MeetupBody mi) {
+        Meeting savedMeeting = meetingService.save(mi.getMeeting());
         Long userId = userService.findByUsername(savedMeeting.getUsername()).get().getId();
         meetingService.saveMeetupUser(userId, savedMeeting.getId());
+
+        User creator = userService.findByUsernameExists(savedMeeting.getUsername());
+
+        // send invites
+        mi.getInvites().forEach(invitee -> {
+            System.out.println("INVITEE: " + invitee.getUsername());
+
+            User receiver = userService.findByUsernameExists(invitee.getUsername());
+
+            Notification notification = new Notification();
+            notification.setReciever(receiver);
+            notification.setSender(creator);
+            notification.setTimestamp(new Date());
+            notification.setNotificationUrl("/viewMeetups");
+            notification.setNotificationContent(creator.getUsername() + " has invited you to a meetup, '" + savedMeeting.getTitle() + "'!");
+            notificationService.sendNotification(notification);
+
+            // meetupInvite
+            MeetupInvite meetupInvite = new MeetupInvite();
+            meetupInvite.setMeetupId(savedMeeting.getId());
+            meetupInvite.setCreator(creator.getUsername());
+            meetupInvite.setInvitee(receiver.getUsername());
+            meetupInvite.setIsJoined(false);
+
+            meetupInvitesService.save(meetupInvite);
+        });
+
         return ResponseEntity.ok(savedMeeting);
     }
 
@@ -205,8 +235,8 @@ public class MeetupsEndpoint {
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<Meeting> updateMeeting(@RequestBody Meeting meeting, @RequestHeader("timezone") String timeZone) {
-        Optional<Meeting> oldMeetingOpt = meetingService.findById(meeting.getId());
+    public ResponseEntity<Meeting> updateMeeting(@RequestBody MeetupBody mi, @RequestHeader("timezone") String timeZone) {
+        Optional<Meeting> oldMeetingOpt = meetingService.findById(mi.getMeeting().getId());
 
         // check if meeting already exists to update
         if(oldMeetingOpt.isPresent()){
@@ -224,19 +254,43 @@ public class MeetupsEndpoint {
 
             // if user didnt update time then convert the time to UTC
             // if user did update time then do not convert to UTC
-            if(oldMeeting.getStartDate().isEqual(meeting.getStartDate())) {
+            if(oldMeeting.getStartDate().isEqual(mi.getMeeting().getStartDate())) {
                 //System.out.println("******BEFORE CONVERT: " + meeting.getDate());
-                meeting.setStartDate(meeting.getStartDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+                mi.getMeeting().setStartDate(mi.getMeeting().getStartDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
                 //System.out.println("AFTER CONVERT: " + meeting.getDate());
             }
 
-            if(oldMeeting.getEndDate().isEqual(meeting.getEndDate())) {
+            if(oldMeeting.getEndDate().isEqual(mi.getMeeting().getEndDate())) {
                 //System.out.println("******BEFORE CONVERT: " + meeting.getDate());
-                meeting.setEndDate(meeting.getEndDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
+                mi.getMeeting().setEndDate(mi.getMeeting().getEndDate().atZone(ZoneId.of(timeZone)).withZoneSameInstant(timeZoneUTC).toLocalDateTime());
                 //System.out.println("AFTER CONVERT: " + meeting.getDate());
             }
 
-            return ResponseEntity.ok(meetingService.save(meeting));
+            User creator = userService.findByUsernameExists(mi.getMeeting().getUsername());
+
+            // send invites
+            mi.getInvites().forEach(invitee -> {
+                User receiver = userService.findByUsernameExists(invitee.getUsername());
+
+                Notification notification = new Notification();
+                notification.setReciever(receiver);
+                notification.setSender(creator);
+                notification.setTimestamp(new Date());
+                notification.setNotificationUrl("/viewMeetups");
+                notification.setNotificationContent(creator.getUsername() + " has invited you to a meetup, '" + mi.getMeeting().getTitle() + "'!");
+                notificationService.sendNotification(notification);
+
+                // meetupInvite
+                MeetupInvite meetupInvite = new MeetupInvite();
+                meetupInvite.setMeetupId(mi.getMeeting().getId());
+                meetupInvite.setCreator(creator.getUsername());
+                meetupInvite.setInvitee(receiver.getUsername());
+                meetupInvite.setIsJoined(false);
+
+                meetupInvitesService.save(meetupInvite);
+            });
+
+            return ResponseEntity.ok(meetingService.save(mi.getMeeting()));
         }
         else{
             return ResponseEntity.badRequest().build();

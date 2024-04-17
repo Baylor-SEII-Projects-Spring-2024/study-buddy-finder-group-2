@@ -41,21 +41,15 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/'
+        //baseURL: 'http://34.16.169.60:8080/'
     });
 
     const checkExpiredMeetups = async (user) => {
         // get user local time zone
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
-    
-        console.log("Check " + user + "'s expired meetings");
 
-        // TEST
-        const currentTimeInUserTimeZone = new Date().toLocaleString('en-US', { timeZone: timezone});
-        console.log("Current time in user's time zone:", currentTimeInUserTimeZone);
-    
         return api.get(`expiredMeetups/${user}`, {
             headers: {
                 'timezone': timezone
