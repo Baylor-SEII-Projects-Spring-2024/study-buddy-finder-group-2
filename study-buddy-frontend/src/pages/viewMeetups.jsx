@@ -29,9 +29,15 @@ function MeetupsPage() {
     const [meetups, setMeetups] = useState([]);
     const [courses, setCourses] = useState([]);
 
+    const [ratingScore, setRatingScore] = useState(0);
+    const [review, setReview] = useState('');
+    const [ratingId, setRatingId] = useState(null);
+    const [ratings, setRatings] = useState([]);
+    const [openEditRating, setOpenEditRating] = useState(false); 
+
     const api = axios.create({
         //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://(34.16.169.60:8080/'
     });
 
     useEffect(() => {
@@ -41,6 +47,7 @@ function MeetupsPage() {
         setUsername(user);
         fetchMeetups(user);
         fetchCourses();
+        fetchPendingRatings(user);
     }, [])
 
     const fetchMeetups = async (user) => {
@@ -256,6 +263,77 @@ function MeetupsPage() {
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
+    const fetchPendingRatings = async (user) => {
+        try {
+            const res = await api.get(`newRatings/${user}`);
+            console.log(res);
+            setRatings(res.data);
+        } catch (error) {
+            console.error('Error fetching ratings:', error);
+        }
+      };
+    
+      
+    
+      // get incoming or outgoing requests
+      
+    
+      const handleClickOpenEditRating = (rating) => {
+        console.log(rating);
+        
+        setRatingScore(rating.ratingScore);
+        setReview(rating.review);
+        setOpenEditRating(true);
+        setRatingId(rating.ratingId);
+        console.log(id);
+      };
+    
+      const handleCloseEditRating = () => {
+        setOpenEditRating(false);
+      };
+    
+      // Function to remove a rating
+      const removeRating = (ratingId) => {
+        console.log("Deleting rating with ID:", ratingId);
+      
+        // Use axios to send a DELETE request to the API
+        api.delete(`deleteRating/${ratingId}`)
+          .then(() => {
+            console.log("Rating deleted successfully.");
+            // Remove the deleted rating from the state
+            setRatings(prevRatings => prevRatings.filter(rating => rating.ratingId !== ratingId));
+          })
+          .catch(error => console.error('Error deleting rating:', error));
+      };
+    
+      const handleUpdateRating = async (id) => {
+        try {
+            console.log(id);
+            // Check if id is valid
+            if (!id || isNaN(id)) {
+                console.error("Invalid rating ID");
+                return;
+            }
+    
+            // Create a new object with updated properties
+            const updatedRating = {
+                ratingId: id,
+                score: parseFloat(ratingScore),
+                review: review
+            };
+    
+            const response = await api.put(`updateRating/${id}`, updatedRating);
+            if (response.status === 200) {
+                handleCloseEditRating();
+                fetchPendingRatings(thisUser);
+               
+            } else { 
+                console.error("Failed to update rating.");
+            }
+        } catch (error) {
+            console.error("Error updating rating:", error);
+        }
+    }
 
     return (
         <div>
