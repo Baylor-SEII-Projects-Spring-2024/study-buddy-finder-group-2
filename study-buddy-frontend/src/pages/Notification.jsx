@@ -192,10 +192,6 @@ function NotificationPage() {
                         <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
                             <Button color="inherit">Invitations</Button>
                         </Link>
-                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">View Courses</Button>
-                        </Link>
-
                         <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
                             <Button color="inherit"><MeetingRoomIcon></MeetingRoomIcon>View Meetups</Button>
                         </Link>
