@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
+import { Box, Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -12,6 +12,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CreateIcon from '@mui/icons-material/Create';
 import EventIcon from '@mui/icons-material/Event';
+
 
 function MeetupsPage() {
     const [id, setId] = useState(null);
@@ -123,7 +124,7 @@ function MeetupsPage() {
         }
 
         // get user local time zone
-        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const options = Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
         const meeting = {
@@ -285,7 +286,7 @@ function MeetupsPage() {
         setReview(rating.review);
         setOpenEditRating(true);
         setRatingId(rating.ratingId);
-        console.log(id);
+        console.log(rating.ratingId);
       };
     
       const handleCloseEditRating = () => {
@@ -306,23 +307,23 @@ function MeetupsPage() {
           .catch(error => console.error('Error deleting rating:', error));
       };
     
-      const handleUpdateRating = async (id) => {
+      const handleUpdateRating = async (ratingId) => {
         try {
-            console.log(id);
+            console.log(ratingId);
             // Check if id is valid
-            if (!id || isNaN(id)) {
+            if (!ratingId || isNaN(ratingId)) {
                 console.error("Invalid rating ID");
                 return;
             }
     
             // Create a new object with updated properties
             const updatedRating = {
-                ratingId: id,
+                ratingId: ratingId,
                 score: parseFloat(ratingScore),
                 review: review
             };
     
-            const response = await api.put(`updateRating/${id}`, updatedRating);
+            const response = await api.put(`updateRating/${ratingId}`, updatedRating);
             if (response.status === 200) {
                 handleCloseEditRating();
                 fetchPendingRatings(thisUser);
@@ -336,8 +337,64 @@ function MeetupsPage() {
     }
 
     return (
-        <div>
-            <NotificationPage></NotificationPage> <br/>
+        <Box>
+        <NotificationPage></NotificationPage> <br/>
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+            
+            <Box sx={{width: '35%', paddingTop:4}}>
+            <Card sx={{ width: 375, margin: 'auto', marginRight: 'auto', marginLeft: 0 }} elevation={4}>
+                <CardContent>
+                    <Typography variant='h4' align='center'>Pending Ratings</Typography>
+                </CardContent>
+            </Card>
+            {ratings.length > 0 ? (
+                ratings.map((rating, index) => (
+                    <Card key={index} sx={{ width: 375, margin: 'auto', marginTop: 1, marginRight: 'auto', marginLeft: 0, height: 'auto'}} elevation={6}>
+                        <CardContent>
+                            
+                            <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>
+                                Rating for {rating.ratedUser.username}
+                            </Typography>
+                            <Typography variant='h6' align='center' sx={{ marginTop: '20px', fontWeight: 'normal'}}>
+                                Meeting: {rating.meetingTitle}
+                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                                <Button onClick={() => handleClickOpenEditRating(rating)} variant="contained" sx={{ marginRight: '10px' }}>
+                                    Edit Rating
+                                </Button>
+                                <Button onClick={() => removeRating(rating.ratingId)} variant="contained" style={{ backgroundColor: '#ff6961', color:  'white' }}>
+                                    Remove Rating
+                                </Button>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                ))
+            ) : (
+                <Typography variant="body1" align="center">
+                    No ratings available.
+                </Typography>
+            )}
+    
+           
+    
+            {/*View user profile and add as connection*/}
+            <Dialog open={openEditRating} onClose={handleCloseEditRating}>
+                <DialogTitle>Edit Rating</DialogTitle>
+                <DialogContent>
+                <input 
+                    type="number" 
+                    value={ratingScore} 
+                    onChange={(e) => setRatingScore(parseFloat(e.target.value))}  
+                    onBlur={() => setRatingScore(Math.min(Math.max(ratingScore, 0.5), 5))}
+                />
+                <textarea value={review} onChange={(e) => setReview(e.target.value)} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseEditRating}>Cancel</Button>
+                    <Button onClick={() => handleUpdateRating(ratingId)}>Save Changes</Button>
+                </DialogActions>
+            </Dialog>
+            </Box>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 'auto', margin: 'auto' }} elevation={4}>
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -446,8 +503,8 @@ function MeetupsPage() {
                 <Button startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
             </Stack>
 
-
-
+        
+            
             {/*CREATE MEETUP DIALOG BOX*/}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Dialog
@@ -690,6 +747,7 @@ function MeetupsPage() {
                 </Dialog>
             </LocalizationProvider>
         </div>
+        </Box>
     );
 }
 
