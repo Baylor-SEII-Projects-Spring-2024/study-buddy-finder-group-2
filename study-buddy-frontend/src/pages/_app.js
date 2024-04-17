@@ -9,6 +9,8 @@ import { StudyBuddyThemeProvider } from '@/utils/theme';
 import { buildStore } from '@/utils/redux';
 
 import '@/styles/globals.css'
+import '@/styles/dynamicnavbar.module.css'
+import '@/styles/sidenavbar.module.css'
 
 // Initialize Redux
 let initialState = {};
