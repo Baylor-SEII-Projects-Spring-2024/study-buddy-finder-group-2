@@ -78,6 +78,7 @@ function MyInfoPage() {
     try {
       const res = await api.get(`averageRating/${user}`);
       setRatingScore(res.data);
+      console.log("rating: "+res.data);
     } catch (error) {
       console.error('Error fetching average rating:', error);
     }
@@ -135,16 +136,28 @@ function MyInfoPage() {
     setSettingsOpen(false);
   };
 
+  const displayRatings = () => {
+    return(
+    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
+      <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
+        Average Rating Score:
+      </Typography>
+      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
+    </div>);
+  }
+
   return (
-    <div>
-      <NotificationPage></NotificationPage><br/>
-  
-      {user && profile && (
-        <Card sx={{ width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
-          <CardContent>
-            <Grid container alignItems="center">
-              <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
-                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
+      <div>
+        <NotificationPage></NotificationPage><br/>
+
+        {user && profile && (
+            <Card sx={{width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto'}}
+                  elevation={4}>
+              <CardContent>
+                <Grid container alignItems="center">
+                  <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
+                    <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
+
                 <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                 <div style={{ color: 'gray' }}>@{user.username}</div>
                 <br/>
