@@ -13,6 +13,9 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import NotificationPage from "@/pages/Notification";
+import CancelIcon from '@mui/icons-material/Cancel';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
 
 function InvitationsPage() {
     const [thisUser, setThisUser] = useState(null);
@@ -71,12 +74,12 @@ function InvitationsPage() {
         // prevents page reload
         event.preventDefault();
 
-        // outgoing
+        // incoming
         if(event.target.value === "incoming") {
             setText("Connect");
             fetchInRequests(thisUser);
         }
-        // incoming
+        // outgoing
         else if(event.target.value === "outgoing") {
             setText("Pending");
             fetchOutRequests(thisUser);
@@ -146,6 +149,34 @@ function InvitationsPage() {
         setOpenProfile(true);
     };
 
+    // cancel a request
+    const handleRemoveRequest = (user, in_out) => {
+
+        const connection = {
+            requester: thisUser,
+            requested: user.username
+        }
+
+        api.post(`api/removeInvitation`, connection)
+            .then((res) => {
+                console.log("REQUEST CANCELLED.");
+                if(res.status === 200) {
+                    if (in_out === "incoming") {
+                        fetchInRequests(thisUser);
+                    }
+                    else if (in_out === "outgoing") {
+                        fetchOutRequests(thisUser);
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log("ERROR CANCELLING REQUEST.");
+                console.log(err);
+            });
+    }
+
+
+
     // close the profile
     // reset user and connection values
     const handleCloseProfile = () => {
@@ -205,31 +236,49 @@ function InvitationsPage() {
 
                 {/* display all matches on separate cards */}
                 {users.map((user, index) => (
-                    <Card key={index}
-                          sx={{ width: 520, margin: 'auto', marginTop: 1, cursor: 'pointer' }}
-                          elevation={6}>
+                    <Card key={index} sx={{ width: '100%', maxWidth: 520, m: 'auto', mt: 2, boxShadow: 3 }}>
                         <CardContent>
-                            <Box sx={{ paddingTop: 3, width: 400, margin: 'auto' }}>
-                                <Stack spacing={13} direction="row" justifyContent="space-evenly">
-                                    <Box sx={{ width: 200 }}>
-                                        <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
-                                            <li>
-                                                <strong>Username: </strong> {user.username}
-                                                <br />
-                                                <strong>Name: </strong> {user.firstName + " " + user.lastName}
-                                                <br />
-                                            </li>
-                                        </ul>
-                                    </Box>
-
-                                    {/* view the profile of that user */}
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight="bold">{user.firstName} {user.lastName}</Typography>
+                                    <Typography variant="body2" color="text.secondary">{user.username}</Typography>
+                                </Box>
+                                <Stack direction="row" spacing={1}>
                                     <Button
-                                        variant='contained'
+                                        variant="contained"
                                         color="primary"
                                         size="small"
+                                        startIcon={<VisibilityIcon />}
                                         onClick={() => handleClickOpenProfile(user)}
+                                        sx={{
+                                            borderRadius: 20,
+                                            textTransform: 'none',
+                                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                            '&:hover': {
+                                                boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
+                                            }
+                                        }}
                                     >
-                                        View Profile</Button>
+                                        View Profile
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        size="small"
+                                        startIcon={<CancelIcon />}
+                                        onClick={() => handleRemoveRequest(user, requestType)}
+                                        sx={{
+                                            borderRadius: 20,
+                                            textTransform: 'none',
+                                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                            '&:hover': {
+                                                backgroundColor: '#d32f2f',
+                                                boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
+                                            }
+                                        }}
+                                    >
+                                        {requestType === "incoming" ? "Decline" : "Cancel"} Request
+                                    </Button>
                                 </Stack>
                             </Box>
                         </CardContent>

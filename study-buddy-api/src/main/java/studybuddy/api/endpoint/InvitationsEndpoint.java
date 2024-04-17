@@ -71,6 +71,17 @@ public class InvitationsEndpoint {
         return conUsers;
     }
 
+    @RequestMapping(
+            value = "/api/removeInvitation",
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<String> removeRequest(@RequestBody Connection connection) {
+        connectionService.deleteConnection(connection.getRequester(), connection.getRequested());
+        return ResponseEntity.ok("Request removed");
+    }
+
     // get a single request
     @RequestMapping(
             value = "/api/viewRequests/getConnection/{username}",
