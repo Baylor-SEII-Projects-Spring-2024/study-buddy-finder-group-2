@@ -5,6 +5,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
 import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import {useRouter} from "next/router";
+import Link from "next/link";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -22,6 +25,7 @@ function MyInfoPage() {
   const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const router = useRouter();
   const api = axios.create({
     //baseURL: 'http://localhost:8080/'
     baseURL: 'http://34.16.169.60:8080/'
@@ -214,7 +218,7 @@ function MyInfoPage() {
                 No ratings available.
               </Typography>
             )}
-  
+                <div>
             <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
               Courses
             </Typography>
@@ -229,6 +233,12 @@ function MyInfoPage() {
                 Not enrolled in any courses.
               </Typography>
             )}
+                  <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
+                    <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
+                      <Button variant="contained" startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
+                    </Link>
+                  </Grid>
+                </div>
           </CardContent>
         </Card>
       )}
