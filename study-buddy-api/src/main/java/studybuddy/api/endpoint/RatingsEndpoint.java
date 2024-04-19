@@ -5,15 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import studybuddy.api.meetings.Meeting;
-import studybuddy.api.meetings.MeetingService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 import studybuddy.api.rating.Rating;
 import studybuddy.api.rating.RatingService;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +25,7 @@ public class RatingsEndpoint {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private MeetingService meetingService;
+
     @RequestMapping(
             value = "/makeRating",
             method = RequestMethod.POST,
@@ -54,7 +50,54 @@ public class RatingsEndpoint {
     }
 
 
-
+    @GetMapping("/ratingsBetween")
+    public ResponseEntity<List<Rating>> ratingsBetween(
+            @RequestParam String ratedUser,
+            @RequestParam String ratingUser){
+        User rated = userService.findByUsername(ratedUser).orElse(null);
+        System.out.println("finding " + ratedUser);
+        if (rated == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
+        User rating = userService.findByUsername(ratingUser).orElse(null);
+        System.out.println("finding " + ratingUser);
+        if (rating == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
+        List<Rating> ratings = ratingService.getRatingsBetween(rated.getUsername(), rating.getUsername());
+        for (Rating r : ratings) {
+            System.out.println("ID is " + r.getRatingId());
+            System.out.println("User who is rated is " + r.getRatedUser());
+            System.out.println("User who is rating is " + r.getRatingUser());
+        }
+        return ResponseEntity.ok(ratings);
+    }
+    @GetMapping("/ratingsPendingBetween")
+    public ResponseEntity<List<Rating>> ratingsPendingBetween(
+            @RequestParam String ratedUser,
+            @RequestParam String ratingUser){
+        User rated = userService.findByUsername(ratedUser).orElse(null);
+        System.out.println("finding " + ratedUser);
+        if (rated == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
+        User rating = userService.findByUsername(ratingUser).orElse(null);
+        System.out.println("finding " + ratingUser);
+        if (rating == null) {
+            log.warn("User not found");
+            return ResponseEntity.badRequest().build();
+        }
+        List<Rating> ratings = ratingService.getPendingRatingsBetween(rated.getUsername(), rating.getUsername());
+        for (Rating r : ratings) {
+            System.out.println("ID is " + r.getRatingId());
+            System.out.println("User who is rated is " + r.getRatedUser());
+            System.out.println("User who is rating is " + r.getRatingUser());
+        }
+        return ResponseEntity.ok(ratings);
+    }
     @GetMapping("/newRatings/{username}")
     public ResponseEntity<List<Rating>> newRatings(@PathVariable String username) {
         User ratingUser = userService.findByUsername(username).orElse(null);

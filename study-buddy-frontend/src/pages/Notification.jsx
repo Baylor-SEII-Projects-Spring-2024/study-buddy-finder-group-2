@@ -20,6 +20,10 @@ import {
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import SearchIcon from '@mui/icons-material/Search';
+import GroupsIcon from '@mui/icons-material/Groups';
 import Link from "next/link";
 
 function NotificationPage() {
@@ -30,6 +34,7 @@ function NotificationPage() {
     const [notif, selectNotif] = useState(null)
     const [anchorEl, setAnchorEl] = React.useState(null)
     const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const [anchorEl3, setAnchorEl3] = React.useState(null);
     const [ref, setRef] = useState("/login");
 
     const theme = createTheme({
@@ -145,6 +150,14 @@ function NotificationPage() {
         setAnchorEl2(null);
     };
 
+    const handleSearchOpen = (e) => {
+        setAnchorEl3(e.currentTarget);
+    }
+
+    const handleSearchClose = () => {
+        setAnchorEl3(null);
+    };
+
     const empty = () => {
         return (
           <MenuItem>No Notifications</MenuItem>
@@ -167,27 +180,32 @@ function NotificationPage() {
                     </Typography>
 
                     <div>
+                        <Link href={ref} passHref>
+                            <Button color="inherit"><HomeIcon></HomeIcon>Home</Button>
+                        </Link>
                         <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
                             <Button color="inherit">Invitations</Button>
                         </Link>
-                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">View Courses</Button>
-                        </Link>
-
                         <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">View Meetups</Button>
+                            <Button color="inherit"><MeetingRoomIcon></MeetingRoomIcon>View Meetups</Button>
                         </Link>
-
-                        <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Search Users</Button>
-                        </Link>
-
-                        <Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Search Meetups</Button>
-                        </Link>
+                        <Button color="inherit" onClick={handleSearchOpen} on={handleSearchOpen}><SearchIcon/>Search</Button>
+                        <Menu anchorEl={anchorEl3}
+                              open={Boolean(anchorEl3)}
+                              onClose={handleSearchClose}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted>
+                            <MenuItem><Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
+                                Search Users
+                            </Link></MenuItem>
+                            <MenuItem><Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
+                                Search Meetups
+                            </Link></MenuItem>
+                        </Menu>
 
                         <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Connections</Button>
+                            <Button color="inherit"><GroupsIcon/>Buddies</Button>
                         </Link>
                     <Badge badgeContent={count} color="warning">
                         <Tooltip title={"notifications"}>
@@ -266,7 +284,6 @@ function NotificationPage() {
                                     Logout
                                 </Link></MenuItem>
                             </Menu>
-
                     </div>
                 </Toolbar>
             </AppBar>

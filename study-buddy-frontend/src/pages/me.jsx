@@ -5,6 +5,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
 import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import {useRouter} from "next/router";
+import Link from "next/link";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -22,6 +25,7 @@ function MyInfoPage() {
   const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const router = useRouter();
   const api = axios.create({
     //baseURL: 'http://localhost:8080/'
     baseURL: 'http://34.16.169.60:8080/'
@@ -36,10 +40,10 @@ function MyInfoPage() {
     setUsername(user);
 
     const fetchData = async () => {
-      await fetchUser(user);
-      await fetchProfile(user);
+      fetchUser(user);
+      fetchProfile(user);
       await fetchUserCourses(user);
-        fetchConnectionCount(user);
+      fetchConnectionCount(user);
       await fetchRatingsForMe(user);
       await fetchAverageScore(user);
     };
@@ -78,6 +82,7 @@ function MyInfoPage() {
     try {
       const res = await api.get(`averageRating/${user}`);
       setRatingScore(res.data);
+      console.log("rating: "+res.data);
     } catch (error) {
       console.error('Error fetching average rating:', error);
     }
@@ -135,16 +140,27 @@ function MyInfoPage() {
     setSettingsOpen(false);
   };
 
-  return (
-    <div>
-      <NotificationPage></NotificationPage><br/>
+  const displayRatings = () => {
+    return(
+    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
+      <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
+        Average Rating Score:
+      </Typography>
+      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
+    </div>);
+  }
 
-      {user && profile && (
-        <Card sx={{ width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
-          <CardContent>
-            <Grid container alignItems="center">
-              <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
-                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
+  return (
+      <div>
+        <NotificationPage></NotificationPage><br/>
+
+        {user && profile && (
+            <Card sx={{width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto'}}
+                  elevation={4}>
+              <CardContent>
+                <Grid container alignItems="center">
+                  <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
+                    <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
 
                 <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                 <div style={{ color: 'gray' }}>@{user.username}</div>
@@ -157,29 +173,28 @@ function MyInfoPage() {
                     {connectionCount === 1 ? 'connection' : 'connections'}
                   </span>
                 </div>
-
-
-
-
               </Grid>
-
+  
               <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
                 <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
               </Grid>
             </Grid>
             <br />
-
+  
             <Typography variant="body1" style={{ marginLeft: '100px' }}>
               {profile.bio}
             </Typography>
+  
+            {user.userType === 'tutor' && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                  Average Rating Score:
+                </Typography>
+                <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+              </div>
+            )}
 
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-              <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                Average Rating Score:
-              </Typography>
-              <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
-            </div>
-            {ratings.length > 0 ? (
+            {ratings.length > 0 && user.userType === 'tutor' ? (
               ratings.map((rating, index) => (
                 <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
                   <CardContent>
@@ -190,7 +205,7 @@ function MyInfoPage() {
                       Meeting: {rating.meetingTitle}
                     </Typography>
                     <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                    <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                      <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
                     </Typography>
                     <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
                       Review: {rating.review}
@@ -203,7 +218,7 @@ function MyInfoPage() {
                 No ratings available.
               </Typography>
             )}
-
+                <div>
             <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
               Courses
             </Typography>
@@ -218,10 +233,16 @@ function MyInfoPage() {
                 Not enrolled in any courses.
               </Typography>
             )}
+                  <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
+                    <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
+                      <Button variant="contained" startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
+                    </Link>
+                  </Grid>
+                </div>
           </CardContent>
         </Card>
       )}
-
+  
       <Dialog
         open={settingsOpen}
         onClose={handleSettingsClose}
@@ -232,7 +253,7 @@ function MyInfoPage() {
           <DialogContentText>
             Edit your profile.
           </DialogContentText>
-
+  
           <TextField
             autoFocus
             margin="dense"
@@ -245,7 +266,7 @@ function MyInfoPage() {
             defaultValue={profile?.bio || ''}
             onChange={(e) => setBio(e.target.value)}
           />
-
+  
           <div>Profile Picture</div>
           <div style={{ display: 'flex' }}>
             <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
@@ -253,9 +274,8 @@ function MyInfoPage() {
             <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
             <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.jpg')} src="/devil.jpg" />
           </div>
-
         </DialogContent>
-
+  
         <DialogActions>
           <Button onClick={handleSettingsClose}>Cancel</Button>
           <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>

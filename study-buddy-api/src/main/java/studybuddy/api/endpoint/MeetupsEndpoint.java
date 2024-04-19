@@ -96,7 +96,7 @@ public class MeetupsEndpoint {
                     rateNotification.setReciever(attendee);
                     rateNotification.setSender(userService.findByUsernameExists(meeting.getUsername()));
                     rateNotification.setTimestamp(new Date());
-                    rateNotification.setNotificationUrl("/makeRating");
+                    rateNotification.setNotificationUrl("/makeRatings");
                     rateNotification.setNotificationContent("Can now rate your meeting members");
                     notificationService.sendNotification(rateNotification);
                     meeting.getAttendees().forEach(reviewed -> {

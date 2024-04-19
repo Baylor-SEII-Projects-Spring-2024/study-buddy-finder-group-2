@@ -80,12 +80,12 @@ function EditCoursePage() {
             var params = new URLSearchParams();
             params.append("username", user.username.toString());
             console.log("going to /studentLanding?" + params.toString())
-            location.href = "/studentLanding?" + params.toString();
+            location.href = "/me?" + params.toString();
         } else if (user.userType.includes("tutor")) {
             var params = new URLSearchParams();
             params.append("username", user.username);
             console.log("going to /tutorLanding?" + params.toString());
-            location.href = "/tutorLanding?" + params.toString();
+            location.href = "/me?" + params.toString();
         }
     }
 

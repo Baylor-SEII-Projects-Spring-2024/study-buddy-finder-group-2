@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Box, ToggleButtonGroup, ToggleButton, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete} from '@mui/material';
+import { Box, Button, Box, ToggleButtonGroup, ToggleButton, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -12,8 +12,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CreateIcon from '@mui/icons-material/Create';
 import EventIcon from '@mui/icons-material/Event';
-import CancelIcon from '@mui/icons-material/Cancel';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+
 
 function MeetupsPage() {
     const [id, setId] = useState(null);
@@ -29,15 +28,11 @@ function MeetupsPage() {
     const [meetups, setMeetups] = useState([]);
     const [courses, setCourses] = useState([]);
 
-    const [requestType, setRequestType] = useState("incoming");
-    const [invites, setInvites] = useState([]);
-    const [connections, setConnections] = useState([]);
-    const [incoming, setIncoming] = useState([]);
-    const [openIncoming, setOpenIncoming] = React.useState(false);
-    const [text, setText] = useState("Join");
-    const [isJoined, setIsJoined] = useState(null);
-    const [meetupInvitees, setMeetupInvitees] = useState([]);
-    const [outgoing, setOutgoing] = useState([]);
+    const [ratingScore, setRatingScore] = useState(0);
+    const [review, setReview] = useState('');
+    const [ratingId, setRatingId] = useState(null);
+    const [ratings, setRatings] = useState([]);
+    const [openEditRating, setOpenEditRating] = useState(false); 
 
     const api = axios.create({
         baseURL: 'http://localhost:8080/'
@@ -51,8 +46,7 @@ function MeetupsPage() {
         setUsername(user);
         fetchMeetups(user);
         fetchCourses();
-        fetchConnections(user);
-        fetchInRequests(user);
+        fetchPendingRatings(user);
     }, [])
 
     const fetchMeetups = async (user) => {
@@ -172,7 +166,7 @@ function MeetupsPage() {
         }
 
         // get user local time zone
-        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const options = Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
 
         const meeting = {
@@ -320,140 +314,137 @@ function MeetupsPage() {
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
-
-
-    // OPEN INCOMING MEETUP
-    const handleOpenIncoming = (inc) => {
-        setSelectedMeeting(inc);
-
-        // set state variables to the currently selected meeting
-        setId(inc.id);
-        setTitle(inc.title);
-        setDescription(inc.description);
-        setSubject(inc.subject);
-        setStartDate(inc.startDate);
-        setEndDate(inc.endDate);
-        setLocation(inc.location);
-        setAttendees(inc.attendees);
-
-        // set connection values for existing connection
-        // api.post(`api/viewRequests/getConnection/${thisUser}`, user.username)
-        //     .then((res) => {
-        //         setSelectedConnection(res.data);
-
-        //         setRequester(res.data.requester);
-        //         setRequested(res.data.requested);
-        //         setIsConnected(res.data.isConnected);
-        //         setId(res.data.id);
-        //     })
-        //     .catch((err) => {
-        //         console.error('Error getting connection:', err)
-        //     });
-
-        setOpenIncoming(true);
-    };
-
-    const handleCloseIncoming = () => {
-        setOpenIncoming(false);
-
-        // must reset values for continued search!!
-        setId(null);
-        setTitle(null);
-        setDescription(null);
-        setSubject(null);
-        setStartDate(null);
-        setEndDate(null);
-        setLocation(null);
-        setAttendees(null);
-
-        // setSelectedConnection(null);
-        // setRequested(null);
-        // setRequester(null);
-        // setIsConnected(false);
-
-        setText("Join");
-    };
-
-    // get incoming or outgoing requests
-    const handleRequestTypeChange = (event) => {
-        // prevents page reload
-        event.preventDefault();
-
-        // incoming
-        if(event.target.value === "incoming") {
-            setText("Join");
-            fetchInRequests(username);
+    const fetchPendingRatings = async (user) => {
+        try {
+            const res = await api.get(`newRatings/${user}`);
+            console.log(res);
+            setRatings(res.data);
+        } catch (error) {
+            console.error('Error fetching ratings:', error);
         }
-        // outgoing
-        else if(event.target.value === "outgoing") {
-            setText("Pending");
-            fetchOutRequests(username);
-        }
-        else {
-            console.log("error with request type?!");
-        }
-    }
-
-    const handleJoinMeetupInvite = (event) => {
-        event.preventDefault()
-
-
-        if(text === "Pending"){
-            return;
-        }
-        // join the meetup then just delete the invite we dont need it really
-
-        api.post(`api/searchMeetups/${username}?meetingId=${selectedMeeting.id}&creator=${selectedMeeting.username}`)
-            .then((res) => {
-                if (res.status === 200) {
-                    console.log('Joined meetup from invitation:', res.data);
-
-                    handleCloseIncoming();
-                    fetchInRequests(username);
-                    fetchMeetups(username);
-                }
-            })
-            .catch((err) => {
-                console.error('Error joining meetup from invitation:', err);
-            });
-    }
-
-
-    // cancel a meetup request
-    const handleRemoveRequest = (inc, in_out) => {
-
-        // console.log("CREATOR: " + username);
-        // console.log("INVITEEEEE: " + inc.username);
-        // console.log("MEEETUPP ID: " + inc.id);
-
-        const meetupInvite = {
-            creator: username,
-            invitee: inc.username,
-            meetupId: inc.id
-        }
-
-        api.post(`api/removeMeetupInvitation`, meetupInvite)
-            .then((res) => {
-                console.log("MEETUP REQUEST CANCELLED.");
-                if(res.status === 200) {
-                    if(in_out === "incoming") {
-                        fetchInRequests(username);
-                    }
-                    else if (in_out === "outgoing") {
-                        fetchOutRequests(username);
-                    }
-                }
-            })
-            .catch((err) => {
-                console.log("ERROR CANCELLING MEETUP REQUEST.");
-                console.log(err);
-            });
-    }
+      };
     
+      
+    
+      // get incoming or outgoing requests
+      
+    
+      const handleClickOpenEditRating = (rating) => {
+        console.log(rating);
+        
+        setRatingScore(rating.ratingScore);
+        setReview(rating.review);
+        setOpenEditRating(true);
+        setRatingId(rating.ratingId);
+        console.log(rating.ratingId);
+      };
+    
+      const handleCloseEditRating = () => {
+        setOpenEditRating(false);
+      };
+    
+      // Function to remove a rating
+      const removeRating = (ratingId) => {
+        console.log("Deleting rating with ID:", ratingId);
+      
+        // Use axios to send a DELETE request to the API
+        api.delete(`deleteRating/${ratingId}`)
+          .then(() => {
+            console.log("Rating deleted successfully.");
+            // Remove the deleted rating from the state
+            setRatings(prevRatings => prevRatings.filter(rating => rating.ratingId !== ratingId));
+          })
+          .catch(error => console.error('Error deleting rating:', error));
+      };
+    
+      const handleUpdateRating = async (ratingId) => {
+        try {
+            console.log(ratingId);
+            // Check if id is valid
+            if (!ratingId || isNaN(ratingId)) {
+                console.error("Invalid rating ID");
+                return;
+            }
+    
+            // Create a new object with updated properties
+            const updatedRating = {
+                ratingId: ratingId,
+                score: parseFloat(ratingScore),
+                review: review
+            };
+    
+            const response = await api.put(`updateRating/${ratingId}`, updatedRating);
+            if (response.status === 200) {
+                handleCloseEditRating();
+                fetchPendingRatings(thisUser);
+               
+            } else { 
+                console.error("Failed to update rating.");
+            }
+        } catch (error) {
+            console.error("Error updating rating:", error);
+        }
+    }
 
     return (
-        <div>
-            <NotificationPage></NotificationPage> <br/>
+        <Box>
+        <NotificationPage></NotificationPage> <br/>
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+            
+            <Box sx={{width: '35%', paddingTop:4}}>
+            <Card sx={{ width: 375, margin: 'auto', marginRight: 'auto', marginLeft: 0 }} elevation={4}>
+                <CardContent>
+                    <Typography variant='h4' align='center'>Pending Ratings</Typography>
+                </CardContent>
+            </Card>
+            {ratings.length > 0 ? (
+                ratings.map((rating, index) => (
+                    <Card key={index} sx={{ width: 375, margin: 'auto', marginTop: 1, marginRight: 'auto', marginLeft: 0, height: 'auto'}} elevation={6}>
+                        <CardContent>
+                            
+                            <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>
+                                Rating for {rating.ratedUser.username}
+                            </Typography>
+                            <Typography variant='h6' align='center' sx={{ marginTop: '20px', fontWeight: 'normal'}}>
+                                Meeting: {rating.meetingTitle}
+                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                                <Button onClick={() => handleClickOpenEditRating(rating)} variant="contained" sx={{ marginRight: '10px' }}>
+                                    Edit Rating
+                                </Button>
+                                <Button onClick={() => removeRating(rating.ratingId)} variant="contained" style={{ backgroundColor: '#ff6961', color:  'white' }}>
+                                    Remove Rating
+                                </Button>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                ))
+            ) : (
+                <Typography variant="body1" align="center">
+                    No ratings available.
+                </Typography>
+            )}
+    
+           
+    
+            {/*View user profile and add as connection*/}
+            <Dialog open={openEditRating} onClose={handleCloseEditRating}>
+                <DialogTitle>Edit Rating</DialogTitle>
+                <DialogContent>
+                <input 
+                    type="number" 
+                    value={ratingScore} 
+                    onChange={(e) => setRatingScore(parseFloat(e.target.value))}  
+                    onBlur={() => setRatingScore(Math.min(Math.max(ratingScore, 0.5), 5))}
+                />
+                <textarea value={review} onChange={(e) => setReview(e.target.value)} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseEditRating}>Cancel</Button>
+                    <Button onClick={() => handleUpdateRating(ratingId)}>Save Changes</Button>
+                </DialogActions>
+            </Dialog>
+            </Box>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
 
                 <Box component="form" noValidate
@@ -639,8 +630,8 @@ function MeetupsPage() {
                 <Button startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
             </Stack>
 
-
-
+        
+            
             {/*CREATE MEETUP DIALOG BOX*/}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Dialog
@@ -944,107 +935,8 @@ function MeetupsPage() {
 
                 </Dialog>
             </LocalizationProvider>
-
-
-
-            {/* OPEN INCOMING MEETUP DIALOG BOX */}
-            <Dialog
-                open={openIncoming}
-                onClose={handleCloseIncoming}
-                fullWidth
-                component="form"
-                validate="true"
-                onSubmit={handleJoinMeetupInvite}
-            >
-                <DialogTitle variant='s2'>{selectedMeeting?.username}'s Invitation</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2}>
-                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
-                                <li>
-                                <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end'}}>
-                                    {Math.floor(dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') / (24 * 60)) !== 0 && (
-                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
-                                            {Math.floor(dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') / (24 * 60))}D
-                                        </span>
-                                    )}
-                                    {Math.floor((dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
-                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
-                                            {Math.floor((dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % (24 * 60)) / 60)}HR
-                                        </span>
-                                    )}
-                                    {dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % 60 !== 0 && (
-                                        <span style={{ fontSize: '30px', color: 'gray' }}>
-                                            {dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % 60}MIN
-                                        </span>
-                                    )}
-                                </div>
-
-                                    <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{selectedMeeting?.title}</Typography>
-                                    
-                                    
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{selectedMeeting?.username}</span>
-                                    </div>
-
-                                    <br />
-
-                                    
-                                    <span style={{ marginLeft: '30px'}}>{selectedMeeting?.description}</span>
-                                    
-
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{selectedMeeting?.subject}</span>
-                                    </div>
-                                    
-
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{dayjs(selectedMeeting?.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(selectedMeeting?.endDate).format('MMMM DD, YYYY h:mm A')}</span>
-                                    </div>
-
-                                    
-
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{selectedMeeting?.location}</span>
-                                    </div>
-
-                                    <br />
-
-                                    <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px'}}>Attendees</Typography>
-                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
-                                        {selectedMeeting?.attendees.map((attendee, index) => (
-                                            <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
-                                        ))}
-                                    </ul>
-                                </li>
-                            </ul>
-                    </Stack>
-                </DialogContent>
-
-                <DialogActions>
-                    <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={handleCloseIncoming}
-                    >
-                        Back</Button>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            backgroundColor: isJoined ? '#9c27b0' : 'light blue',
-                            '&:hover': {
-                                backgroundColor: isJoined ? '#6d1b7b' : 'light blue'
-                            },
-                        }}
-                        type="submit"
-                    >
-                        {text}</Button>
-                </DialogActions>
-            </Dialog>
         </div>
+        </Box>
     );
 }
 

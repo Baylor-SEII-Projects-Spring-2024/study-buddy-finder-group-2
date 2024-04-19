@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 
 function viewRatingsPage() {
-  const [thisUser, setThisUser] = useState(null);
   const [ratings, setRatings] = useState([]);
   const api = axios.create({
     // For local testing
@@ -24,7 +23,7 @@ function viewRatingsPage() {
     const params = new URLSearchParams(window.location.search);
     const user = params.get("username");
 
-    setThisUser(user);
+    
     fetchRatings(user);
   }, []);
 
