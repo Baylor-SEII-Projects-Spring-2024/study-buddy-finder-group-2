@@ -12,6 +12,8 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CreateIcon from '@mui/icons-material/Create';
 import EventIcon from '@mui/icons-material/Event';
+import CancelIcon from '@mui/icons-material/Cancel';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 function MeetupsPage() {
     const [id, setId] = useState(null);
@@ -35,6 +37,7 @@ function MeetupsPage() {
     const [text, setText] = useState("Join");
     const [isJoined, setIsJoined] = useState(null);
     const [meetupInvitees, setMeetupInvitees] = useState([]);
+    const [outgoing, setOutgoing] = useState([]);
 
     const api = axios.create({
         baseURL: 'http://localhost:8080/'
@@ -94,6 +97,19 @@ function MeetupsPage() {
              .catch(error => console.error('Error fetching incoming meetups:', error));
      };
 
+    const fetchOutRequests = async (user) => {
+        const options = await Intl.DateTimeFormat().resolvedOptions();
+        const timezone = options.timeZone;
+
+        api.get(`api/viewMeetupInvitesOut/${user}`, {
+            headers: {
+            'timezone': timezone
+            }
+        })
+             .then(data => setIncoming(data.data))
+             .catch(error => console.error('Error fetching outgoing meetups:', error));
+    };
+
     const handleAttendeeSearch = (value) => {
         const filteredAttendees = connections.filter(attendee =>
             attendee.username.toLowerCase().includes(value.toLowerCase())
@@ -142,19 +158,6 @@ function MeetupsPage() {
             console.log("Username:", username);
             console.log("Meeting Title:", meeting.title);
             console.log("Invites:", invites);
-
-        // const dataToSend = JSON.stringify(invites);
-
-        // api.post(`viewMeetups/${username}`, invites)
-        //     .then((res) => {
-        //         if(res.status === 200) {
-        //             console.log("INVITES SENT");
-        //         }
-        //     })
-        //     .catch((err) => {
-        //         console.log("ERROR SENDING INVITES.");
-        //         console.log(err);
-        //     });
     }
 
     const handleSubmitUpdate = async (event) => {
@@ -379,12 +382,12 @@ function MeetupsPage() {
         // incoming
         if(event.target.value === "incoming") {
             setText("Join");
-            fetchInRequests(thisUser);
+            fetchInRequests(username);
         }
         // outgoing
         else if(event.target.value === "outgoing") {
-            // setText("Pending");
-            fetchOutRequests(thisUser);
+            setText("Pending");
+            fetchOutRequests(username);
         }
         else {
             console.log("error with request type?!");
@@ -392,10 +395,13 @@ function MeetupsPage() {
     }
 
     const handleJoinMeetupInvite = (event) => {
-        // join the meetup then just delete the invite we dont need it really
+        event.preventDefault()
 
-        // prevents page reload
-        event.preventDefault();
+
+        if(text === "Pending"){
+            return;
+        }
+        // join the meetup then just delete the invite we dont need it really
 
         api.post(`api/searchMeetups/${username}?meetingId=${selectedMeeting.id}&creator=${selectedMeeting.username}`)
             .then((res) => {
@@ -416,6 +422,10 @@ function MeetupsPage() {
     // cancel a meetup request
     const handleRemoveRequest = (inc, in_out) => {
 
+        // console.log("CREATOR: " + username);
+        // console.log("INVITEEEEE: " + inc.username);
+        // console.log("MEEETUPP ID: " + inc.id);
+
         const meetupInvite = {
             creator: username,
             invitee: inc.username,
@@ -429,9 +439,9 @@ function MeetupsPage() {
                     if(in_out === "incoming") {
                         fetchInRequests(username);
                     }
-                    // else if (in_out === "outgoing") {
-                    //     fetchOutRequests(thisUser);
-                    // }
+                    else if (in_out === "outgoing") {
+                        fetchOutRequests(username);
+                    }
                 }
             })
             .catch((err) => {
@@ -484,7 +494,7 @@ function MeetupsPage() {
                                         variant="contained"
                                         color="primary"
                                         size="small"
-                                        // startIcon={<VisibilityIcon />}
+                                        startIcon={<VisibilityIcon />}
                                         onClick={() => handleOpenIncoming(inc)}
                                         sx={{
                                             borderRadius: 20,
@@ -501,7 +511,7 @@ function MeetupsPage() {
                                         variant="contained"
                                         color="error"
                                         size="small"
-                                        // startIcon={<CancelIcon />}
+                                        startIcon={<CancelIcon />}
                                         onClick={() => handleRemoveRequest(inc, requestType)}
                                         sx={{
                                             borderRadius: 20,
@@ -969,7 +979,6 @@ function MeetupsPage() {
                                     )}
                                 </div>
 
-                                    {/* FIX INDENTATION */}
                                     <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{selectedMeeting?.title}</Typography>
                                     
                                     

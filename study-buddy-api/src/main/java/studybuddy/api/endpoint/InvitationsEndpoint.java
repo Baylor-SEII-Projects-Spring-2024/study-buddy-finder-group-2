@@ -152,6 +152,33 @@ public class InvitationsEndpoint {
         return invitedMeetups;
     }
 
+    @GetMapping("/api/viewMeetupInvitesOut/{username}")
+    public List<Optional<Meeting>> fetchMeetupOutRequests(@PathVariable String username,
+                                                         @RequestHeader("timezone") String timeZone) {
+        List<MeetupInvite> meetupInvites = meetupInvitesService.getInvites(username);
+        List<Long> meetupTitles = new ArrayList<>();
+        List<Optional<Meeting>> invitedMeetups = new ArrayList<>();
+
+        for(MeetupInvite mi : meetupInvites) {
+            if(mi.getCreator().equals(username)) {
+                meetupTitles.add(mi.getMeetupId());
+            }
+        }
+
+        ZoneId timeZoneId = ZoneId.of(timeZone);
+        for(Long id : meetupTitles) {
+            Optional<Meeting> meetup = meetingService.findById(id);
+
+            if(meetup.isPresent()) {
+                meetup.get().setStartDate(meetup.get().getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+                meetup.get().setEndDate(meetup.get().getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+
+                invitedMeetups.add(meetup);
+            }
+        }
+        return invitedMeetups;
+    }
+
     @RequestMapping(
             value = "/api/removeMeetupInvitation",
             method = RequestMethod.POST,
