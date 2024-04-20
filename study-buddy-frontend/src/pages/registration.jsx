@@ -13,9 +13,15 @@ import {
 } from "@mui/material";
 import axios, {get} from "axios";
 import {NextResponse as r} from "next/server";
+import {useDispatch, useSelector} from "react-redux";
+import {useRouter} from "next/navigation";
 
 
 function RegistrationPage() {
+    const router = useRouter();
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     // Database looks for attribute name, not column name when assigning attributes to new row
     // emailAddress and userType need no underscores
     const [username, setUsername] = useState(null);
@@ -39,13 +45,14 @@ function RegistrationPage() {
     const [errUserType, setErrUserType] = useState(false);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/'
+        //baseURL: 'http://34.16.169.60:8080/'
     });
 
 
     //getting list of schools from database
     useEffect(() => {
+
         api.get("api/request-school-options")
             .then((result) => {
                 console.log(result.data);
@@ -128,34 +135,18 @@ function RegistrationPage() {
             password: password
         });
 
-        api.post("api/register", user)
+        api.post("api/authorization/register", user)
             .then((res) => {
                 console.log('No Existing User! User is now registered!')
-                if (res.data.userType.includes("student")) {
+                console.log(res.data);
 
-                    console.log(res.data);
-                    //temporary fix
-                    var params = new URLSearchParams();
-                    console.log(1);
-                    params.append("username", res.data.username.toString());
-                    console.log(2);
-                    console.log("going to /studentLanding?" + params.toString());
-                    console.log(3);
-                    location.href = "/studentLanding?" + params.toString();
-
-                } else if (res.data.userType.includes("tutor")) {
-                    var params = new URLSearchParams();
-                    params.append("username", res.data.username);
-                    console.log("going to /tutorLanding?" + params.toString());
-                    location.href = "/tutorLanding?" + params.toString();
-                }
+                // can't authorize users right after entered
+                // transaction not completed??
+                router.push(`/login`);
             })
             .catch((err) => {
-
                 console.log("something is wrong");
             })
-
-
     }
 
     const handleSubmit =  () => {

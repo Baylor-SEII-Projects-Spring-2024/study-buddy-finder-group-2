@@ -7,6 +7,9 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CreateIcon from '@mui/icons-material/Create';
 import EventIcon from '@mui/icons-material/Event';
+import {jwtDecode} from "jwt-decode";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
 
 const theme = createTheme({
     palette: {
@@ -16,6 +19,11 @@ const theme = createTheme({
 });
 
 function SearchMeetupsPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [searchStr, setStr] = useState('');
     const [username, setUsername] = useState('');
     const [title, setTitle] = useState('');
@@ -30,16 +38,24 @@ function SearchMeetupsPage() {
     const [courses, setCourses] = useState([]);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`,},
     });
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const user = params.get("username");
-        setCurrentUser(user);
-        fetchCourses();
-        fetchRecommendedMeetups(user);
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setCurrentUser(decodedUser.sub);
+
+            fetchCourses();
+            fetchRecommendedMeetups(decodedUser.sub);
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, []);
 
     const handleSearch = (str) => {
@@ -64,7 +80,7 @@ function SearchMeetupsPage() {
 
         api.post("api/searchMeetups", meetup, {
             headers: {
-                'timezone': timezone
+                'timezone': timezone,
             }})
             .then((res) => {
                 console.log(meetup.title)
@@ -174,9 +190,8 @@ function SearchMeetupsPage() {
 
     const fetchCourses = () => {
         api.get(`api/get-all-courses/`)
-            .then(response => response.data)
-            .then(data => {
-                setCourses(Array.from(data))
+            .then(data =>{
+                setCourses(data.data)
                 console.log(data.data);
             })
             .catch(error => console.error('Error fetching courses:', error));
@@ -189,7 +204,7 @@ function SearchMeetupsPage() {
 
         api.get(`recommendMeetups/${user}`, {
             headers: {
-                'timezone': timezone
+                'timezone': timezone,
             }})
             .then(response => {
                 setRecommendedMeetups(response.data);

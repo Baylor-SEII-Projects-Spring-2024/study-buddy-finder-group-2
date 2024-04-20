@@ -21,6 +21,7 @@ import {
     ThemeProvider
 } from '@mui/material';
 import {authorize, deauthorize} from "@/utils/authSlice";
+import {useRouter} from "next/navigation";
 
 const theme = createTheme({
     palette: {
@@ -37,6 +38,8 @@ const theme = createTheme({
 });
 
 function LoginPage() {
+    const router = useRouter();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,13 +48,12 @@ function LoginPage() {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isError, setIsError] = useState(false);
 
-    //const [token, setToken] = useState(null);
-    const user = useSelector(state => state.authorization.token); //get current state
+    const token = useSelector(state => state.authorization.token); //get current state
     const dispatch = useDispatch(); // use to change state
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
     });
 
 
@@ -92,10 +94,13 @@ function LoginPage() {
                 // this is decoding the token to pass the username to the reducer function
                 // decode does not return a JSON (returns a JwtPayload object)
                 const token  = res.data;
+                console.log(token);
                 // this works! window.sessionStorage.setItem('token', token);
                 //setToken(token);
-                //const decodedUser = jwtDecode(token);
-                //console.log(decodedUser);
+
+                const decodedUser = jwtDecode(token);
+                // just enter decodedToken.customClaim!! (easy!!)
+                console.log(decodedUser.userType);
 
                 // this changes the state
                 // (passes token and sets auth = true)
@@ -104,42 +109,19 @@ function LoginPage() {
 
                 // find a different way to decide if student or tutor
                 if(res.status === 200) {
-                    // student landing page
-                    console.log('User is a student');
-                    window.location = "/studentLanding";
-
                     setSnackbarMessage('Login Successful');
                     setIsError(false);
                     setSnackbarOpen(true);
 
                     setTimeout(() => { // Delay for showing the message before redirection
-                        var params = new URLSearchParams();
-                        params.append("username", res.data.username);
+                        //var params = new URLSearchParams();
+                        //params.append("username", res.data.username);
 
-                        if (res.data.userType.includes("student")) {
-                            window.location.href = "/studentLanding?" + params.toString();
-                        } else if (res.data.userType.includes("tutor")) {
-                            window.location.href = "/tutorLanding?" + params.toString();
+                        if (decodedUser.userType === "student") {
+                            router.push(`/studentLanding`);
                         }
-                    }, 500);
-                }
-                else if(res.status === 201) {
-                    // tutor landing page
-                    console.log('User is a tutor');
-                    window.location = "/tutorLanding";
-
-                    setSnackbarMessage('Login Successful');
-                    setIsError(false);
-                    setSnackbarOpen(true);
-
-                    setTimeout(() => { // Delay for showing the message before redirection
-                        var params = new URLSearchParams();
-                        params.append("username", res.data.username);
-
-                        if (res.data.userType.includes("student")) {
-                            window.location.href = "/studentLanding?" + params.toString();
-                        } else if (res.data.userType.includes("tutor")) {
-                            window.location.href = "/tutorLanding?" + params.toString();
+                        else if (decodedUser.userType === "tutor") {
+                            router.push(`/tutorLanding`);
                         }
                     }, 500);
                 }

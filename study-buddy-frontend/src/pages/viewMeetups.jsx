@@ -12,8 +12,16 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CreateIcon from '@mui/icons-material/Create';
 import EventIcon from '@mui/icons-material/Event';
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 function MeetupsPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [id, setId] = useState(null);
     const [username, setUsername] = useState(null);
     const [title, setTitle] = useState(null);
@@ -30,17 +38,24 @@ function MeetupsPage() {
     const [courses, setCourses] = useState([]);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`},
     });
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setUsername(decodedUser.sub);
 
-        setUsername(user);
-        fetchMeetups(user);
-        fetchCourses();
+            fetchMeetups(decodedUser.sub);
+            fetchCourses();
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, [])
 
     const fetchMeetups = async (user) => {

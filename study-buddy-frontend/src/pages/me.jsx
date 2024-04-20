@@ -3,12 +3,20 @@ import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActio
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 //This is the page that the user themself sees (able to edit and such)
 
 //TODO: Display profile pictures, links
 
 function MyInfoPage() {
+  const router = useRouter();
+
+  const token = useSelector(state => state.authorization.token); //get current state
+  const dispatch = useDispatch(); // use to change state
+
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
@@ -18,8 +26,10 @@ function MyInfoPage() {
   const [userCourses, setUserCourses] = useState([]);
 
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    baseURL: 'http://localhost:8080/',
+    //baseURL: 'http://34.16.169.60:8080/',
+    // must add the header to associate requests with the authenticated user
+    headers: {'Authorization': `Bearer ${token}`},
   });
 
   const fetchUser = (user) => {
@@ -40,14 +50,18 @@ function MyInfoPage() {
   };
 
   useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-        user = params.get("username");
+      try{
+          // only authorized users can do this (must have token)
+          const decodedUser = jwtDecode(token);
+          setUsername(decodedUser.sub);
 
-        setUsername(user);
-
-        fetchUser(user);
-        fetchProfile(user);
-        fetchUserCourses(user);
+          fetchUser(decodedUser.sub);
+          fetchProfile(decodedUser.sub);
+          fetchUserCourses(decodedUser.sub);
+      }
+      catch(err) {
+          router.push(`/error`);
+      }
     }, []);
 
   const fetchUserCourses = (user) => {
@@ -81,7 +95,7 @@ function MyInfoPage() {
         console.log(err);
       });
   }
-  
+
 
 
   //DIALOG (Settings)
@@ -97,7 +111,7 @@ function MyInfoPage() {
   const handleSettingsClose = () => {
       setSettingsOpen(false);
   };
-  
+
 
   return (
     <div>
@@ -179,7 +193,7 @@ function MyInfoPage() {
             <Button onClick={handleSettingsClose}>Cancel</Button>
             <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
         </DialogActions>
-        
+
         </Dialog>
 
     </div>

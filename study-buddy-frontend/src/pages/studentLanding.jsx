@@ -4,15 +4,27 @@ import Head from "next/head";
 import {Box, Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
+import {useRouter} from "next/navigation";
+import {deauthorize} from "@/utils/authSlice";
 
 function StudentLandingPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     var [username, setUsername] = useState(null);
     useEffect(() => {
-        console.log(window.location.search);
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
-
-            setUsername(user);
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setUsername(decodedUser.sub);
+        }
+        catch (err) {
+            router.push(`/error`);
+        }
     }, []);
     console.log("hi " + username);
 
@@ -35,37 +47,37 @@ function StudentLandingPage() {
                     </Card>
 
                     <Stack direction="row">
-                        <Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/me`} passHref>
                             <Button variant='contained' color="primary"> My Profile</Button>
                         </Link>
 
-                        <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/invitations`} passHref>
                             <Button variant='contained' color="primary"> Invitations</Button>
                         </Link>
-                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/editCourse`} passHref>
                             <Button variant='contained' color="primary"> View Courses</Button>
                         </Link>
 
-                        <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/viewMeetups`} passHref>
                             <Button variant='contained' color="primary"> View Meetups</Button>
                         </Link>
                         <Link href="/searchUsers" passHref>
                             <Button variant='contained' color="primary"> Search Users</Button>    
                         </Link>
 
-                        <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/searchUsers`} passHref>
                             <Button variant='contained' color="primary"> Search Users</Button>
                         </Link>
 
-                        <Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/searchMeetups`} passHref>
                             <Button variant='contained' color="primary"> Search Meetups</Button>
                         </Link>
 
-                        <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/viewConnections`} passHref>
                             <Button variant='contained' color="primary"> Connections</Button>
                         </Link>
 
-                        <Link href={`/Notification?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/Notification`} passHref>
                             <Button variant='contained' color="primary"> Notifications</Button>
                         </Link>
 

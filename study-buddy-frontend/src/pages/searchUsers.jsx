@@ -18,9 +18,17 @@ import {
     Typography
 } from "@mui/material";
 import NotificationPage from "@/pages/Notification";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 
 function SearchUsersPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const[thisUser, setThisUser] = useState(null);
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
@@ -40,8 +48,10 @@ function SearchUsersPage() {
     const [selectedConnection, setSelectedConnection] = useState(null);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`},
     });
 
     const fetchRecommendations = (username) => {
@@ -56,15 +66,17 @@ function SearchUsersPage() {
 
     // get the user's username
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setThisUser(decodedUser.sub);
+            setRequester(decodedUser.sub);
 
-        if (user) {
-            fetchRecommendations(user);
+            fetchRecommendations(decodedUser.sub);
         }
-
-        setRequester(user);
-        setThisUser(user);
+        catch(err) {
+            router.push(`/error`);
+        }
     }, [])
 
     // search for users matching the specifications

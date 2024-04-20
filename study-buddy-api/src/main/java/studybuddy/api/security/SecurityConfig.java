@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,17 +32,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        System.out.println();
         http
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling((exception)-> exception
                         .authenticationEntryPoint(authEntryPoint)
-                        //.accessDeniedPage("/error/access-denied")
+                        .accessDeniedPage("/error")
                 )
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // this means anything request within authorization endpoint is authenticated
                         .requestMatchers("/api/authorization/**").permitAll()
+                        .requestMatchers("/api/request-school-options").permitAll()
+                        .requestMatchers("/api/find-username/**").permitAll()
+                        .requestMatchers("/api/find-email/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 //.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
@@ -48,6 +54,18 @@ public class SecurityConfig {
 
         // adds the JWT Authentication Filter to the filter chain
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .addFilterBefore((request, response, chain) -> {
+                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                    if (authentication != null) {
+                        System.out.println("yes");
+                    } else {
+                        System.out.println("no");
+                    }
+                    chain.doFilter(request, response);
+                }, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

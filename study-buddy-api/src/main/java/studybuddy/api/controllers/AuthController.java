@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import studybuddy.api.dto.AuthResponseDto;
 import studybuddy.api.dto.LoginDto;
 import studybuddy.api.dto.RegisterDto;
 import studybuddy.api.security.JwtGenerator;
@@ -19,6 +18,7 @@ import studybuddy.api.user.UserService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
 @RequestMapping("/api/authorization")
 public class AuthController {
     private AuthenticationManager authenticationManager;
@@ -41,23 +41,18 @@ public class AuthController {
     @PostMapping("login")
     // AuthResponseDto
     public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
-        // TODO: how to get roles/userType in token (set authorities??)
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
                         loginDto.getPassword()));
 
-        // get the user type from database
-        String userType = userService.findUserType(loginDto.getUsername());
+        // get the user from database
+        User user = userService.findByUsernameExists(loginDto.getUsername());
 
+        // generate the token
         SecurityContextHolder.getContext().setAuthentication(auth);
-        String token = jwtGenerator.generateToken(auth, userType);
+        String token = jwtGenerator.generateToken(auth, user);
 
-        if(userType.equals("student")) {
-            return new ResponseEntity<>(token, HttpStatus.valueOf(200));
-        }
-        else {
-            return new ResponseEntity<>(token, HttpStatus.valueOf(201));
-        }
+        return new ResponseEntity<>(token, HttpStatus.valueOf(200));
     }
 
     @PostMapping("register")
@@ -72,13 +67,15 @@ public class AuthController {
         user.setUsername(registerDto.getUsername());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         user.setUserType(registerDto.getUserType());
-        user.setName(registerDto.getName());
+        user.setFirstName(registerDto.getFirstName());
+        user.setLastName(registerDto.getLastName());
         user.setEmailAddress(registerDto.getEmailAddress());
-        // TODO: add school to registerDto
-        // user.setSchool(registerDto.getSchool());
+        // TODO: associate school
+        //user.setSchool(registerDto.getSchool());
 
-        // because we are returning a string, the user must sign in after creating an account
+        // save user
+        // can't return token because user must be in database already (completed transaction)
         userService.saveUser(user);
-        return new ResponseEntity<>("User is registered!", HttpStatus.OK);
+        return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
     }
 }

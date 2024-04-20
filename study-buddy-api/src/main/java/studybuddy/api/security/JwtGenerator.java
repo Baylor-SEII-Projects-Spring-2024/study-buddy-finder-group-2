@@ -15,7 +15,7 @@ public class JwtGenerator {
 
     // token contains username and userType
     // also has an issued at time and expiration
-    public String generateToken(Authentication auth, String userType) {
+    public String generateToken(Authentication auth, User user) {
         String username = auth.getName();
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + SecurityConstants.JWT_EXPIRATION);
@@ -26,8 +26,13 @@ public class JwtGenerator {
                 .setIssuedAt(currentDate)
                 .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS256, SecurityConstants.JWT_SECRET)
-                // custom claim of user-type (figure out roles later??)
-                .claim("userType", userType)
+                // custom claims (figure out roles later??)
+                .claim("userType", user.getUserType())
+                .claim("firstName", user.getFirstName())
+                .claim("lastName", user.getLastName())
+                .claim("email", user.getEmailAddress())
+                // TODO: associate with schools
+                //.claim("school", user.getSchool())
                 .compact();
 
         return token;
@@ -45,15 +50,24 @@ public class JwtGenerator {
     }
 
     // get all claims from token
-    public User getAllClaims(String token) {
+    public User parseToken(String token) {
+        User user = new User();
+
         Claims claims = Jwts.parser()
                 .setSigningKey(SecurityConstants.JWT_SECRET)
                 .parseClaimsJws(token)
                 .getBody();
 
-        System.out.println(claims);
+        user.setUsername(claims.getSubject());
+        user.setUserType(claims.get("userType", String.class));
+        user.setUserType(claims.get("firstName", String.class));
+        user.setUserType(claims.get("lastName", String.class));
+        user.setUserType(claims.get("email", String.class));
+        //user.setUserType(claims.get("school", String.class));
 
-        return null;
+        System.out.println(user.getFirstName());
+
+        return user;
     }
 
     // validates token expired/incorrect

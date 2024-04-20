@@ -22,8 +22,16 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Link from "next/link";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 function NotificationPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [username, setUsername] = useState(null);
     const [user, setUser] = useState(null);
     const [count, setCount] = useState(0);
@@ -41,8 +49,10 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`},
     });
 
     const checkExpiredMeetups = async (user) => {
@@ -50,11 +60,11 @@ function NotificationPage() {
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
     
-        console.log("Check " + user + "'s expired meetings");
+        //console.log("Check " + user + "'s expired meetings");
 
         // TEST
         const currentTimeInUserTimeZone = new Date().toLocaleString('en-US', { timeZone: timezone});
-        console.log("Current time in user's time zone:", currentTimeInUserTimeZone);
+        //console.log("Current time in user's time zone:", currentTimeInUserTimeZone);
     
         return api.get(`expiredMeetups/${user}`, {
             headers: {
@@ -68,6 +78,7 @@ function NotificationPage() {
         });
     };
 
+    // TODO: I don't think the user request is needed now (state is stored)
     const fetchUser = (name) => {
         console.log("User to fetch for: " + name);
 
@@ -75,10 +86,10 @@ function NotificationPage() {
             .then(async data => {
                 await setUser(data.data);
                 if(data.data.userType === "student"){
-                    setRef(`/studentLanding?username=${encodeURIComponent(name)}`)
+                    setRef(`/studentLanding`)
                 }
                 else if (data.data.userType === "tutor"){
-                    setRef(`/tutorLanding?username=${encodeURIComponent(name)}`)
+                    setRef(`/tutorLanding`)
                 }
                 viewNotifications(name);
                 setInterval(function () {
@@ -91,11 +102,15 @@ function NotificationPage() {
     };
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-            name = params.get("username");
-
-        setUsername(name);
-        fetchUser(name);
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setUsername(decodedUser.sub);
+            fetchUser(decodedUser.sub);
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, []);
 
     const viewNotifications = (name) => {
@@ -161,36 +176,37 @@ function NotificationPage() {
                 <Toolbar>
 
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        <a href={ref}>
+                        {/* must use a link, otherwise page refreshes!! */}
+                        <Link href={ref}>
                             StuddyBuddy
-                        </a>
+                        </Link>
                     </Typography>
 
                     <div>
-                        <Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/me`} passHref>
                             <Button color="inherit">My Profile</Button>
                         </Link>
 
-                        <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/invitations`} passHref>
                             <Button color="inherit">Invitations</Button>
                         </Link>
-                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/editCourse`} passHref>
                             <Button color="inherit">View Courses</Button>
                         </Link>
 
-                        <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/viewMeetups`} passHref>
                             <Button color="inherit">View Meetups</Button>
                         </Link>
 
-                        <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/searchUsers`} passHref>
                             <Button color="inherit">Search Users</Button>
                         </Link>
 
-                        <Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/searchMeetups`} passHref>
                             <Button color="inherit">Search Meetups</Button>
                         </Link>
 
-                        <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
+                        <Link href={`/viewConnections`} passHref>
                             <Button color="inherit">Connections</Button>
                         </Link>
                     <Badge badgeContent={count} color="warning">
@@ -242,7 +258,7 @@ function NotificationPage() {
                                                     value.read = !value.read
                                                 }}>
                                             </Checkbox>
-                                            <Link href={`${value.notificationUrl}?username=${encodeURIComponent(username)}`}>
+                                            <Link href={`${value.notificationUrl}`}>
                                             <ListItemText id={labelId}
                                                           fontWeight={value.read ? 400 : 1000 }
                                                           primary={`${value.notificationContent}`} />

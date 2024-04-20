@@ -13,8 +13,16 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import NotificationPage from "@/pages/Notification";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 function InvitationsPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [thisUser, setThisUser] = useState(null);
     const [requestType, setRequestType] = useState("incoming");
 
@@ -35,18 +43,25 @@ function InvitationsPage() {
     const [selectedConnection, setSelectedConnection] = useState(null);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`},
     });
 
     // get the user's username
     // show all connections for that user
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setThisUser(decodedUser.sub);
 
-        setThisUser(user);
-        fetchInRequests(user);
+            fetchInRequests(decodedUser.sub);
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, [])
 
     // get all connections with isConnected = false
