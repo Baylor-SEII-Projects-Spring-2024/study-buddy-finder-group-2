@@ -21,6 +21,9 @@ public class MeetupInvite {
     @Column(name = "MEETUP_ID")
     Long meetupId;
 
+    @Column(name = "MEETUP_TITLE")
+    String title;
+
     @Column(name = "CREATOR")
     String creator;
 

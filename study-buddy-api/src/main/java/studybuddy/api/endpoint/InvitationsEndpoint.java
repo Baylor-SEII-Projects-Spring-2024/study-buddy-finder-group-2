@@ -20,8 +20,8 @@ import java.util.*;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class InvitationsEndpoint {
 
     @Autowired
@@ -152,31 +152,46 @@ public class InvitationsEndpoint {
         return invitedMeetups;
     }
 
+//    @GetMapping("/api/viewMeetupInvitesOut/{username}")
+//    public List<Optional<Meeting>> fetchMeetupOutRequests(@PathVariable String username,
+//                                                         @RequestHeader("timezone") String timeZone) {
+//        List<MeetupInvite> meetupInvites = meetupInvitesService.getInvites(username);
+//        List<Long> meetupTitles = new ArrayList<>();
+//        List<Optional<Meeting>> invitedMeetups = new ArrayList<>();
+//
+//        for(MeetupInvite mi : meetupInvites) {
+//            if(mi.getCreator().equals(username)) {
+//                meetupTitles.add(mi.getMeetupId());
+//            }
+//        }
+//
+//        ZoneId timeZoneId = ZoneId.of(timeZone);
+//        for(Long id : meetupTitles) {
+//            Optional<Meeting> meetup = meetingService.findById(id);
+//
+//            if(meetup.isPresent()) {
+//                meetup.get().setStartDate(meetup.get().getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+//                meetup.get().setEndDate(meetup.get().getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+//
+//                invitedMeetups.add(meetup);
+//            }
+//        }
+//        return invitedMeetups;
+//    }
+
     @GetMapping("/api/viewMeetupInvitesOut/{username}")
-    public List<Optional<Meeting>> fetchMeetupOutRequests(@PathVariable String username,
-                                                         @RequestHeader("timezone") String timeZone) {
+    public List<MeetupInvite> fetchMeetupOutRequests(@PathVariable String username,
+                                                          @RequestHeader("timezone") String timeZone) {
         List<MeetupInvite> meetupInvites = meetupInvitesService.getInvites(username);
-        List<Long> meetupTitles = new ArrayList<>();
-        List<Optional<Meeting>> invitedMeetups = new ArrayList<>();
+        List<MeetupInvite> outgoingMeetups = new ArrayList<>();
 
         for(MeetupInvite mi : meetupInvites) {
             if(mi.getCreator().equals(username)) {
-                meetupTitles.add(mi.getMeetupId());
+                outgoingMeetups.add(mi);
             }
         }
 
-        ZoneId timeZoneId = ZoneId.of(timeZone);
-        for(Long id : meetupTitles) {
-            Optional<Meeting> meetup = meetingService.findById(id);
-
-            if(meetup.isPresent()) {
-                meetup.get().setStartDate(meetup.get().getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
-                meetup.get().setEndDate(meetup.get().getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
-
-                invitedMeetups.add(meetup);
-            }
-        }
-        return invitedMeetups;
+        return outgoingMeetups;
     }
 
     @RequestMapping(

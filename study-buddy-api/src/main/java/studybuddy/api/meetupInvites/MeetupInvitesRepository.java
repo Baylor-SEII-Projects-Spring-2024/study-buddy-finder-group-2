@@ -19,6 +19,6 @@ public interface MeetupInvitesRepository extends JpaRepository<MeetupInvite, Lon
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM meetup_invites m WHERE (m.creator = ?1 AND m.invitee = ?2) OR (m.creator = ?2 AND m.invitee = ?1) AND m.meetup_id = ?3", nativeQuery = true)
+    @Query(value = "DELETE FROM meetup_invites m WHERE ((m.creator = ?1 AND m.invitee = ?2) OR (m.creator = ?2 AND m.invitee = ?1)) AND m.meetup_id = ?3", nativeQuery = true)
     public void deleteMeetupInvite(String thisUser, String otherUser, Long meetupId);
 }

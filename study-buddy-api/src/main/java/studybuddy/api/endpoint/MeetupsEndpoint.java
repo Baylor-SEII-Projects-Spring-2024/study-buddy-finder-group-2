@@ -19,15 +19,12 @@ import studybuddy.api.rating.RatingService;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
 public class MeetupsEndpoint {
 
     @Autowired
@@ -212,6 +209,7 @@ public class MeetupsEndpoint {
             // meetupInvite
             MeetupInvite meetupInvite = new MeetupInvite();
             meetupInvite.setMeetupId(savedMeeting.getId());
+            meetupInvite.setTitle(savedMeeting.getTitle());
             meetupInvite.setCreator(creator.getUsername());
             meetupInvite.setInvitee(receiver.getUsername());
             meetupInvite.setIsJoined(false);
@@ -227,6 +225,13 @@ public class MeetupsEndpoint {
     public void deleteMeeting(@PathVariable Long id) {
         meetingService.deleteMeetupUser(id);
         meetingService.delete(id);
+
+        // delete all invites associated with this meetup
+        for(MeetupInvite mi : meetupInvitesService.findAll()){
+            if(Objects.equals(mi.getMeetupId(), id)){
+                meetupInvitesService.deleteMeetupInvite(mi.getCreator(), mi.getInvitee(), mi.getMeetupId());
+            }
+        }
     }
 
     @RequestMapping(
@@ -270,24 +275,29 @@ public class MeetupsEndpoint {
 
             // send invites
             mi.getInvites().forEach(invitee -> {
-                User receiver = userService.findByUsernameExists(invitee.getUsername());
 
-                Notification notification = new Notification();
-                notification.setReciever(receiver);
-                notification.setSender(creator);
-                notification.setTimestamp(new Date());
-                notification.setNotificationUrl("/viewMeetups");
-                notification.setNotificationContent(creator.getUsername() + " has invited you to a meetup, '" + mi.getMeeting().getTitle() + "'!");
-                notificationService.sendNotification(notification);
+                // check if there is already an invite for this invitee
+                if( (meetupInvitesService.find(creator.getUsername(), invitee.getUsername(), false, mi.getMeeting().getId())).isEmpty() ){
+                    User receiver = userService.findByUsernameExists(invitee.getUsername());
 
-                // meetupInvite
-                MeetupInvite meetupInvite = new MeetupInvite();
-                meetupInvite.setMeetupId(mi.getMeeting().getId());
-                meetupInvite.setCreator(creator.getUsername());
-                meetupInvite.setInvitee(receiver.getUsername());
-                meetupInvite.setIsJoined(false);
+                    Notification notification = new Notification();
+                    notification.setReciever(receiver);
+                    notification.setSender(creator);
+                    notification.setTimestamp(new Date());
+                    notification.setNotificationUrl("/viewMeetups");
+                    notification.setNotificationContent(creator.getUsername() + " has invited you to a meetup, '" + mi.getMeeting().getTitle() + "'!");
+                    notificationService.sendNotification(notification);
 
-                meetupInvitesService.save(meetupInvite);
+                    // meetupInvite
+                    MeetupInvite meetupInvite = new MeetupInvite();
+                    meetupInvite.setMeetupId(mi.getMeeting().getId());
+                    meetupInvite.setTitle(mi.getMeeting().getTitle());
+                    meetupInvite.setCreator(creator.getUsername());
+                    meetupInvite.setInvitee(receiver.getUsername());
+                    meetupInvite.setIsJoined(false);
+
+                    meetupInvitesService.save(meetupInvite);
+                }
             });
 
             return ResponseEntity.ok(meetingService.save(mi.getMeeting()));
