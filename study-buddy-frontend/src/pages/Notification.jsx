@@ -17,10 +17,13 @@ import {
     ThemeProvider,
     createTheme, Tooltip
 } from '@mui/material';
-
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import SearchIcon from '@mui/icons-material/Search';
+import GroupsIcon from '@mui/icons-material/Groups';
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
@@ -37,14 +40,16 @@ function NotificationPage() {
     const [count, setCount] = useState(0);
     const [notificationList, setNotifList] = useState(null);
     const [notif, selectNotif] = useState(null)
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = React.useState(null)
+    const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const [anchorEl3, setAnchorEl3] = React.useState(null);
     const [ref, setRef] = useState("/login");
 
     const theme = createTheme({
         palette: {
             primary: { main: '#a0c334' },
-            secondary: { main: '#ffd700' }
-        }
+            secondary: { main: '#ffd700' },
+        },
     });
 
 
@@ -59,23 +64,17 @@ function NotificationPage() {
         // get user local time zone
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
-    
-        //console.log("Check " + user + "'s expired meetings");
 
-        // TEST
-        const currentTimeInUserTimeZone = new Date().toLocaleString('en-US', { timeZone: timezone});
-        //console.log("Current time in user's time zone:", currentTimeInUserTimeZone);
-    
         return api.get(`expiredMeetups/${user}`, {
             headers: {
                 'timezone': timezone
             }
         })
-        .then(response => response.data)
-        .catch(error => {
-            console.error('Error checking expired meetups', error);
-            return null;
-        });
+            .then(response => response.data)
+            .catch(error => {
+                console.error('Error checking expired meetups', error);
+                return null;
+            });
     };
 
     // TODO: I don't think the user request is needed now (state is stored)
@@ -150,12 +149,28 @@ function NotificationPage() {
     }
 
 
-    const handleOpen = () => {
-        setAnchorEl(event.currentTarget);
+    const handleNotifOpen = (e) => {
+        setAnchorEl(e.currentTarget);
     }
 
-    const handleClose = () => {
+    const handleNotifClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleProfileOpen = (e) => {
+        setAnchorEl2(e.currentTarget);
+    }
+
+    const handleProfileClose = () => {
+        setAnchorEl2(null);
+    };
+
+    const handleSearchOpen = (e) => {
+        setAnchorEl3(e.currentTarget);
+    }
+
+    const handleSearchClose = () => {
+        setAnchorEl3(null);
     };
 
     const empty = () => {
@@ -168,10 +183,8 @@ function NotificationPage() {
         <ThemeProvider theme={theme}>
         <Box>
             <AppBar  style={{
-                width: "93.5%",
-                right: "3.2%",
-                border: "2px solid white",
-                borderRadius: "30px"
+
+                boxShadow: "none"
             }}>
                 <Toolbar>
 
@@ -183,104 +196,110 @@ function NotificationPage() {
                     </Typography>
 
                     <div>
-                        <Link href={`/me`} passHref>
-                            <Button color="inherit">My Profile</Button>
+                        <Link href={ref} passHref>
+                            <Button color="inherit"><HomeIcon></HomeIcon>Home</Button>
                         </Link>
-
                         <Link href={`/invitations`} passHref>
                             <Button color="inherit">Invitations</Button>
                         </Link>
-                        <Link href={`/editCourse`} passHref>
-                            <Button color="inherit">View Courses</Button>
-                        </Link>
-
                         <Link href={`/viewMeetups`} passHref>
-                            <Button color="inherit">View Meetups</Button>
+                            <Button color="inherit"><MeetingRoomIcon></MeetingRoomIcon>View Meetups</Button>
                         </Link>
-
-                        <Link href={`/searchUsers`} passHref>
-                            <Button color="inherit">Search Users</Button>
-                        </Link>
-
-                        <Link href={`/searchMeetups`} passHref>
-                            <Button color="inherit">Search Meetups</Button>
-                        </Link>
+                        <Button color="inherit" onClick={handleSearchOpen} on={handleSearchOpen}><SearchIcon/>Search</Button>
+                        <Menu anchorEl={anchorEl3}
+                              open={Boolean(anchorEl3)}
+                              onClose={handleSearchClose}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted>
+                            <MenuItem><Link href={`/searchUsers`} passHref>
+                                Search Users
+                            </Link></MenuItem>
+                            <MenuItem><Link href={`/searchMeetups`} passHref>
+                                Search Meetups
+                            </Link></MenuItem>
+                        </Menu>
 
                         <Link href={`/viewConnections`} passHref>
-                            <Button color="inherit">Connections</Button>
+                            <Button color="inherit"><GroupsIcon/>Buddies</Button>
                         </Link>
-                    <Badge badgeContent={count} color="warning">
-                        <Tooltip title={"notifications"}>
-                            <IconButton
-                                aria-label="notifications of current user"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
-                                size="large"
-                                onClick={handleOpen}
-                                color="inherit">
-                                <NotificationsIcon/>
-                            </IconButton>
-                        </Tooltip>
-                    </Badge>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            sx={{ minWidth: 250}}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <List component="notifications" aria-label="notifications">
+                        <Badge badgeContent={count} color="warning">
+                            <Tooltip title={"notifications"}>
+                                <IconButton
+                                    aria-label="notifications of current user"
+                                    aria-controls="menu-appbar"
+                                    aria-haspopup="true"
+                                    size="large"
+                                    onClick={(e) => handleNotifOpen(e)}
+                                    color="inherit">
+                                    <NotificationsIcon/>
+                                </IconButton>
+                            </Tooltip>
+                        </Badge>
+                        <Menu anchorEl={anchorEl}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted
+                              sx={{ minWidth: 250, maxWidth: 400,
+                                  maxHeight: 400}}
+                              open={Boolean(anchorEl)}
+                              onClose={handleNotifClose}>
+                            <List
+                                id="notification-appbar" component="notifications" aria-label="notifications">
                                 {(notificationList === null || notificationList.length === 0) ? empty()
-                                 : notificationList.map((value) => {
-                                    const labelId = `checkbox-list-label-${value.notificationId}`;
-                                    return (
-                                        <MenuItem
-                                            selected={ notif === value}
-                                        >
-                                            <Checkbox checked={value.read}
-                                                onClick={() => {
-                                                    if(value.read) {
-                                                        setCount(count+1);
-                                                    }
-                                                    else {
-                                                        setCount(count-1);
-                                                    }
-                                                    switchNotifReadStatus(value);
-                                                    value.read = !value.read
-                                                }}>
-                                            </Checkbox>
-                                            <Link href={`${value.notificationUrl}`}>
-                                            <ListItemText id={labelId}
-                                                          fontWeight={value.read ? 400 : 1000 }
-                                                          primary={`${value.notificationContent}`} />
-                                            </Link>
-                                            <Button size="small" onClick={() => {
-                                                selectNotif(value);
-                                                deleteNotif(value);
-                                                notificationList.splice(notificationList.indexOf(value),1);
-                                            }}>
-                                                X
-                                            </Button>
-
-                                        </MenuItem>
-                                    );
-                                })}
+                                    : notificationList.map((value) => {
+                                        const labelId = `checkbox-list-label-${value.notificationId}`;
+                                        return (
+                                            <MenuItem sx={{width:300,
+                                                whiteSpace: "normal",
+                                            }}
+                                                      selected={ notif === value}
+                                            >
+                                                <Checkbox checked={value.read}
+                                                          onClick={() => {
+                                                              if(value.read) {
+                                                                  setCount(count+1);
+                                                              }
+                                                              else {
+                                                                  setCount(count-1);
+                                                              }
+                                                              switchNotifReadStatus(value);
+                                                              value.read = !value.read
+                                                          }}>
+                                                </Checkbox>
+                                                <Link href={`${value.notificationUrl}`}>
+                                                    <ListItemText id={labelId}
+                                                                  fontWeight={value.read ? 400 : 1000 }
+                                                                  primary={`${value.notificationContent}`} />
+                                                </Link>
+                                                <Button size="small" onClick={() => {
+                                                    selectNotif(value);
+                                                    deleteNotif(value);
+                                                    notificationList.splice(notificationList.indexOf(value),1);
+                                                }}>X</Button>
+                                            </MenuItem>
+                                        );
+                                    })}
                             </List>
                         </Menu>
                         <Tooltip title={"profile"}>
-                            <IconButton>
+                            <IconButton onClick={(e) => handleProfileOpen(e)}>
                                 <AccountCircle/>
                             </IconButton>
                         </Tooltip>
+                        <Menu anchorEl={anchorEl2}
+                              open={Boolean(anchorEl2)}
+                              onClose={handleProfileClose}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted>
+                            <MenuItem><Link href={`/me?`} passHref>
+                                My Profile
+                            </Link></MenuItem>
+                            <MenuItem><Link href={`/`} passHref>
+                                Logout
+                            </Link></MenuItem>
+                        </Menu>
                     </div>
                 </Toolbar>
             </AppBar>

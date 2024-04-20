@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Button, RadioGroup, TextField, Box, Grid} from '@mui/material/';
+import { LinearProgress } from '@mui/material';
 import {
     Autocomplete,
     ButtonGroup,
@@ -16,6 +17,20 @@ import {NextResponse as r} from "next/server";
 import {useDispatch, useSelector} from "react-redux";
 import {useRouter} from "next/navigation";
 
+const api = axios.create({
+    //baseURL: 'http://localhost:8080/'
+    baseURL: 'http://34.16.169.60:8080/'
+});
+
+const evaluatePasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[a-z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    return strength;
+};
 
 function RegistrationPage() {
     const router = useRouter();
@@ -24,36 +39,32 @@ function RegistrationPage() {
 
     // Database looks for attribute name, not column name when assigning attributes to new row
     // emailAddress and userType need no underscores
-    const [username, setUsername] = useState(null);
-    const [firstName, setFirstName] = useState(null);
-    const [lastName, setLastName] = useState(null);
-    const [password, setPassword] = useState(null);
-    const [confirmPassword, setConfirmPassword] = useState(null);
-    const [emailAddress, setEmail] = useState(null);
+    const [username, setUsername] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [emailAddress, setEmail] = useState("");
     const [userType, setType] = useState(null);
     const [school, setSchool] = useState(null);
-    const [schools, setSchools] = useState(null);
+    const [schools, setSchools] = useState([]);
 
     //errors
-    const [errUser, setErrUser] = useState(false);
-    const [errPwd, setErrPwd] = useState(false);
-    const [errFirstName, setErrFirstName] = useState(false);
-    const [errLastName, setErrLastName] = useState(false);
-    const [errEmail, setErrEmail] = useState(false);
-    const [errCPwd, setErrCPwd] = useState(false);
-    const [errSchool, setErrSchool] = useState(false);
-    const [errUserType, setErrUserType] = useState(false);
+    const [errUser, setErrUser] = useState("");
+    const [errPwd, setErrPwd] = useState("");
+    const [errFirstName, setErrFirstName] = useState("");
+    const [errLastName, setErrLastName] = useState("");
+    const [errEmail, setErrEmail] = useState("");
+    const [errCPwd, setErrCPwd] = useState("");
+    const [errSchool, setErrSchool] = useState("");
+    const [errUserType, setErrUserType] = useState("");
 
-    const api = axios.create({
-        baseURL: 'http://localhost:8080/'
-        //baseURL: 'http://34.16.169.60:8080/'
-    });
+    const [passwordStrength, setPasswordStrength] = useState(0);
 
 
     //getting list of schools from database
     useEffect(() => {
-
-        api.get("api/request-school-options")
+        api.get("/api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -62,67 +73,164 @@ function RegistrationPage() {
 
     }, []);
 
-    //password and username validationregex
-    const PWD_REGEX = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^*-]).{8,}$/;
-    //username regex
-    const USER_REGEX = /^[A-z,0-9]{3,23}$/;
-    // handles submission of form
+    const handleChangeUserType = (event) => {
+        const newUserType = event.target.value;
+        setType(newUserType);
+        if (!newUserType) {
+            setErrUserType("Please select a user type.");  // Set an error if no user type is selected
+        } else {
+            setErrUserType("");
+        }
+    };
+
+    const handleChangeSchool = (event, newValue) => {
+        if (newValue) {
+            setSchool(newValue);
+            setErrSchool("");
+        } else {
+            setSchool(null);
+            setErrSchool("Please select a school.");
+        }
+    };
+    const handleChangePassword = (event) => {
+        const newPassword = event.target.value;
+        setPassword(newPassword);
+        const strength = evaluatePasswordStrength(newPassword);
+        setPasswordStrength(strength);
+        if (strength < 3) {
+            setErrPwd("Password is too weak. Strong passwords contain at least 8 characters, 1 capital letter, 1 number, and 1 special character (@.#$!%*?&^)");
+        } else {
+            setErrPwd("");
+        }
+    };
+
+    const handleChangeConfirmPassword = (event) => {
+        const newPassword = event.target.value;
+        setConfirmPassword(newPassword);
+        if ( newPassword !== password ) {
+            setErrCPwd("Passwords do not match");
+        } else {
+            setErrCPwd("");
+        }
+    };
+
+    const handleChangeFirstName = (event) => {
+        const value = event.target.value
+        setFirstName(value);
+        if (value === '') {
+            setErrFirstName("Please input a first name");
+        } else {
+            setErrFirstName("");
+        }
+    };
+
+    const handleChangeLastName = (event) => {
+        const value = event.target.value
+        setLastName(value);
+        if (value === '') {
+            setErrLastName("Please input a last name");
+        } else {
+            setErrLastName("");
+        }
+    };
+
+    const handleChangeUsername = (event) => {
+        const newUsername = event.target.value;
+        setUsername(newUsername);
+        if (newUsername === '') {
+            setErrUser("Please input a username");
+        }
+        else {
+            api.get(`/api/find-username/${newUsername}`)
+                .then(() => {
+                    setErrUser("");
+                })
+                .catch((res) => {
+                    setErrUser("Username already exists. Please choose another.");
+                })
+        }
+    }
+
+    const handleChangeEmail = (event) => {
+        const newEmail = event.target.value;
+        setEmail(newEmail);
+        if (newEmail === '') {
+            setErrEmail("Please input an email");
+        } else {
+            api.get(`/api/find-email/${newEmail}`)
+                .then(() => {
+                    setErrEmail("");
+                })
+                .catch((error) => {
+                    if (error.response && error.response.status === 400) {
+                        setErrEmail("Email already exists!");
+                    } else {
+                        console.log("Something went wrong", error);
+                        setErrEmail("Failed to validate email. Try again.");
+                    }
+                });
+        }
+    };
 
     const submitInfo = (event) => {
-        let right = true;
-        //TODO: verify that username is valid
-        console.log(USER_REGEX.test(username));
-        const verUser = USER_REGEX.test(username) && username !== null;
-        //TODO: verify that password is valid
-        const verPwd = PWD_REGEX.test(password) && password !== null;
-        console.log(PWD_REGEX.test(password));
-        console.log(verPwd);
-        //verify that password is equal to confirm password
-        const verMatch = password === confirmPassword;
 
-
-        setErrFirstName(firstName == null || firstName === '');
-        setErrLastName(lastName === null || lastName === '');
-        setErrSchool(school === null);
-        setErrEmail(emailAddress === null || emailAddress === '');
-        if (school !== null && emailAddress !== null && emailAddress !== '') {
-            console.log(emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length));
-            setErrEmail(emailAddress.length < school.emailDomain.length && emailAddress.substring(emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain);
+        // check if fields are empty first
+        if (firstName === '' || lastName === '' || emailAddress === '' || username === '' || password === '' || confirmPassword === '' || userType === null || school === null) {
+            alert("Please fill out all fields");
+            return;
         }
-        setErrUserType(userType === null);
-        setErrUser(!verUser);
-        setErrPwd(!verPwd);
-        setErrCPwd(!verMatch);
 
-        api.get(`api/find-username/${username}`)
-            .then(() => {
-                setErrUser(false);
-            })
-            .catch((res) => {
-                window.alert("Username already exists! Find a different one");
-                setErrUser(true);
-                right = false;
-            })
-
-        api.get(`api/find-email/${emailAddress}`)
-            .then(()=>{
-                setErrEmail(false);
-
-            })
-            .catch((res) => {
-                window.alert("Email already exists!");
-                setErrEmail(true);
-                right = false;
-            })
-
-        if(right){
-            handleSubmit();
+        if (errUserType !== "") {
+            alert(errUserType);
+            return;
         }
+
+        if (errUserType !== "") {
+            alert(errUserType);
+            return;
+        }
+
+        if (errEmail !== "") {
+            alert(errEmail);
+            return;
+        }
+
+        if (errLastName !== "") {
+            alert(errLastName);
+            return;
+        }
+
+        if (errSchool !== "") {
+            alert(errSchool);
+            return;
+        }
+
+        if (errUser !== "") {
+            alert(errUser);
+            return;
+        }
+
+        if (errFirstName !== "") {
+            alert(errFirstName);
+            return;
+        }
+
+        if (errPwd !== "") {
+            alert(errPwd);
+            return;
+        }
+
+        if (errCPwd !== "") {
+            alert(errCPwd);
+            return;
+        }
+
+        registerUser();
     }
 
     const registerUser = () => {
         const user = {
-            username, password, firstName, lastName, emailAddress, userType//, school
+            username, password, firstName, lastName, emailAddress, userType
         }
 
         console.log({
@@ -131,38 +239,27 @@ function RegistrationPage() {
             emailAddress: emailAddress,
             username: username,
             userType: userType,
-            school: school,
             password: password
         });
 
-        api.post("api/authorization/register", user)
+        api.post("/api/authorization/register", user)
             .then((res) => {
                 console.log('No Existing User! User is now registered!')
-                console.log(res.data);
-
-                // can't authorize users right after entered
-                // transaction not completed??
-                router.push(`/login`);
+                router.push('/login')
             })
             .catch((err) => {
                 console.log("something is wrong");
             })
     }
 
-    const handleSubmit =  () => {
-        //check if fields are valid
-        if(errLastName || errFirstName || errSchool || errEmail || errPwd || errCPwd || errUserType || errUser){
-            window.alert("Please fill out all fields");
-        }
-        else {
-            registerUser();
-        }
+
+    const getColor = (strength) => {
+        if (strength < 2) return 'error';   // Red
+        if (strength < 3) return 'warning'; // Orange
+        if (strength < 4) return 'info';    // Yellow
+        return 'success';                   // Green
     };
 
-
-
-    // registration page information
-    //note: get list of schools from database later
 
     return (
         <Box>
@@ -179,20 +276,20 @@ function RegistrationPage() {
                 <Autocomplete // school selector
                     id="school-select"
                     options={schools}
-                    sx={{ width: 200}}
+                    sx={{width: 200}}
                     autoHighlight
                     getOptionLabel={(option) => option.schoolName}
-                    isOptionEqualToValue={(option,value) => option.id === value.id}
-                    onChange={(e,v) => setSchool(v)}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    onChange={handleChangeSchool}
                     renderOption={(props, option) => (
-                        <Box component="li" sx={{ display: 'flex'}} {...props}>
+                        <Box component="li" sx={{display: 'flex'}} {...props}>
                             {option.schoolName}
                         </Box>
                     )}
                     renderInput={(params) => (
                         <TextField
-                            error={errSchool}
-                            helperText={errSchool ? 'Please input your school' : ''}
+                            error={errSchool !== ''}
+                            helperText={errSchool !== '' ? errSchool : ''}
                             {...params}
                             label="Choose a School"
                             inputProps={{
@@ -204,38 +301,60 @@ function RegistrationPage() {
                 /> <br/>
 
                 <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
-                           onChange={(e) => setFirstName(e.target.value)}
-                           error={errFirstName} helperText={errFirstName ? 'Please input a first name' : ''}/><br/>
+                           onChange={handleChangeFirstName}
+                /><br/>
                 <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
-                           onChange={(e) => setLastName(e.target.value)}
-                           error={errLastName} helperText={errLastName ? 'Please input a last name' : ''}/><br/>
+                           onChange={handleChangeLastName}
+                /><br/>
                 <TextField autoComplete="email" id="email" name="email" label="Email"
-                           onChange={(e) => setEmail(e.target.value)}
-                           error={errEmail} helperText={errEmail ? 'Please input your school email' : ''}/><br/>
+                           onChange={handleChangeEmail}
+                /><br/>
                 <TextField id="username" name="username" label="Username"
-                           onChange={(e) => setUsername(e.target.value)}
-                           error={errUser} helperText={errUser ? 'Please input a username of only letters and numbers' : ''}/><br/>
-                <TextField autoComplete="new-password" type="password" id="password" name="password"
-                           label="Password" onChange={(e) => setPassword(e.target.value)}
-                           error={errPwd} helperText={errPwd ? <>
-                    Password must have least 8 characters, 1 capital letter, <br/> 1 number,and 1 special character (@.#$!%*?&^) </> : ''}/><br/>
-                <TextField id="confirm_password" type="password" name="confirm_password"
-                           label="Confirm Password"
-                           onChange={(e) => setConfirmPassword(e.target.value)}
-                           error={errCPwd} helperText={errCPwd ? 'Please confirm password' : ''}/><br/>
+                           onChange={handleChangeUsername}
+                /><br/>
+                <TextField
+                    autoComplete="new-password"
+                    type="password"
+                    id="password"
+                    name="password"
+                    label="Password"
+                    onChange={handleChangePassword}
+                    fullWidth
+                    sx={{marginBottom: 1, width: '14%'}} // Set the width of the TextField to 75%
+                />
+                <br/>
+                {password && (
+                    <Box sx={{width: '13.5%', mb: 2}}>
+                        <LinearProgress
+                            variant="determinate"
+                            value={(passwordStrength / 4) * 100}
+                            color={getColor(passwordStrength)}
+                            sx={{height: 10}}
+                        />
+                    </Box>
+                )}
+                <TextField
+                    id="confirm_password"
+                    type="password"
+                    name="confirm_password"
+                    label="Confirm Password"
+                    onChange={handleChangeConfirmPassword}
+                    fullWidth
+                    sx={{width: '14%'}}
+                />
+                <br/>
+
                 <FormLabel htmlFor="user_type">Are you a:</FormLabel>
 
-                <RadioGroup id="user_type" row
-                            onChange={(e) => setType(e.target.value)}>
-                    <FormControlLabel value="student" control={<Radio/>} id="user_student" label="Student"/>
-                    <FormControlLabel value="tutor" control={<Radio/>} id="user_tutor" label="Tutor"/>
+                <RadioGroup id="user_type" row onChange={handleChangeUserType} value={userType}>
+                    <FormControlLabel value="student" control={<Radio/>} label="Student"/>
+                    <FormControlLabel value="tutor" control={<Radio/>} label="Tutor"/>
                 </RadioGroup>
-                <Box row>
+                <Box>
                     <Button id="cancel" variant="outlined" color="error" href="/">Cancel</Button>
-                    <Button id="register" variant="contained" onClick={ () => {
+                    <Button id="register" variant="contained" onClick={() => {
                         submitInfo();
-                        //handleSubmit();
-                    }} >Next</Button>
+                    }}>Next</Button>
                 </Box>
             </Box>
         </Box>

@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
+import studybuddy.api.meetupInvites.MeetupInvite;
+import studybuddy.api.meetupInvites.MeetupInvitesService;
 import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
@@ -24,6 +26,9 @@ import java.util.Optional;
 public class SearchMeetupEndpoint {
     @Autowired
     private MeetingService meetingService;
+
+    @Autowired
+    private MeetupInvitesService meetupInvitesService;
 
     @Autowired
     private UserService userService;
@@ -74,6 +79,12 @@ public class SearchMeetupEndpoint {
 //        System.out.println("MEETINGID: " + meetingId);
         User user = userService.findByUsernameExists(username);
         Optional<Meeting> meeting = meetingService.findById(meetingId);
+
+        Optional<MeetupInvite> mi = meetupInvitesService.find(creator, username, false, meetingId);
+
+        if(mi.isPresent()){
+            meetupInvitesService.deleteMeetupInvite(creator, username, meetingId);
+        }
 
         meetingService.saveMeetupUser(user.getId(), meetingId);
 

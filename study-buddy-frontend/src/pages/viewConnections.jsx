@@ -79,6 +79,7 @@ function viewConnectionsPage() {
                 console.log("ERROR DELETING CONNECTION.");
                 console.log(err);
             });
+
     };
 
     const [openProfile, setOpenProfile] = React.useState(false);

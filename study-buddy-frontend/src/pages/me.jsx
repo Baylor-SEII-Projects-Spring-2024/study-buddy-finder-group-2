@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Grid, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from '@mui/material';
+import { Button, Grid, Card, CardContent, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
+
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 
+import Rating from '@mui/material/Rating';
+import Avatar from '@mui/material/Avatar';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import Link from "next/link";
+
 //This is the page that the user themself sees (able to edit and such)
 
-//TODO: Display profile pictures, links
+//TODO: Display links
 
 function MyInfoPage() {
   const router = useRouter();
@@ -21,9 +27,13 @@ function MyInfoPage() {
   const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
   const [bio, setBio] = useState('');
+  const [pictureUrl, setPictureUrl] = useState('');
   const [username, setUsername] = useState(null);
-  const [profilePic, setProfilePic] = useState(null);
+  const [ratingScore, setRatingScore] = useState(0);
   const [userCourses, setUserCourses] = useState([]);
+  const [connectionCount, setConnectionCount] = useState(0);
+  const [ratings, setRatings] = useState([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const api = axios.create({
     baseURL: 'http://localhost:8080/',
@@ -32,171 +42,261 @@ function MyInfoPage() {
     headers: {'Authorization': `Bearer ${token}`},
   });
 
+
+  useEffect(() => {
+    try{
+      // only authorized users can do this (must have token)
+      const decodedUser = jwtDecode(token);
+      setUsername(decodedUser.sub);
+
+      const fetchData = async () => {
+        fetchUser(decodedUser.sub);
+        fetchProfile(decodedUser.sub);
+        await fetchUserCourses(decodedUser.sub);
+        fetchConnectionCount(decodedUser.sub);
+        await fetchRatingsForMe(decodedUser.sub);
+        await fetchAverageScore(decodedUser.sub);
+      };
+
+      fetchData();
+    }
+    catch(err) {
+      router.push(`/error`);
+    }
+  }, []);
+
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
     api.get(`me/${user}`)
-      .then(data => setUser(data.data))
-      .catch(error => console.error('Error fetching user:', error));
+        .then(data => setUser(data.data))
+        .catch(error => console.error('Error fetching user:', error));
   };
 
   const fetchProfile = (user) => {
     console.log("Profile to fetch for: " + user);
 
-    //fetch(`http://localhost:8080/profile/${user}`) // use this for local development
     api.get(`profile/${user}`)
-      .then(data => setProfile(data.data))
-      .catch(error => console.error('Error fetching profile:', error));
+        .then(data => setProfile(data.data))
+        .catch(error => console.error('Error fetching profile:', error));
   };
 
-  useEffect(() => {
-      try{
-          // only authorized users can do this (must have token)
-          const decodedUser = jwtDecode(token);
-          setUsername(decodedUser.sub);
+  const fetchConnectionCount = (user) => {
 
-          fetchUser(decodedUser.sub);
-          fetchProfile(decodedUser.sub);
-          fetchUserCourses(decodedUser.sub);
-      }
-      catch(err) {
-          router.push(`/error`);
-      }
-    }, []);
-
-  const fetchUserCourses = (user) => {
-
-      api.get(`api/get-courses-user/${user}`)
-          .then(data =>{
-              setUserCourses(data.data)
-              console.log(data.data);}
-          )
-          .catch(error => console.error(`Error fetching ${username}'s courses:`, error));
+    api.get(`/api/viewConnections/getConnectionCount/${user}`)
+        .then(data =>{
+          setConnectionCount(data.data)
+          console.log(data.data);}
+        )
+        .catch(error => console.error(`Error fetching connection count`, error));
   };
 
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
 
-    const profile = {
-      id, username, bio
+  const fetchAverageScore = async (user) => {
+    try {
+      const res = await api.get(`averageRating/${user}`);
+      setRatingScore(res.data);
+      console.log("rating: "+res.data);
+    } catch (error) {
+      console.error('Error fetching average rating:', error);
     }
+  };
 
-    api.put("me", profile)
-      .then((res) => {
-        if (res.status === 200) {
-          handleSettingsClose();
-          fetchProfile(username);
-        }
-      })
-      .catch((err) => {
-        console.log("ERROR UPDATING PROFILE.");
-        console.log(err);
-      });
+  const fetchRatingsForMe = async (user) => {
+    try {
+      const res = await api.get(`viewRatingsForMe/${user}`);
+      setRatings(res.data);
+    } catch (error) {
+      console.error('Error fetching ratings:', error);
+    }
+  };
+
+  const fetchUserCourses = async (user) => {
+    try {
+      const res = await api.get(`api/get-courses-user/${user}`);
+      setUserCourses(res.data);
+    } catch (error) {
+      console.error(`Error fetching ${username}'s courses:`, error);
+    }
+  };
+
+  const handleProfilePic = (pic) => {
+    setPictureUrl(pic);
   }
 
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const profileData = {
+      id,
+      username,
+      bio, pictureUrl
+    };
 
-  //DIALOG (Settings)
-  const [settingsOpen, setSettingsOpen] = React.useState(false);
+    try {
+      const res = await api.put("me", profileData);
+      if (res.status === 200) {
+        handleSettingsClose();
+        fetchProfile(username);
+      }
+    } catch (err) {
+      console.error("ERROR UPDATING PROFILE:", err);
+    }
+  };
 
   const handleSettingsOpen = () => {
-      setSettingsOpen(true);
-      setId(profile.id);
-      setBio(profile.bio);
-      setProfilePic(profile.profilePic);
+    setSettingsOpen(true);
+    setId(profile.id);
+    setBio(profile.bio);
   };
 
   const handleSettingsClose = () => {
-      setSettingsOpen(false);
+    setSettingsOpen(false);
   };
 
+  const displayRatings = () => {
+    return(
+        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
+          <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
+            Average Rating Score:
+          </Typography>
+          <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
+        </div>);
+  }
 
   return (
-    <div>
+      <div>
         <NotificationPage></NotificationPage><br/>
 
-      {user && profile ? (
-        <Card sx={{ width: 1200, margin: 'auto', height: 400, marginTop: '125px', marginBottom: '10px'}} elevation={4}>
-          <CardContent>
+        {user && profile && (
+            <Card sx={{width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto'}}
+                  elevation={4}>
+              <CardContent>
+                <Grid container alignItems="center">
+                  <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
+                    <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
 
-            {/* Name and username */}
-            <Grid container alignItems="center">
-              <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
-                <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
-                <div style={{ color: 'gray' }}>@{user.username}</div>
-              </Grid>
+                    <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
+                    <div style={{ color: 'gray' }}>@{user.username}</div>
+                    <br/>
+                    <div style={{ marginRight: '10px'}}>
+                  <span style={{ fontWeight: 'bold' }}>
+                    {connectionCount === 1 ? '1 ' : `${connectionCount} `}
+                  </span>
+                      <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                    {connectionCount === 1 ? 'connection' : 'connections'}
+                  </span>
+                    </div>
+                  </Grid>
 
-              <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px'}}>
-                {/* <Button variant='contained' color="primary" onClick={handleSettingsOpen}>Edit Profile</Button> */}
-                <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
-              </Grid>
-            </Grid>
-            <br />
+                  <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
+                    <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
+                  </Grid>
+                </Grid>
+                <br />
 
-            <Typography variant="body1" style={{ marginLeft: '100px'}}>
-              {profile.bio}
-            </Typography>
+                <Typography variant="body1" style={{ marginLeft: '100px' }}>
+                  {profile.bio}
+                </Typography>
 
-            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px'}}>
-              Courses
-            </Typography>
+                {user.userType === 'tutor' && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                      <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                        Average Rating Score:
+                      </Typography>
+                      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                    </div>
+                )}
 
-            {userCourses && userCourses.length > 0 ? (
-              userCourses.map((course, index) => (
-                <div key={index} style={{ marginLeft: '100px', color: 'gray'}}>
-                  {course.coursePrefix} {course.courseNumber}
+                {ratings.length > 0 && user.userType === 'tutor' ? (
+                    ratings.map((rating, index) => (
+                        <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                          <CardContent>
+                            <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                              Rating from {rating.ratingUser.username}
+                            </Typography>
+                            <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                              Meeting: {rating.meetingTitle}
+                            </Typography>
+                            <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                              <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                            </Typography>
+                            <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                              Review: {rating.review}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                    ))
+                ) : (
+                    <Typography variant="body1" align="center">
+                      No ratings available.
+                    </Typography>
+                )}
+                <div>
+                  <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                    Courses
+                  </Typography>
+                  {userCourses && userCourses.length > 0 ? (
+                      userCourses.map((course, index) => (
+                          <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                            {course.coursePrefix} {course.courseNumber}
+                          </div>
+                      ))
+                  ) : (
+                      <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                        Not enrolled in any courses.
+                      </Typography>
+                  )}
+                  <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
+                    <Link href={`/editCourse`} passHref>
+                      <Button variant="contained" startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
+                    </Link>
+                  </Grid>
                 </div>
-              )))
-            : (
-              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px'}}>
-                Not enrolled in any courses.
-              </Typography>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+        )}
 
-      ) : null}
+        <Dialog
+            open={settingsOpen}
+            onClose={handleSettingsClose}
+            component="form" validate="true" onSubmit={handleSubmit}
+        >
+          <DialogTitle>Profile Settings</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Edit your profile.
+            </DialogContentText>
 
+            <TextField
+                autoFocus
+                margin="dense"
+                id="bio"
+                name="bio"
+                label="Bio"
+                type="string"
+                fullWidth
+                variant="standard"
+                defaultValue={profile?.bio || ''}
+                onChange={(e) => setBio(e.target.value)}
+            />
 
-      {/* SETTINGS DIALOG BOX */}
-            <Dialog
-                open={settingsOpen}
-                onClose={handleSettingsClose}
-                component="form" validate="true" onSubmit={handleSubmit}
-            >
+            <div>Profile Picture</div>
+            <div style={{ display: 'flex' }}>
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.jpg')} src="/devil.jpg" />
+            </div>
+          </DialogContent>
 
-        <DialogTitle>Profile Settings</DialogTitle>
-        <DialogContent>
-
-          <DialogContentText>
-            Edit your profile.
-          </DialogContentText>
-
-          <TextField
-            autoFocus
-            margin="dense"
-            id="bio"
-            name="bio"
-            label="Bio"
-            type="string"
-            fullWidth
-            variant="standard"
-            defaultValue={profile?.bio || ''}
-            onChange={(e) => setBio(e.target.value)}
-          />
-
-        </DialogContent>
-
-        <DialogActions>
+          <DialogActions>
             <Button onClick={handleSettingsClose}>Cancel</Button>
             <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
-        </DialogActions>
-
+          </DialogActions>
         </Dialog>
-
-    </div>
+      </div>
   );
 }
 

@@ -88,10 +88,7 @@ function SearchUsersPage() {
             username, firstName, lastName, emailAddress, userType, school
         }
 
-        // this search will NOT return the current user
-        //axios.post(`http://localhost:8080/api/searchUsers/${thisUser}`, user) // for local testing
-        //axios.post(`http://34.16.169.60:8080/api/searchUsers/${thisUser}`, user)
-
+        
         api.post(`api/searchUsers/${thisUser}`, user)
             .then((res) => {
                 if(res.status === 200){
@@ -133,8 +130,7 @@ function SearchUsersPage() {
         }
         // the users are not currently connected
         else {
-            //axios.post("http://localhost:8080/api/searchUsers/addConnection", connection) // for local testing
-            //axios.post(`http://34.16.169.60:8080/api/searchUsers/addConnection`, connection)
+            
 
             api.post("api/searchUsers/addConnection", connection)
                 .then((res) => {
@@ -175,9 +171,7 @@ function SearchUsersPage() {
         setType(user.userType);
         setSchool(user.school);
 
-        // set connection values for existing connection
-        //axios.post(`http://localhost:8080/api/searchUsers/getConnection/${thisUser}`, user.username)
-        //axios.post(`http://34.16.169.60:8080/api/searchUsers/getConnection/${thisUser}`, user.username)
+        
         api.post(`api/searchUsers/getConnection/${thisUser}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);

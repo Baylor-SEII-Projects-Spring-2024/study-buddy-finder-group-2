@@ -44,4 +44,8 @@ public class ConnectionService {
         return connectionRepository.getRequests(username);
     }
 
+    public int getConnectionCount(String username) {
+        return connectionRepository.getConnectionCount(username);
+    }
+
 }
