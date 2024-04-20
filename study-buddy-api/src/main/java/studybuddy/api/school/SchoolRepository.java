@@ -15,7 +15,7 @@ public interface SchoolRepository extends JpaRepository<School, Long> {
      *
      * @return School[]
      */
-    @Query(value = "SELECT school_id, email_domain, school_name FROM schools s", nativeQuery = true)
+    @Query(value = "SELECT * FROM schools s", nativeQuery = true)
     public List<School> getAllSchools();
 
     /**
@@ -23,7 +23,7 @@ public interface SchoolRepository extends JpaRepository<School, Long> {
      *
      * @return all names of schools in database
      */
-    @Query(value = "SELECT school_name FROM schools s", nativeQuery = true)
+    @Query(value = "SELECT * FROM schools s", nativeQuery = true)
     public List<String> getAllSchoolNames();
 
 

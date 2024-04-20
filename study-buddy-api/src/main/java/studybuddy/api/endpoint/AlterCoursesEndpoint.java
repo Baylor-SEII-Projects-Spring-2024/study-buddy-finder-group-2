@@ -46,13 +46,13 @@ public class AlterCoursesEndpoint{
 
 
     @RequestMapping(
-            value = "/api/add-user-courses/",
+            value = "/api/add-user-courses/{username}",
             method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json"
     )
 
-    public ResponseEntity<Set<Course>> addUserCourses(@RequestParam Set<Course> courses, @RequestParam String username){
+    public ResponseEntity<Set<Course>> addUserCourses(@RequestParam Set<Course> courses, @PathVariable String username){
         Optional<User> user = userService.findByUsername(username);
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {

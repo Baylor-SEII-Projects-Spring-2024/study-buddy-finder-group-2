@@ -184,4 +184,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     List<User> recommendRandomUsers(long userId);
 
+    List<User> getUsersBySchoolId(long id);
+
 }

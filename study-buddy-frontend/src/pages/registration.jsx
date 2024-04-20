@@ -16,8 +16,8 @@ import axios, {get} from "axios";
 import {NextResponse as r} from "next/server";
 
 const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    baseURL: 'http://localhost:8080/'
+    //baseURL: 'http://34.16.169.60:8080/'
 });
 
 const evaluatePasswordStrength = (password) => {
@@ -224,7 +224,7 @@ function RegistrationPage() {
 
     const registerUser = () => {
         const user = {
-            username, password, firstName, lastName, emailAddress, userType
+            username, password, firstName, lastName, emailAddress, userType, school
         }
 
         console.log({
@@ -233,7 +233,8 @@ function RegistrationPage() {
             emailAddress: emailAddress,
             username: username,
             userType: userType,
-            password: password
+            password: password,
+            school: school
         });
 
         api.post("/api/register", user)

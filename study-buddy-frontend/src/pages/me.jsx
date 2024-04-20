@@ -1,5 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Grid, Card, CardContent, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import {
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Autocomplete, Box, Stack, Input
+} from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
@@ -8,6 +21,7 @@ import Avatar from '@mui/material/Avatar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import {useRouter} from "next/router";
 import Link from "next/link";
+import {Span} from "next/dist/server/lib/trace/tracer";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -22,13 +36,18 @@ function MyInfoPage() {
   const [username, setUsername] = useState(null);
   const [ratingScore, setRatingScore] = useState(0);
   const [userCourses, setUserCourses] = useState([]);
+  const [coursesSelect, setCoursesSelect] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [school, setSchool] = useState(null);
   const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [coursesOpen, setCoursesOpen] = useState(false);
+  const [addCoursesOpen, setAddCoursesOpen] = useState(false);
   const router = useRouter();
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    baseURL: 'http://localhost:8080/'
+    //baseURL: 'http://34.16.169.60:8080/'
   });
 
   
@@ -54,7 +73,10 @@ function MyInfoPage() {
     console.log("User to fetch for: " + user);
 
     api.get(`me/${user}`)
-      .then(data => setUser(data.data))
+      .then(data => {
+        setUser(data.data);
+        setSchool(data.data.school);
+      })
       .catch(error => console.error('Error fetching user:', error));
   };
 
@@ -106,6 +128,13 @@ function MyInfoPage() {
     }
   };
 
+  const getCourses = () => {
+    api.get(`api/get-all-courses/`)
+        .then((res1) =>{
+          setCourses(res1.data);
+        })
+  }
+
   const handleProfilePic = (pic) => {
     setPictureUrl(pic);
   }
@@ -138,6 +167,36 @@ function MyInfoPage() {
 
   const handleSettingsClose = () => {
     setSettingsOpen(false);
+  };
+
+  const handleCoursesOpen = () => {
+    getCourses();
+    setCoursesSelect(userCourses);
+    setCoursesOpen(true);
+  };
+
+  const handleCoursesClose = () => {
+    setCoursesOpen(false);
+  };
+
+  const handleAddCoursesOpen = () => {
+    setAddCoursesOpen(true);
+  };
+
+  const handleAddCoursesClose = () => {
+    setAddCoursesOpen(false);
+  };
+
+  const handleCoursesSubmit = async () => {
+    try {
+      const res = await api.post(`/api/add-user-courses/${username}`, coursesSelect);
+      if (res.status === 200) {
+        handleCoursesClose();
+        await fetchUserCourses(username);
+      }
+    } catch (err) {
+      console.error("ERROR UPDATING COURSES:", err);
+    }
   };
 
   const displayRatings = () => {
@@ -234,9 +293,7 @@ function MyInfoPage() {
               </Typography>
             )}
                   <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
-                    <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
-                      <Button variant="contained" startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
-                    </Link>
+                      <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
                   </Grid>
                 </div>
           </CardContent>
@@ -281,6 +338,89 @@ function MyInfoPage() {
           <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
         </DialogActions>
       </Dialog>
+
+        <Dialog  id="course-selection"
+            open={coursesOpen}
+            onClose={handleCoursesClose}
+            component="form" validate="true" onSubmit={handleCoursesSubmit}
+        >
+          <DialogTitle>Courses</DialogTitle>
+          <DialogContent>
+            <Box sx={{width: 500}}>
+            <DialogContentText>
+              Edit your courses.
+            </DialogContentText>
+
+            <Autocomplete
+                multiple
+                id="tags-standard"
+                options={courses}
+                getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
+                value={coursesSelect}
+                onChange={(val, input) => {setCoursesSelect(input)}}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        variant="standard"
+                        label="Multiple values"
+                        placeholder="Favorites"
+                    />
+                )}
+            />
+              <br/>
+              <Stack direction="row" sx={{alignItems:"center"}}>
+                <p>Not there?</p><Button variant="contained" onClick={() => handleAddCoursesOpen()}>+ Add Course</Button>
+              </Stack>
+            </Box>
+
+          </DialogContent>
+
+          <DialogActions>
+
+            <Button onClick={handleCoursesClose}>Cancel</Button>
+            <Button variant="contained" type="submit" onSubmit={handleCoursesSubmit} color="primary">Save</Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog  id="course-adding"
+                 open={addCoursesOpen}
+                 onClose={handleAddCoursesClose}
+                 component="form" validate="true" onSubmit={handleSubmit}
+        >
+          <DialogTitle>Add Course</DialogTitle>
+          <DialogContent>
+            <Box sx={{width: 500}}>
+              <DialogContentText>
+                Add your course.
+              </DialogContentText>
+
+              <Box  sx={{ margin: 5 }}
+                    component="form" validate="true" onSubmit={handleCourseAdding}>
+                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
+                <br/>
+                <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
+                <br/>
+                <Button variant="outlined" type="submit" onClick={() => {
+                  createCourse();
+                  setPrefix(null);
+                  setNumber(null);
+                  document.getElementById("course_prefix").value = null;
+                  document.getElementById("course_number").value = null;
+                }}>Create Course</Button>
+              </Box>
+              <br/>
+              <Stack direction="row" sx={{alignItems:"center"}}>
+                <p>Not there?</p><Button variant="contained" onClick={() => handleAddCourses}>+ Add Course</Button>
+              </Stack>
+            </Box>
+
+          </DialogContent>
+
+          <DialogActions>
+
+            <Button onClick={handleAddCoursesClose}>Cancel</Button>
+            <Button variant="contained" type="submit" onSubmit={handleAddCoursesSubmit} color="primary">Save</Button>
+          </DialogActions>
+        </Dialog>
     </div>
   );
 }

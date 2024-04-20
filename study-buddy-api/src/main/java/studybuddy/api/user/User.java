@@ -3,6 +3,7 @@ package studybuddy.api.user;
 import jakarta.persistence.*;
 import lombok.Data;
 import studybuddy.api.course.Course;
+import studybuddy.api.school.School;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -49,10 +50,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     Set<Course> courses;
 
-    /*
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id", referencedColumnName = "school_id")
-    School school; */
+
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "SCHOOL_ID")
+    private School school;
 
     public void addCourse(Course c){
         if(courses  == null){
