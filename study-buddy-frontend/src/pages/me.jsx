@@ -194,29 +194,33 @@ function MyInfoPage() {
               </div>
             )}
 
-            {ratings.length > 0 && user.userType === 'tutor' ? (
-              ratings.map((rating, index) => (
-                <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
-                  <CardContent>
-                    <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-                      Rating from {rating.ratingUser.username}
-                    </Typography>
-                    <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
-                      Meeting: {rating.meetingTitle}
-                    </Typography>
-                    <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                      <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
-                    </Typography>
-                    <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
-                      Review: {rating.review}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Typography variant="body1" align="center">
-                No ratings available.
-              </Typography>
+            {user.userType !== 'tutor' && (
+              <>
+                {ratings.length > 0 ? (
+                  ratings.map((rating, index) => (
+                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                      <CardContent>
+                        <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                          Rating from {rating.ratingUser.username}
+                        </Typography>
+                        <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                          Meeting: {rating.meetingTitle}
+                        </Typography>
+                        <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                          <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                        </Typography>
+                        <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                          Review: {rating.review}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <Typography variant="body1" align="center">
+                    No ratings available.
+                  </Typography>
+                )}
+              </>
             )}
                 <div>
             <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
