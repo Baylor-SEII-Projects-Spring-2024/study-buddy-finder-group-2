@@ -20,8 +20,11 @@ import {
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import axios, {Axios, defaults} from 'axios';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import SearchIcon from '@mui/icons-material/Search';
+import GroupsIcon from '@mui/icons-material/Groups';
 import Link from "next/link";
-import MenuIcon from "@mui/icons-material/Menu";
 
 function NotificationPage() {
     const [username, setUsername] = useState(null);
@@ -31,6 +34,7 @@ function NotificationPage() {
     const [notif, selectNotif] = useState(null)
     const [anchorEl, setAnchorEl] = React.useState(null)
     const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const [anchorEl3, setAnchorEl3] = React.useState(null);
     const [ref, setRef] = useState("/login");
 
     const theme = createTheme({
@@ -42,91 +46,25 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/'
-        //baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/'
+        baseURL: 'http://34.16.169.60:8080/'
     });
-
-    const DynamicNavbar = () => {
-        const [isActive, setIsActive] = useState(false);
-
-        const handleToggle = () => {
-            setIsActive(!isActive);
-            document.body.classList.toggle("no-scroll", isActive);
-        };
-
-        return (
-            <div className="dynamic-navbar">
-                <button onClick={handleToggle}>Toggle Navigation</button>
-                {isActive && (
-                    <div className="nav-links">
-                        {/* Your navigation links will go here */}
-                        <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Invitations</Button>
-                        </Link><br/>
-                        <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">View Courses</Button>
-                        </Link><br/>
-
-                        <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">View Meetups</Button>
-                        </Link><br/>
-
-                        <Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Search Users</Button>
-                        </Link><br/>
-
-                        <Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Search Meetups</Button>
-                        </Link><br/>
-
-                        <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
-                            <Button color="inherit">Connections</Button>
-                        </Link><br/>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    const SideNavbar = () => {
-        const [isActive, setIsActive] = useState(false);
-
-        const handleToggle = () => {
-            setIsActive(!isActive);
-            document.body.classList.toggle("no-scroll", isActive);
-        };
-
-        return (
-            <>
-                <IconButton onClick={handleToggle}><MenuIcon/></IconButton>
-                <div className={`side-navbar ${isActive && "active"}`}>
-                    {/* Your navigation links will go here */}
-                </div>
-            </>
-        );
-    };
 
     const checkExpiredMeetups = async (user) => {
         // get user local time zone
         const options = await Intl.DateTimeFormat().resolvedOptions();
         const timezone = options.timeZone;
-    
-        console.log("Check " + user + "'s expired meetings");
 
-        // TEST
-        const currentTimeInUserTimeZone = new Date().toLocaleString('en-US', { timeZone: timezone});
-        console.log("Current time in user's time zone:", currentTimeInUserTimeZone);
-    
         return api.get(`expiredMeetups/${user}`, {
             headers: {
                 'timezone': timezone
             }
         })
-        .then(response => response.data)
-        .catch(error => {
-            console.error('Error checking expired meetups', error);
-            return null;
-        });
+            .then(response => response.data)
+            .catch(error => {
+                console.error('Error checking expired meetups', error);
+                return null;
+            });
     };
 
     const fetchUser = (name) => {
@@ -160,15 +98,15 @@ function NotificationPage() {
     }, []);
 
     const viewNotifications = (name) => {
-            api.get(`api/notification/getNotifications/${name}`)
-                .then((res) => {
-                    setNotifList(res.data);
-                    setCount(res.data.filter(x => x.read === false).length);
-                })
-                .catch((err) => {
-                    console.log("Uh oh, can't get notifications");
-                    setNotifList(null);
-                });
+        api.get(`api/notification/getNotifications/${name}`)
+            .then((res) => {
+                setNotifList(res.data);
+                setCount(res.data.filter(x => x.read === false).length);
+            })
+            .catch((err) => {
+                console.log("Uh oh, can't get notifications");
+                setNotifList(null);
+            });
     }
 
     const switchNotifReadStatus = (value) => {
@@ -212,26 +150,63 @@ function NotificationPage() {
         setAnchorEl2(null);
     };
 
+    const handleSearchOpen = (e) => {
+        setAnchorEl3(e.currentTarget);
+    }
+
+    const handleSearchClose = () => {
+        setAnchorEl3(null);
+    };
+
     const empty = () => {
         return (
-          <MenuItem>No Notifications</MenuItem>
+            <MenuItem>No Notifications</MenuItem>
         );
     };
 
     return (
         <ThemeProvider theme={theme}>
             <Box>
-                    {/* Render these two components based on the screen resolution */}
-                    <SideNavbar/>
-                    <DynamicNavbar/>
+                <AppBar  style={{
 
-                        <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
+                    boxShadow: "none"
+                }}>
+                    <Toolbar>
+
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                             <a href={ref}>
                                 StuddyBuddy
                             </a>
                         </Typography>
 
                         <div>
+                            <Link href={ref} passHref>
+                                <Button color="inherit"><HomeIcon></HomeIcon>Home</Button>
+                            </Link>
+                            <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
+                                <Button color="inherit">Invitations</Button>
+                            </Link>
+                            <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
+                                <Button color="inherit"><MeetingRoomIcon></MeetingRoomIcon>View Meetups</Button>
+                            </Link>
+                            <Button color="inherit" onClick={handleSearchOpen} on={handleSearchOpen}><SearchIcon/>Search</Button>
+                            <Menu anchorEl={anchorEl3}
+                                  open={Boolean(anchorEl3)}
+                                  onClose={handleSearchClose}
+                                  anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                  transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                                  keepMounted>
+                                <MenuItem><Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
+                                    Search Users
+                                </Link></MenuItem>
+                                <MenuItem><Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
+                                    Search Meetups
+                                </Link></MenuItem>
+                            </Menu>
+
+                            <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
+                                <Button color="inherit"><GroupsIcon/>Buddies</Button>
+                            </Link>
                             <Badge badgeContent={count} color="warning">
                                 <Tooltip title={"notifications"}>
                                     <IconButton
@@ -249,10 +224,8 @@ function NotificationPage() {
                                   anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                                   transformOrigin={{vertical: 'top', horizontal: 'right'}}
                                   keepMounted
-                                  sx={{
-                                      minWidth: 250, maxWidth: 400,
-                                      maxHeight: 400
-                                  }}
+                                  sx={{ minWidth: 250, maxWidth: 400,
+                                      maxHeight: 400}}
                                   open={Boolean(anchorEl)}
                                   onClose={handleNotifClose}>
                                 <List
@@ -261,33 +234,32 @@ function NotificationPage() {
                                         : notificationList.map((value) => {
                                             const labelId = `checkbox-list-label-${value.notificationId}`;
                                             return (
-                                                <MenuItem sx={{
-                                                    width: 300,
+                                                <MenuItem sx={{width:300,
                                                     whiteSpace: "normal",
                                                 }}
-                                                          selected={notif === value}
+                                                          selected={ notif === value}
                                                 >
                                                     <Checkbox checked={value.read}
                                                               onClick={() => {
-                                                                  if (value.read) {
-                                                                      setCount(count + 1);
-                                                                  } else {
-                                                                      setCount(count - 1);
+                                                                  if(value.read) {
+                                                                      setCount(count+1);
+                                                                  }
+                                                                  else {
+                                                                      setCount(count-1);
                                                                   }
                                                                   switchNotifReadStatus(value);
                                                                   value.read = !value.read
                                                               }}>
                                                     </Checkbox>
-                                                    <Link
-                                                        href={`${value.notificationUrl}?username=${encodeURIComponent(username)}`}>
+                                                    <Link href={`${value.notificationUrl}?username=${encodeURIComponent(username)}`}>
                                                         <ListItemText id={labelId}
-                                                                      fontWeight={value.read ? 400 : 1000}
-                                                                      primary={`${value.notificationContent}`}/>
+                                                                      fontWeight={value.read ? 400 : 1000 }
+                                                                      primary={`${value.notificationContent}`} />
                                                     </Link>
                                                     <Button size="small" onClick={() => {
                                                         selectNotif(value);
                                                         deleteNotif(value);
-                                                        notificationList.splice(notificationList.indexOf(value), 1);
+                                                        notificationList.splice(notificationList.indexOf(value),1);
                                                     }}>X</Button>
                                                 </MenuItem>
                                             );
@@ -312,8 +284,9 @@ function NotificationPage() {
                                     Logout
                                 </Link></MenuItem>
                             </Menu>
-
                         </div>
+                    </Toolbar>
+                </AppBar>
                 <br/>
                 <br/>
                 <br/>
@@ -321,5 +294,4 @@ function NotificationPage() {
         </ThemeProvider>
     );
 }
-
 export default NotificationPage;
