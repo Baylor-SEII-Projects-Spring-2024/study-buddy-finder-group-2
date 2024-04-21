@@ -25,8 +25,16 @@ import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import SearchIcon from '@mui/icons-material/Search';
 import GroupsIcon from '@mui/icons-material/Groups';
 import Link from "next/link";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 function NotificationPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [username, setUsername] = useState(null);
     const [user, setUser] = useState(null);
     const [count, setCount] = useState(0);
@@ -46,8 +54,10 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`},
     });
 
     const checkExpiredMeetups = async (user) => {
@@ -67,6 +77,7 @@ function NotificationPage() {
             });
     };
 
+    // TODO: I don't think the user request is needed now (state is stored)
     const fetchUser = (name) => {
         console.log("User to fetch for: " + name);
 
@@ -74,10 +85,10 @@ function NotificationPage() {
             .then(async data => {
                 await setUser(data.data);
                 if(data.data.userType === "student"){
-                    setRef(`/studentLanding?username=${encodeURIComponent(name)}`)
+                    setRef(`/studentLanding`)
                 }
                 else if (data.data.userType === "tutor"){
-                    setRef(`/tutorLanding?username=${encodeURIComponent(name)}`)
+                    setRef(`/tutorLanding`)
                 }
                 viewNotifications(name);
                 setInterval(function () {
@@ -90,11 +101,15 @@ function NotificationPage() {
     };
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-            name = params.get("username");
-
-        setUsername(name);
-        fetchUser(name);
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setUsername(decodedUser.sub);
+            fetchUser(decodedUser.sub);
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, []);
 
     const viewNotifications = (name) => {
@@ -173,124 +188,125 @@ function NotificationPage() {
                 }}>
                     <Toolbar>
 
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                            <a href={ref}>
-                                StuddyBuddy
-                            </a>
-                        </Typography>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        {/* must use a link, otherwise page refreshes!! */}
+                        <Link href={ref}>
+                            StuddyBuddy
+                        </Link>
+                    </Typography>
 
-                        <div>
-                            <Link href={ref} passHref>
-                                <Button color="inherit"><HomeIcon></HomeIcon>Home</Button>
-                            </Link>
-                            <Link href={`/invitations?username=${encodeURIComponent(username)}`} passHref>
-                                <Button color="inherit">Invitations</Button>
-                            </Link>
-                            <Link href={`/viewMeetups?username=${encodeURIComponent(username)}`} passHref>
-                                <Button color="inherit"><MeetingRoomIcon></MeetingRoomIcon>View Meetups</Button>
-                            </Link>
-                            <Button color="inherit" onClick={handleSearchOpen} on={handleSearchOpen}><SearchIcon/>Search</Button>
-                            <Menu anchorEl={anchorEl3}
-                                  open={Boolean(anchorEl3)}
-                                  onClose={handleSearchClose}
-                                  anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                  transformOrigin={{vertical: 'top', horizontal: 'right'}}
-                                  keepMounted>
-                                <MenuItem><Link href={`/searchUsers?username=${encodeURIComponent(username)}`} passHref>
-                                    Search Users
-                                </Link></MenuItem>
-                                <MenuItem><Link href={`/searchMeetups?username=${encodeURIComponent(username)}`} passHref>
-                                    Search Meetups
-                                </Link></MenuItem>
-                            </Menu>
+                    <div>
+                        <Link href={ref} passHref>
+                            <Button color="inherit"><HomeIcon></HomeIcon>Home</Button>
+                        </Link>
+                        <Link href={`/invitations`} passHref>
+                            <Button color="inherit">Invitations</Button>
+                        </Link>
+                        <Link href={`/viewMeetups`} passHref>
+                            <Button color="inherit"><MeetingRoomIcon></MeetingRoomIcon>View Meetups</Button>
+                        </Link>
+                        <Button color="inherit" onClick={handleSearchOpen} on={handleSearchOpen}><SearchIcon/>Search</Button>
+                        <Menu anchorEl={anchorEl3}
+                              open={Boolean(anchorEl3)}
+                              onClose={handleSearchClose}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted>
+                            <MenuItem><Link href={`/searchUsers`} passHref>
+                                Search Users
+                            </Link></MenuItem>
+                            <MenuItem><Link href={`/searchMeetups`} passHref>
+                                Search Meetups
+                            </Link></MenuItem>
+                        </Menu>
 
-                            <Link href={`/viewConnections?username=${encodeURIComponent(username)}`} passHref>
-                                <Button color="inherit"><GroupsIcon/>Buddies</Button>
-                            </Link>
-                            <Badge badgeContent={count} color="warning">
-                                <Tooltip title={"notifications"}>
-                                    <IconButton
-                                        aria-label="notifications of current user"
-                                        aria-controls="menu-appbar"
-                                        aria-haspopup="true"
-                                        size="large"
-                                        onClick={(e) => handleNotifOpen(e)}
-                                        color="inherit">
-                                        <NotificationsIcon/>
-                                    </IconButton>
-                                </Tooltip>
-                            </Badge>
-                            <Menu anchorEl={anchorEl}
-                                  anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                  transformOrigin={{vertical: 'top', horizontal: 'right'}}
-                                  keepMounted
-                                  sx={{ minWidth: 250, maxWidth: 400,
-                                      maxHeight: 400}}
-                                  open={Boolean(anchorEl)}
-                                  onClose={handleNotifClose}>
-                                <List
-                                    id="notification-appbar" component="notifications" aria-label="notifications">
-                                    {(notificationList === null || notificationList.length === 0) ? empty()
-                                        : notificationList.map((value) => {
-                                            const labelId = `checkbox-list-label-${value.notificationId}`;
-                                            return (
-                                                <MenuItem sx={{width:300,
-                                                    whiteSpace: "normal",
-                                                }}
-                                                          selected={ notif === value}
-                                                >
-                                                    <Checkbox checked={value.read}
-                                                              onClick={() => {
-                                                                  if(value.read) {
-                                                                      setCount(count+1);
-                                                                  }
-                                                                  else {
-                                                                      setCount(count-1);
-                                                                  }
-                                                                  switchNotifReadStatus(value);
-                                                                  value.read = !value.read
-                                                              }}>
-                                                    </Checkbox>
-                                                    <Link href={`${value.notificationUrl}?username=${encodeURIComponent(username)}`}>
-                                                        <ListItemText id={labelId}
-                                                                      fontWeight={value.read ? 400 : 1000 }
-                                                                      primary={`${value.notificationContent}`} />
-                                                    </Link>
-                                                    <Button size="small" onClick={() => {
-                                                        selectNotif(value);
-                                                        deleteNotif(value);
-                                                        notificationList.splice(notificationList.indexOf(value),1);
-                                                    }}>X</Button>
-                                                </MenuItem>
-                                            );
-                                        })}
-                                </List>
-                            </Menu>
-                            <Tooltip title={"profile"}>
-                                <IconButton onClick={(e) => handleProfileOpen(e)}>
-                                    <AccountCircle/>
+                        <Link href={`/viewConnections`} passHref>
+                            <Button color="inherit"><GroupsIcon/>Buddies</Button>
+                        </Link>
+                        <Badge badgeContent={count} color="warning">
+                            <Tooltip title={"notifications"}>
+                                <IconButton
+                                    aria-label="notifications of current user"
+                                    aria-controls="menu-appbar"
+                                    aria-haspopup="true"
+                                    size="large"
+                                    onClick={(e) => handleNotifOpen(e)}
+                                    color="inherit">
+                                    <NotificationsIcon/>
                                 </IconButton>
                             </Tooltip>
-                            <Menu anchorEl={anchorEl2}
-                                  open={Boolean(anchorEl2)}
-                                  onClose={handleProfileClose}
-                                  anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                  transformOrigin={{vertical: 'top', horizontal: 'right'}}
-                                  keepMounted>
-                                <MenuItem><Link href={`/me?username=${encodeURIComponent(username)}`} passHref>
-                                    My Profile
-                                </Link></MenuItem>
-                                <MenuItem><Link href={`/`} passHref>
-                                    Logout
-                                </Link></MenuItem>
-                            </Menu>
-                        </div>
-                    </Toolbar>
-                </AppBar>
-                <br/>
-                <br/>
-                <br/>
-            </Box>
+                        </Badge>
+                        <Menu anchorEl={anchorEl}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted
+                              sx={{ minWidth: 250, maxWidth: 400,
+                                  maxHeight: 400}}
+                              open={Boolean(anchorEl)}
+                              onClose={handleNotifClose}>
+                            <List
+                                id="notification-appbar" component="notifications" aria-label="notifications">
+                                {(notificationList === null || notificationList.length === 0) ? empty()
+                                    : notificationList.map((value) => {
+                                        const labelId = `checkbox-list-label-${value.notificationId}`;
+                                        return (
+                                            <MenuItem sx={{width:300,
+                                                whiteSpace: "normal",
+                                            }}
+                                                      selected={ notif === value}
+                                            >
+                                                <Checkbox checked={value.read}
+                                                          onClick={() => {
+                                                              if(value.read) {
+                                                                  setCount(count+1);
+                                                              }
+                                                              else {
+                                                                  setCount(count-1);
+                                                              }
+                                                              switchNotifReadStatus(value);
+                                                              value.read = !value.read
+                                                          }}>
+                                                </Checkbox>
+                                                <Link href={`${value.notificationUrl}`}>
+                                                    <ListItemText id={labelId}
+                                                                  fontWeight={value.read ? 400 : 1000 }
+                                                                  primary={`${value.notificationContent}`} />
+                                                </Link>
+                                                <Button size="small" onClick={() => {
+                                                    selectNotif(value);
+                                                    deleteNotif(value);
+                                                    notificationList.splice(notificationList.indexOf(value),1);
+                                                }}>X</Button>
+                                            </MenuItem>
+                                        );
+                                    })}
+                            </List>
+                        </Menu>
+                        <Tooltip title={"profile"}>
+                            <IconButton onClick={(e) => handleProfileOpen(e)}>
+                                <AccountCircle/>
+                            </IconButton>
+                        </Tooltip>
+                        <Menu anchorEl={anchorEl2}
+                              open={Boolean(anchorEl2)}
+                              onClose={handleProfileClose}
+                              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                              transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                              keepMounted>
+                            <MenuItem><Link href={`/me?`} passHref>
+                                My Profile
+                            </Link></MenuItem>
+                            <MenuItem><Link href={`/`} passHref>
+                                Logout
+                            </Link></MenuItem>
+                        </Menu>
+                    </div>
+                </Toolbar>
+            </AppBar>
+            <br/>
+            <br/>
+            <br/>
+        </Box>
         </ThemeProvider>
     );
 }

@@ -1,4 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import {useDispatch, useSelector} from "react-redux";
+import { createTheme } from '@mui/material/styles';
+
+import Head from "next/head";
+import Link from "next/link";
+import axios from "axios";
+
+import { jwtDecode } from "jwt-decode";
+
 import {
     Button,
     TextField,
@@ -11,8 +20,8 @@ import {
     CircularProgress,
     ThemeProvider
 } from '@mui/material';
-import { createTheme } from '@mui/material/styles';
-import axios from 'axios';
+import {authorize, deauthorize} from "@/utils/authSlice";
+import {useRouter} from "next/navigation";
 
 const theme = createTheme({
     palette: {
@@ -29,6 +38,8 @@ const theme = createTheme({
 });
 
 function LoginPage() {
+    const router = useRouter();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -37,9 +48,12 @@ function LoginPage() {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isError, setIsError] = useState(false);
 
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
     });
 
 
@@ -56,14 +70,15 @@ function LoginPage() {
     }, []);
 
     const backgroundStyle = {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-            background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, #4caf50, #ffeb3b)`,
-            transition: 'background 0.5s'
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, #4caf50, #ffeb3b)`,
+        transition: 'background 0.5s'
     };
 
+    // gets username and password data from the text fields
     const handleSubmit = (event) => {
         event.preventDefault();
         setLoading(true);
@@ -73,30 +88,48 @@ function LoginPage() {
             password
         };
 
-        api.post('api/login', user)
+        // connecting to backend to authorize user
+        api.post(`api/authorization/login`, user)
             .then((res) => {
-                if (res.status === 200) {
-                    console.log('User is recognized!');
-                    console.log(res.data);
+                // this is decoding the token to pass the username to the reducer function
+                // decode does not return a JSON (returns a JwtPayload object)
+                const token  = res.data;
+                console.log(token);
+                // this works! window.sessionStorage.setItem('token', token);
+                //setToken(token);
 
+                const decodedUser = jwtDecode(token);
+                // just enter decodedToken.customClaim!! (easy!!)
+                console.log(decodedUser.userType);
+
+                // this changes the state
+                // (passes token and sets auth = true)
+                // TODO: onClick={() => dispatch(authorize(token))} ??
+                dispatch(authorize(token));
+
+                // find a different way to decide if student or tutor
+                if(res.status === 200) {
                     setSnackbarMessage('Login Successful');
                     setIsError(false);
                     setSnackbarOpen(true);
 
                     setTimeout(() => { // Delay for showing the message before redirection
-                        var params = new URLSearchParams();
-                        params.append("username", res.data.username);
+                        //var params = new URLSearchParams();
+                        //params.append("username", res.data.username);
 
-                        if (res.data.userType.includes("student")) {
-                            window.location.href = "/studentLanding?" + params.toString();
-                        } else if (res.data.userType.includes("tutor")) {
-                            window.location.href = "/tutorLanding?" + params.toString();
+                        if (decodedUser.userType === "student") {
+                            router.push(`/studentLanding`);
+                        }
+                        else if (decodedUser.userType === "tutor") {
+                            router.push(`/tutorLanding`);
                         }
                     }, 500);
-                } else {
+                }
+                else {
                     throw new Error('Login failed');
                 }
             })
+            // catches the bad response (error)
             .catch((err) => {
                 console.error(err);
                 setIsError(true);

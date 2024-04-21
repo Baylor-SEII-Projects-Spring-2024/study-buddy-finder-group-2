@@ -13,8 +13,16 @@ import {
 } from "@mui/material";
 import axios, {get} from "axios";
 import NotificationPage from "@/pages/Notification";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 function EditCoursePage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [user, setUser] = useState(null);
     const [username, setUsername] = useState(null)
     const [courses, setCourses] = useState(null);
@@ -26,37 +34,43 @@ function EditCoursePage() {
     const [selectedIndex, setSelectedIndex] = useState(1);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`},
     });
 
     useEffect( ()  => {
-        const params = new URLSearchParams(window.location.search),
-            name = params.get("username");
-        setUsername(name);
-        console.log(username);
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setUsername(decodedUser.sub);
 
-        api.get(`users/${name}`)
-            .then((res) => {
-                setUser(res.data);
-                api.get(`api/get-courses-user/${name}`)
-                    .then((res1) =>{
-                        setUsersCourses(res1.data);
-                        console.log(name);
-                        console.log(res1.data);
-                    })
-                api.get(`api/get-all-courses/`)
-                    .then((res2) => {
-                        if(res2.data !== null) setCourses(res2.data);
-                        else {
-                            setCourses(new Set());
-                        }
-                        console.log(courses);
-                    })
-            })
-            .catch((err) => {
-                window.alert("User not found");
-            })
+            api.get(`users/${decodedUser.sub}`)
+                .then((res) => {
+                    setUser(res.data);
+                    api.get(`api/get-courses-user/${decodedUser.sub}`)
+                        .then((res1) =>{
+                            setUsersCourses(res1.data);
+                            console.log(name);
+                            console.log(res1.data);
+                        })
+                    api.get(`api/get-all-courses/`)
+                        .then((res2) => {
+                            if(res2.data !== null) setCourses(res2.data);
+                            else {
+                                setCourses(new Set());
+                            }
+                            console.log(courses);
+                        })
+                })
+                .catch((err) => {
+                    window.alert("User not found");
+                })
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, [])
     const getUsersCourses = () => {
         api.get(`api/get-courses-user/${username}`)
@@ -75,17 +89,12 @@ function EditCoursePage() {
             })
     }
     const backToLanding = () => {
-        if (user.userType.includes("student")) {
-            //temporary fix
-            var params = new URLSearchParams();
-            params.append("username", user.username.toString());
-            console.log("going to /studentLanding?" + params.toString())
-            location.href = "/me?" + params.toString();
-        } else if (user.userType.includes("tutor")) {
-            var params = new URLSearchParams();
-            params.append("username", user.username);
-            console.log("going to /tutorLanding?" + params.toString());
-            location.href = "/me?" + params.toString();
+        const decodedUser = jwtDecode(token);
+
+        if (decodedUser.userType === "student") {
+            router.push("/studentLanding");
+        } else if (decodedUser.userType === "tutor") {
+            router.push("/tutorLanding");
         }
     }
 

@@ -16,10 +16,14 @@ import {
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
+
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
+
 import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import {useRouter} from "next/router";
 import Link from "next/link";
 import {Span} from "next/dist/server/lib/trace/tracer";
 
@@ -28,6 +32,11 @@ import {Span} from "next/dist/server/lib/trace/tracer";
 //TODO: Display links
 
 function MyInfoPage() {
+  const router = useRouter();
+
+  const token = useSelector(state => state.authorization.token); //get current state
+  const dispatch = useDispatch(); // use to change state
+
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
@@ -47,31 +56,36 @@ function MyInfoPage() {
   const [coursePrefix, setPrefix] = useState(null);
   const [courseNumber, setNumber] = useState(null);
 
-  const router = useRouter();
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/',
+    baseURL: 'http://34.16.169.60:8080/',
+    // must add the header to associate requests with the authenticated user
+    headers: {'Authorization': `Bearer ${token}`},
   });
 
-  
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search),
-      user = params.get("username");
+    try{
+      // only authorized users can do this (must have token)
+      const decodedUser = jwtDecode(token);
+      setUsername(decodedUser.sub);
 
-    setUsername(user);
+      const fetchData = async () => {
+        fetchUser(decodedUser.sub);
+        fetchProfile(decodedUser.sub);
+        await fetchUserCourses(decodedUser.sub);
+        fetchConnectionCount(decodedUser.sub);
+        await fetchRatingsForMe(decodedUser.sub);
+        await fetchAverageScore(decodedUser.sub);
+      };
 
-    const fetchData = async () => {
-      fetchUser(user);
-      fetchProfile(user);
-      await fetchUserCourses(user);
-      fetchConnectionCount(user);
-      await fetchRatingsForMe(user);
-      await fetchAverageScore(user);
-    };
-
-    fetchData();
+      fetchData();
+    }
+    catch(err) {
+      router.push(`/error`);
+    }
   }, []);
+
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
@@ -87,21 +101,21 @@ function MyInfoPage() {
     console.log("Profile to fetch for: " + user);
 
     api.get(`profile/${user}`)
-      .then(data => setProfile(data.data))
-      .catch(error => console.error('Error fetching profile:', error));
+        .then(data => setProfile(data.data))
+        .catch(error => console.error('Error fetching profile:', error));
   };
 
-    const fetchConnectionCount = (user) => {
+  const fetchConnectionCount = (user) => {
 
-      api.get(`api/viewConnections/getConnectionCount/${user}`)
-          .then(data =>{
-              setConnectionCount(data.data)
-              console.log(data.data);}
-          )
-          .catch(error => console.error(`Error fetching connection count`, error));
+    api.get(`/api/viewConnections/getConnectionCount/${user}`)
+        .then(data =>{
+          setConnectionCount(data.data)
+          console.log(data.data);}
+        )
+        .catch(error => console.error(`Error fetching connection count`, error));
   };
 
-  
+
 
   const fetchAverageScore = async (user) => {
     try {
@@ -239,12 +253,12 @@ function MyInfoPage() {
 
   const displayRatings = () => {
     return(
-    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
-      <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
-        Average Rating Score:
-      </Typography>
-      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
-    </div>);
+        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
+          <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
+            Average Rating Score:
+          </Typography>
+          <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
+        </div>);
   }
 
   return (
@@ -259,77 +273,77 @@ function MyInfoPage() {
                   <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
                     <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
 
-                <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
-                <div style={{ color: 'gray' }}>@{user.username}</div>
-                <br/>
-                <div style={{ marginRight: '10px'}}>
+                    <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
+                    <div style={{ color: 'gray' }}>@{user.username}</div>
+                    <br/>
+                    <div style={{ marginRight: '10px'}}>
                   <span style={{ fontWeight: 'bold' }}>
                     {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                   </span>
-                  <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                      <span style={{ color: 'blue', fontWeight: 'bold' }}>
                     {connectionCount === 1 ? 'connection' : 'connections'}
                   </span>
-                </div>
-              </Grid>
-  
-              <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
-                <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
-              </Grid>
-            </Grid>
-            <br />
-  
-            <Typography variant="body1" style={{ marginLeft: '100px' }}>
-              {profile.bio}
-            </Typography>
-  
-            {user.userType === 'tutor' && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                  Average Rating Score:
-                </Typography>
-                <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
-              </div>
-            )}
+                    </div>
+                  </Grid>
 
-            {ratings.length > 0 && user.userType === 'tutor' ? (
-              ratings.map((rating, index) => (
-                <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
-                  <CardContent>
-                    <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-                      Rating from {rating.ratingUser.username}
+                  <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
+                    <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
+                  </Grid>
+                </Grid>
+                <br />
+
+                <Typography variant="body1" style={{ marginLeft: '100px' }}>
+                  {profile.bio}
+                </Typography>
+
+                {user.userType === 'tutor' && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                      <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                        Average Rating Score:
+                      </Typography>
+                      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                    </div>
+                )}
+
+                {ratings.length > 0 && user.userType === 'tutor' ? (
+                    ratings.map((rating, index) => (
+                        <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                          <CardContent>
+                            <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                              Rating from {rating.ratingUser.username}
+                            </Typography>
+                            <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                              Meeting: {rating.meetingTitle}
+                            </Typography>
+                            <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                              <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                            </Typography>
+                            <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                              Review: {rating.review}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                    ))
+                ) : (
+                    <Typography variant="body1" align="center">
+                      No ratings available.
                     </Typography>
-                    <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
-                      Meeting: {rating.meetingTitle}
-                    </Typography>
-                    <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                      <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
-                    </Typography>
-                    <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
-                      Review: {rating.review}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Typography variant="body1" align="center">
-                No ratings available.
-              </Typography>
-            )}
+                )}
                 <div>
-            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
-              Courses
-            </Typography>
-            {userCourses && userCourses.length > 0 ? (
-              userCourses.map((course, index) => (
-                <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
-                  {course.coursePrefix} {course.courseNumber}
-                </div>
-              ))
-            ) : (
-              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                Not enrolled in any courses.
-              </Typography>
-            )}
+                  <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                    Courses
+                  </Typography>
+                  {userCourses && userCourses.length > 0 ? (
+                      userCourses.map((course, index) => (
+                          <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                            {course.coursePrefix} {course.courseNumber}
+                          </div>
+                      ))
+                  ) : (
+                      <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                        Not enrolled in any courses.
+                      </Typography>
+                  )}
                   <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
                       <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
                   </Grid>
