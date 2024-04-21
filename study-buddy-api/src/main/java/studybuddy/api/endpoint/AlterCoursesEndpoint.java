@@ -35,12 +35,12 @@ public class AlterCoursesEndpoint{
     }
 
     @RequestMapping(
-            value = "/api/add-course/{course}",
+            value = "/api/add-course",
             method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<Course> addCourse(@PathVariable Course course){
+    public ResponseEntity<Course> addCourse(@RequestBody Course course){
         return new ResponseEntity<>(courseService.saveCourse(course), HttpStatus.OK);
     }
 
@@ -52,10 +52,11 @@ public class AlterCoursesEndpoint{
             produces = "application/json"
     )
 
-    public ResponseEntity<Set<Course>> addUserCourses(@RequestParam Set<Course> courses, @PathVariable String username){
+    public ResponseEntity<Set<Course>> addUserCourses(@PathVariable String username, @RequestBody Set<Course> courses){
         Optional<User> user = userService.findByUsername(username);
         Set<Course> list = new HashSet<>();
         user.ifPresent(x -> {
+            System.out.println(courses);
             x.setCourses(courses);
             userService.saveUser(x);
             list.addAll(courseService.getCoursesOfUser(x));
@@ -91,7 +92,7 @@ public class AlterCoursesEndpoint{
             produces = "application/json"
     )
     public ResponseEntity<Set<Course>> getAllCourses(){
-        return ResponseEntity.ok(courseService.findAllCourses());
+        return new ResponseEntity<>(courseService.findAllCourses(), HttpStatus.OK);
     }
 
 

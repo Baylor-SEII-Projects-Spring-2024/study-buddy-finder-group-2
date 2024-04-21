@@ -51,7 +51,7 @@ public class User {
     Set<Course> courses;
 
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @JoinColumn(name = "SCHOOL_ID")
     private School school;
 
