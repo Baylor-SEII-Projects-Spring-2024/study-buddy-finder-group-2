@@ -44,10 +44,13 @@ function MyInfoPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
   const [addCoursesOpen, setAddCoursesOpen] = useState(false);
+  const [coursePrefix, setPrefix] = useState(null);
+  const [courseNumber, setNumber] = useState(null);
+
   const router = useRouter();
   const api = axios.create({
-    baseURL: 'http://localhost:8080/'
-    //baseURL: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/'
+    baseURL: 'http://34.16.169.60:8080/'
   });
 
   
@@ -90,7 +93,7 @@ function MyInfoPage() {
 
     const fetchConnectionCount = (user) => {
 
-      api.get(`/api/viewConnections/getConnectionCount/${user}`)
+      api.get(`api/viewConnections/getConnectionCount/${user}`)
           .then(data =>{
               setConnectionCount(data.data)
               console.log(data.data);}
@@ -159,6 +162,7 @@ function MyInfoPage() {
     }
   };
 
+  //SETTINGS
   const handleSettingsOpen = () => {
     setSettingsOpen(true);
     setId(profile.id);
@@ -169,6 +173,7 @@ function MyInfoPage() {
     setSettingsOpen(false);
   };
 
+  //EDITING EXISTING COURSES
   const handleCoursesOpen = () => {
     getCourses();
     setCoursesSelect(userCourses);
@@ -179,6 +184,21 @@ function MyInfoPage() {
     setCoursesOpen(false);
   };
 
+  const handleCoursesSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await api.post(`api/add-user-courses/${username}`, coursesSelect);
+      if (res.status === 200) {
+        handleCoursesClose();
+        setUserCourses(res.data);
+      }
+    } catch (err) {
+      console.error("ERROR UPDATING COURSES:", err);
+    }
+  };
+
+  //ADDING NON-EXISTING COURSES
+
   const handleAddCoursesOpen = () => {
     setAddCoursesOpen(true);
   };
@@ -187,17 +207,35 @@ function MyInfoPage() {
     setAddCoursesOpen(false);
   };
 
-  const handleCoursesSubmit = async () => {
-    try {
-      const res = await api.post(`/api/add-user-courses/${username}`, coursesSelect);
-      if (res.status === 200) {
-        handleCoursesClose();
-        await fetchUserCourses(username);
+
+  const handleAddCoursesSubmit = (event) => {
+    event.preventDefault();
+    console.log('before:'+userCourses);
+    if (coursePrefix && courseNumber) {
+      const course = {
+        coursePrefix, courseNumber, school:user.school
       }
-    } catch (err) {
-      console.error("ERROR UPDATING COURSES:", err);
+      console.log(course);
+      api.post(`api/add-course`, course)
+          .then((res) => {
+            console.log("yay we did it! Added " + coursePrefix + " " + courseNumber);
+            coursesSelect.push(res.data);
+            getCourses();
+            setAddCoursesOpen(false);
+          })
+          .catch((err) => {
+            window.alert("aww didn't work for " + username + " " + coursePrefix + " " + courseNumber);
+          })
+    } else {
+      window.alert("Please input a coursePrefix and a courseNumber");
     }
-  };
+
+    console.log("after:"+userCourses);
+
+  }
+
+  //RATINGS
+
 
   const displayRatings = () => {
     return(
@@ -357,7 +395,8 @@ function MyInfoPage() {
                 options={courses}
                 getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
                 value={coursesSelect}
-                onChange={(val, input) => {setCoursesSelect(input)}}
+                isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
+                onChange={(e, params) => setCoursesSelect(params)}
                 renderInput={(params) => (
                     <TextField
                         {...params}
@@ -381,10 +420,12 @@ function MyInfoPage() {
             <Button variant="contained" type="submit" onSubmit={handleCoursesSubmit} color="primary">Save</Button>
           </DialogActions>
         </Dialog>
+
+        {/*adding courses not in system*/}
         <Dialog  id="course-adding"
                  open={addCoursesOpen}
                  onClose={handleAddCoursesClose}
-                 component="form" validate="true" onSubmit={handleSubmit}
+                 component="form" validate="true" onSubmit={handleAddCoursesSubmit}
         >
           <DialogTitle>Add Course</DialogTitle>
           <DialogContent>
@@ -394,31 +435,18 @@ function MyInfoPage() {
               </DialogContentText>
 
               <Box  sx={{ margin: 5 }}
-                    component="form" validate="true" onSubmit={handleCourseAdding}>
+                    component="form" validate="true">
                 <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
                 <br/>
                 <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
-                <br/>
-                <Button variant="outlined" type="submit" onClick={() => {
-                  createCourse();
-                  setPrefix(null);
-                  setNumber(null);
-                  document.getElementById("course_prefix").value = null;
-                  document.getElementById("course_number").value = null;
-                }}>Create Course</Button>
               </Box>
-              <br/>
-              <Stack direction="row" sx={{alignItems:"center"}}>
-                <p>Not there?</p><Button variant="contained" onClick={() => handleAddCourses}>+ Add Course</Button>
-              </Stack>
             </Box>
 
           </DialogContent>
 
           <DialogActions>
-
             <Button onClick={handleAddCoursesClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onSubmit={handleAddCoursesSubmit} color="primary">Save</Button>
+            <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
           </DialogActions>
         </Dialog>
     </div>

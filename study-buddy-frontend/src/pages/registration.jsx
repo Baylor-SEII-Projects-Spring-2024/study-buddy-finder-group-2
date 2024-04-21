@@ -16,8 +16,8 @@ import axios, {get} from "axios";
 import {NextResponse as r} from "next/server";
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080/'
-    //baseURL: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/'
+    baseURL: 'http://34.16.169.60:8080/'
 });
 
 const evaluatePasswordStrength = (password) => {
@@ -58,7 +58,7 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        api.get("/api/request-school-options")
+        api.get("api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -135,7 +135,7 @@ function RegistrationPage() {
             setErrUser("Please input a username");
         }
         else {
-            api.get(`/api/find-username/${newUsername}`)
+            api.get(`api/find-username/${newUsername}`)
                 .then(() => {
                     setErrUser("");
                 })
@@ -151,7 +151,7 @@ function RegistrationPage() {
         if (newEmail === '') {
             setErrEmail("Please input an email");
         } else {
-            api.get(`/api/find-email/${newEmail}`)
+            api.get(`api/find-email/${newEmail}`)
                 .then(() => {
                     setErrEmail("");
                 })
@@ -237,7 +237,7 @@ function RegistrationPage() {
             school: school
         });
 
-        api.post("/api/register", user)
+        api.post("api/register", user)
             .then((res) => {
                 console.log('No Existing User! User is now registered!')
                 if (res.data.userType.includes("student")) {
