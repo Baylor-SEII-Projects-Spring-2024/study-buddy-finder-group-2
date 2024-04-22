@@ -17,6 +17,9 @@ public interface MeetupInvitesRepository extends JpaRepository<MeetupInvite, Lon
     @Query(value = "SELECT * FROM meetup_invites m WHERE m.creator = ?1 AND m.invitee = ?2 AND m.is_joined = ?3 AND m.meetup_id = ?4", nativeQuery = true)
     public Optional<MeetupInvite> find(String creator, String invitee, boolean isJoined, Long meetupId);
 
+    @Query(value = "SELECT m.invitee FROM meetup_invites m WHERE m.creator = ?1 AND m.meetup_id = ?2", nativeQuery = true)
+    public List<String> getInvitees(String creator, Long meetupId);
+
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM meetup_invites m WHERE ((m.creator = ?1 AND m.invitee = ?2) OR (m.creator = ?2 AND m.invitee = ?1)) AND m.meetup_id = ?3", nativeQuery = true)
