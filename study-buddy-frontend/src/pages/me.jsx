@@ -15,8 +15,6 @@ import Link from "next/link";
 
 //This is the page that the user themself sees (able to edit and such)
 
-//TODO: Display links
-
 function MyInfoPage() {
   const router = useRouter();
 
@@ -36,8 +34,8 @@ function MyInfoPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/',
-    baseURL: 'http://34.16.169.60:8080/',
+    baseURL: 'http://localhost:8080/',
+    //baseURL: 'http://34.16.169.60:8080/',
     // must add the header to associate requests with the authenticated user
     headers: {'Authorization': `Bearer ${token}`},
   });
@@ -187,6 +185,11 @@ function MyInfoPage() {
                       <span style={{ color: 'blue', fontWeight: 'bold' }}>
                     {connectionCount === 1 ? 'connection' : 'connections'}
                   </span>
+
+                  <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
+                    {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
+                  </Typography>
+
                     </div>
                   </Grid>
 
@@ -287,7 +290,7 @@ function MyInfoPage() {
               <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
               <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
               <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
-              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.jpg')} src="/devil.jpg" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
             </div>
           </DialogContent>
 
