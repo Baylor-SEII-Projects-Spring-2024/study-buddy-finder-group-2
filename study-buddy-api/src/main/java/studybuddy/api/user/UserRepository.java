@@ -1,6 +1,5 @@
 package studybuddy.api.user;
 
-import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -43,18 +41,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query(value = "SELECT * FROM users u WHERE u.user_type = ?2 AND u.user_id IN(SELECT b.user_id FROM users b WHERE b.firstName LIKE %?1% OR b.lastName LIKE %?1% OR b.username LIKE %?1%)", nativeQuery = true)
     public List<User> findByNameOrUsernameAndUserType(String partialName, String type);
-
-    /**
-     * findByNameStartingWith
-     * This function queries for all the users information with the given
-     * part of the name
-     * @param namePrefix
-     *
-     * @return List of Users that start with namePrefix
-     *          empty List if no matches
-     */
-    @Query(value = "SELECT * FROM users u WHERE u.name LIKE ?1%", nativeQuery = true)
-    public List<User> findByNameStartingWith(String namePrefix);
 
     /**
      * findByUsernamePassword
@@ -183,5 +169,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LIMIT 5",
             nativeQuery = true)
     List<User> recommendRandomUsers(long userId);
+    List<User> getUsersBySchoolId(long id);
 
 }
+
+

@@ -14,6 +14,8 @@ import {
 } from "@mui/material";
 import axios, {get} from "axios";
 import {NextResponse as r} from "next/server";
+import {useDispatch, useSelector} from "react-redux";
+import {useRouter} from "next/navigation";
 
 const api = axios.create({
     //baseURL: 'http://localhost:8080/'
@@ -31,6 +33,10 @@ const evaluatePasswordStrength = (password) => {
 };
 
 function RegistrationPage() {
+    const router = useRouter();
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     // Database looks for attribute name, not column name when assigning attributes to new row
     // emailAddress and userType need no underscores
     const [username, setUsername] = useState("");
@@ -58,7 +64,7 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        api.get("/api/request-school-options")
+        api.get("api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -135,7 +141,7 @@ function RegistrationPage() {
             setErrUser("Please input a username");
         }
         else {
-            api.get(`/api/find-username/${newUsername}`)
+            api.get(`api/find-username/${newUsername}`)
                 .then(() => {
                     setErrUser("");
                 })
@@ -150,8 +156,13 @@ function RegistrationPage() {
         setEmail(newEmail);
         if (newEmail === '') {
             setErrEmail("Please input an email");
-        } else {
-            api.get(`/api/find-email/${newEmail}`)
+        } else if(school && emailAddress.length < school.emailDomain.length &&
+            emailAddress.substring(
+                emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain) {
+            setErrEmail("Email is not a school email. Try again.");
+        }
+        else {
+            api.get(`api/find-email/${newEmail}`)
                 .then(() => {
                     setErrEmail("");
                 })
@@ -224,7 +235,7 @@ function RegistrationPage() {
 
     const registerUser = () => {
         const user = {
-            username, password, firstName, lastName, emailAddress, userType
+            username, password, firstName, lastName, emailAddress, userType, school
         }
 
         console.log({
@@ -233,30 +244,16 @@ function RegistrationPage() {
             emailAddress: emailAddress,
             username: username,
             userType: userType,
-            password: password
+            password: password,
+            school: school
         });
 
-        api.post("/api/register", user)
+
+        api.post("api/authorization/register", user)
             .then((res) => {
                 console.log('No Existing User! User is now registered!')
-                if (res.data.userType.includes("student")) {
-
-                    console.log(res.data);
-                    //temporary fix
-                    var params = new URLSearchParams();
-                    console.log(1);
-                    params.append("username", res.data.username.toString());
-                    console.log(2);
-                    console.log("going to /studentLanding?" + params.toString());
-                    console.log(3);
-                    location.href = "/studentLanding?" + params.toString();
-
-                } else if (res.data.userType.includes("tutor")) {
-                    var params = new URLSearchParams();
-                    params.append("username", res.data.username);
-                    console.log("going to /tutorLanding?" + params.toString());
-                    location.href = "/tutorLanding?" + params.toString();
-                }
+                console.log(res.data)
+                router.push('/login')
             })
             .catch((err) => {
                 console.log("something is wrong");
@@ -270,6 +267,7 @@ function RegistrationPage() {
         if (strength < 4) return 'info';    // Yellow
         return 'success';                   // Green
     };
+
 
     return (
         <Box>
@@ -311,15 +309,19 @@ function RegistrationPage() {
                 /> <br/>
 
                 <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
+                           error={errFirstName !== ""}
                            onChange={handleChangeFirstName}
                 /><br/>
                 <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
+                           error={errLastName !== ""}
                            onChange={handleChangeLastName}
                 /><br/>
                 <TextField autoComplete="email" id="email" name="email" label="Email"
+                           error={errEmail !== ""}
                            onChange={handleChangeEmail}
                 /><br/>
                 <TextField id="username" name="username" label="Username"
+                           error={errUser !== ""}
                            onChange={handleChangeUsername}
                 /><br/>
                 <TextField
@@ -328,6 +330,7 @@ function RegistrationPage() {
                     id="password"
                     name="password"
                     label="Password"
+                    error={errPwd !== ""}
                     onChange={handleChangePassword}
                     fullWidth
                     sx={{marginBottom: 1, width: '14%'}} // Set the width of the TextField to 75%
@@ -348,6 +351,7 @@ function RegistrationPage() {
                     type="password"
                     name="confirm_password"
                     label="Confirm Password"
+                    error={errCPwd !== ""}
                     onChange={handleChangeConfirmPassword}
                     fullWidth
                     sx={{width: '14%'}}

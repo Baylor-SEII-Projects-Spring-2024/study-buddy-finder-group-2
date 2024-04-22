@@ -6,12 +6,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.connection.Connection;
 import studybuddy.api.connection.ConnectionService;
+import studybuddy.api.meetings.Meeting;
+import studybuddy.api.meetings.MeetingService;
+import studybuddy.api.meetupInvites.MeetupInvite;
+import studybuddy.api.meetupInvites.MeetupInvitesService;
+import studybuddy.api.notifications.Notification;
+import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZoneId;
+import java.util.*;
 
 @Log4j2
 @RestController
@@ -24,6 +29,15 @@ public class InvitationsEndpoint {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MeetingService meetingService;
+
+    @Autowired
+    private MeetupInvitesService meetupInvitesService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // fetching all incoming requests
     @GetMapping("/api/viewInRequests/{username}")
@@ -111,4 +125,102 @@ public class InvitationsEndpoint {
         }
     }
 
+    @GetMapping("/api/viewMeetupInvites/{username}")
+    public List<Optional<Meeting>> fetchMeetupInRequests(@PathVariable String username,
+                                                         @RequestHeader("timezone") String timeZone) {
+        List<MeetupInvite> meetupInvites = meetupInvitesService.getInvites(username);
+        List<Long> meetupTitles = new ArrayList<>();
+        List<Optional<Meeting>> invitedMeetups = new ArrayList<>();
+
+        for(MeetupInvite mi : meetupInvites) {
+            if(mi.getInvitee().equals(username)) {
+                meetupTitles.add(mi.getMeetupId());
+            }
+        }
+
+        ZoneId timeZoneId = ZoneId.of(timeZone);
+        for(Long id : meetupTitles) {
+            Optional<Meeting> meetup = meetingService.findById(id);
+
+            if(meetup.isPresent()) {
+                meetup.get().setStartDate(meetup.get().getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+                meetup.get().setEndDate(meetup.get().getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+
+                invitedMeetups.add(meetup);
+            }
+        }
+        return invitedMeetups;
+    }
+
+//    @GetMapping("/api/viewMeetupInvitesOut/{username}")
+//    public List<Optional<Meeting>> fetchMeetupOutRequests(@PathVariable String username,
+//                                                         @RequestHeader("timezone") String timeZone) {
+//        List<MeetupInvite> meetupInvites = meetupInvitesService.getInvites(username);
+//        List<Long> meetupTitles = new ArrayList<>();
+//        List<Optional<Meeting>> invitedMeetups = new ArrayList<>();
+//
+//        for(MeetupInvite mi : meetupInvites) {
+//            if(mi.getCreator().equals(username)) {
+//                meetupTitles.add(mi.getMeetupId());
+//            }
+//        }
+//
+//        ZoneId timeZoneId = ZoneId.of(timeZone);
+//        for(Long id : meetupTitles) {
+//            Optional<Meeting> meetup = meetingService.findById(id);
+//
+//            if(meetup.isPresent()) {
+//                meetup.get().setStartDate(meetup.get().getStartDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+//                meetup.get().setEndDate(meetup.get().getEndDate().atZone(ZoneId.of("UTC")).withZoneSameInstant(timeZoneId).toLocalDateTime());
+//
+//                invitedMeetups.add(meetup);
+//            }
+//        }
+//        return invitedMeetups;
+//    }
+
+    @GetMapping("/api/viewMeetupInvitesOut/{username}")
+    public List<MeetupInvite> fetchMeetupOutRequests(@PathVariable String username,
+                                                          @RequestHeader("timezone") String timeZone) {
+        List<MeetupInvite> meetupInvites = meetupInvitesService.getInvites(username);
+        List<MeetupInvite> outgoingMeetups = new ArrayList<>();
+
+        for(MeetupInvite mi : meetupInvites) {
+            if(mi.getCreator().equals(username)) {
+                outgoingMeetups.add(mi);
+            }
+        }
+
+        return outgoingMeetups;
+    }
+
+    @RequestMapping(
+            value = "/api/removeMeetupInvitation",
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<String> removeMeetupRequest(@RequestBody MeetupInvite meetupInvite) {
+        System.out.println("*******" + meetupInvite.getCreator() + " " + meetupInvite.getInvitee() + " " + meetupInvite.getMeetupId());
+        meetupInvitesService.deleteMeetupInvite(meetupInvite.getCreator(), meetupInvite.getInvitee(), meetupInvite.getMeetupId());
+        return ResponseEntity.ok("Meetup request removed");
+    }
+
+    @RequestMapping(
+            value = "/api/getMeetupInvitees/{meetupId}",
+            method = RequestMethod.GET,
+            produces = "application/json"
+    )
+    public List<User> getMeetupInvitees(@PathVariable Long meetupId) {
+        List<MeetupInvite> meetupInvites = meetupInvitesService.findAll();
+        List<User> invitees = new ArrayList<User>();
+
+        for(MeetupInvite mi : meetupInvites) {
+            if(Objects.equals(mi.getMeetupId(), meetupId)){
+                invitees.add(userService.findByUsernameExists(mi.getInvitee()));
+            }
+        }
+
+        return invitees;
+    }
 }

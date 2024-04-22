@@ -12,8 +12,16 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import NotificationPage from "@/pages/Notification";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 function viewConnectionsPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [thisUser, setThisUser] = useState(null);
 
     const [username, setUsername] = useState(null);
@@ -29,25 +37,28 @@ function viewConnectionsPage() {
     const [selectedConnection, setSelectedConnection] = useState();
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
+        // must add the header to associate requests with the authenticated user
+        headers: {'Authorization': `Bearer ${token}`}
     });
-
 
     // get the user's username
     // show all connections for that user
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search),
-            user = params.get("username");
-
-        setThisUser(user);
-        fetchConnections(user);
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setThisUser(decodedUser.sub);
+            fetchConnections(decodedUser.sub);
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, [])
 
     // get all connections with isConnected = true
     const fetchConnections = (user) => {
-        console.log("User to fetch for: " + user);
-
         api.get(`api/viewConnections/${user}`)
             .then(data => setUsers(data.data))
             .catch(error => console.error('Error fetching connections:', error));

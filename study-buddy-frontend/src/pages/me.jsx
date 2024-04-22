@@ -1,19 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Grid, Card, CardContent, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import {
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Autocomplete, Box, Stack, Input
+} from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
+
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
+
 import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import {useRouter} from "next/router";
 import Link from "next/link";
+import {Span} from "next/dist/server/lib/trace/tracer";
 
 //This is the page that the user themself sees (able to edit and such)
 
 //TODO: Display links
 
 function MyInfoPage() {
+  const router = useRouter();
+
+  const token = useSelector(state => state.authorization.token); //get current state
+  const dispatch = useDispatch(); // use to change state
+
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
@@ -22,39 +45,56 @@ function MyInfoPage() {
   const [username, setUsername] = useState(null);
   const [ratingScore, setRatingScore] = useState(0);
   const [userCourses, setUserCourses] = useState([]);
+  const [coursesSelect, setCoursesSelect] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [school, setSchool] = useState(null);
   const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const router = useRouter();
+  const [coursesOpen, setCoursesOpen] = useState(false);
+  const [addCoursesOpen, setAddCoursesOpen] = useState(false);
+  const [coursePrefix, setPrefix] = useState(null);
+  const [courseNumber, setNumber] = useState(null);
+
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/',
+    baseURL: 'http://34.16.169.60:8080/',
+    // must add the header to associate requests with the authenticated user
+    headers: {'Authorization': `Bearer ${token}`},
   });
 
-  
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search),
-      user = params.get("username");
+    try{
+      // only authorized users can do this (must have token)
+      const decodedUser = jwtDecode(token);
+      setUsername(decodedUser.sub);
 
-    setUsername(user);
+      const fetchData = async () => {
+        fetchUser(decodedUser.sub);
+        fetchProfile(decodedUser.sub);
+        await fetchUserCourses(decodedUser.sub);
+        fetchConnectionCount(decodedUser.sub);
+        await fetchRatingsForMe(decodedUser.sub);
+        await fetchAverageScore(decodedUser.sub);
+      };
 
-    const fetchData = async () => {
-      fetchUser(user);
-      fetchProfile(user);
-      await fetchUserCourses(user);
-      fetchConnectionCount(user);
-      await fetchRatingsForMe(user);
-      await fetchAverageScore(user);
-    };
-
-    fetchData();
+      fetchData();
+    }
+    catch(err) {
+      router.push(`/error`);
+    }
   }, []);
+
   const fetchUser = (user) => {
     console.log("User to fetch for: " + user);
 
     api.get(`me/${user}`)
-      .then(data => setUser(data.data))
+      .then(data => {
+        setUser(data.data);
+        console.log(data.data);
+        setSchool(data.data.school);
+      })
       .catch(error => console.error('Error fetching user:', error));
   };
 
@@ -62,21 +102,21 @@ function MyInfoPage() {
     console.log("Profile to fetch for: " + user);
 
     api.get(`profile/${user}`)
-      .then(data => setProfile(data.data))
-      .catch(error => console.error('Error fetching profile:', error));
+        .then(data => setProfile(data.data))
+        .catch(error => console.error('Error fetching profile:', error));
   };
 
-    const fetchConnectionCount = (user) => {
+  const fetchConnectionCount = (user) => {
 
-      api.get(`/api/viewConnections/getConnectionCount/${user}`)
-          .then(data =>{
-              setConnectionCount(data.data)
-              console.log(data.data);}
-          )
-          .catch(error => console.error(`Error fetching connection count`, error));
+    api.get(`/api/viewConnections/getConnectionCount/${user}`)
+        .then(data =>{
+          setConnectionCount(data.data)
+          console.log(data.data);}
+        )
+        .catch(error => console.error(`Error fetching connection count`, error));
   };
 
-  
+
 
   const fetchAverageScore = async (user) => {
     try {
@@ -106,6 +146,13 @@ function MyInfoPage() {
     }
   };
 
+  const getCourses = () => {
+    api.get(`api/get-all-courses/${school.id}`)
+        .then((res1) =>{
+          setCourses(res1.data);
+        })
+  }
+
   const handleProfilePic = (pic) => {
     setPictureUrl(pic);
   }
@@ -130,6 +177,7 @@ function MyInfoPage() {
     }
   };
 
+  //SETTINGS
   const handleSettingsOpen = () => {
     setSettingsOpen(true);
     setId(profile.id);
@@ -140,14 +188,78 @@ function MyInfoPage() {
     setSettingsOpen(false);
   };
 
+  //EDITING EXISTING COURSES
+  const handleCoursesOpen = () => {
+    getCourses();
+    setCoursesSelect(userCourses);
+    setCoursesOpen(true);
+  };
+
+  const handleCoursesClose = () => {
+    setCoursesOpen(false);
+  };
+
+  const handleCoursesSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await api.post(`api/add-user-courses/${username}`, coursesSelect);
+      if (res.status === 200) {
+        handleCoursesClose();
+        setUserCourses(res.data);
+      }
+    } catch (err) {
+      console.error("ERROR UPDATING COURSES:", err);
+    }
+  };
+
+  //ADDING NON-EXISTING COURSES
+
+  const handleAddCoursesOpen = () => {
+    setAddCoursesOpen(true);
+  };
+
+  const handleAddCoursesClose = () => {
+    setAddCoursesOpen(false);
+  };
+
+
+  const handleAddCoursesSubmit = (event) => {
+    event.preventDefault();
+    console.log('before:'+userCourses);
+    if (coursePrefix && courseNumber) {
+      const course = {
+        coursePrefix, courseNumber, school
+      }
+      console.log(course);
+      api.post(`api/add-course`, course)
+          .then((res) => {
+            console.log("yay we did it! Added " + coursePrefix + " " + courseNumber);
+            coursesSelect.push(res.data);
+            getCourses();
+            setAddCoursesOpen(false);
+          })
+          .catch((err) => {
+            window.alert("aww didn't work for " + username + " " + coursePrefix + " " + courseNumber);
+          })
+    } else {
+      window.alert("Please input a coursePrefix and a courseNumber");
+    }
+
+    console.log("after:"+userCourses);
+
+  }
+
+  //RATINGS
+
+
   const displayRatings = () => {
     return(
-    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
-      <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
-        Average Rating Score:
-      </Typography>
-      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
-    </div>);
+        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
+          <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
+            Average Rating Score:
+          </Typography>
+          <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
+        </div>);
   }
 
   return (
@@ -162,37 +274,37 @@ function MyInfoPage() {
                   <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
                     <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
 
-                <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
-                <div style={{ color: 'gray' }}>@{user.username}</div>
-                <br/>
-                <div style={{ marginRight: '10px'}}>
+                    <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
+                    <div style={{ color: 'gray' }}>@{user.username}</div>
+                    <br/>
+                    <div style={{ marginRight: '10px'}}>
                   <span style={{ fontWeight: 'bold' }}>
                     {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                   </span>
-                  <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                      <span style={{ color: 'blue', fontWeight: 'bold' }}>
                     {connectionCount === 1 ? 'connection' : 'connections'}
                   </span>
-                </div>
-              </Grid>
-  
-              <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
-                <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
-              </Grid>
-            </Grid>
-            <br />
-  
-            <Typography variant="body1" style={{ marginLeft: '100px' }}>
-              {profile.bio}
-            </Typography>
-  
-            {user.userType === 'tutor' && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                  Average Rating Score:
+                    </div>
+                  </Grid>
+
+                  <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
+                    <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
+                  </Grid>
+                </Grid>
+                <br />
+
+                <Typography variant="body1" style={{ marginLeft: '100px' }}>
+                  {profile.bio}
                 </Typography>
-                <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
-              </div>
-            )}
+
+                {user.userType === 'tutor' && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                      <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                        Average Rating Score:
+                      </Typography>
+                      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                    </div>
+                )}
 
             {user.userType !== 'tutor' && (
               <>
@@ -223,24 +335,22 @@ function MyInfoPage() {
               </>
             )}
                 <div>
-            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
-              Courses
-            </Typography>
-            {userCourses && userCourses.length > 0 ? (
-              userCourses.map((course, index) => (
-                <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
-                  {course.coursePrefix} {course.courseNumber}
-                </div>
-              ))
-            ) : (
-              <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                Not enrolled in any courses.
-              </Typography>
-            )}
+                  <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                    Courses
+                  </Typography>
+                  {userCourses && userCourses.length > 0 ? (
+                      userCourses.map((course, index) => (
+                          <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                            {course.coursePrefix} {course.courseNumber}
+                          </div>
+                      ))
+                  ) : (
+                      <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                        Not enrolled in any courses.
+                      </Typography>
+                  )}
                   <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
-                    <Link href={`/editCourse?username=${encodeURIComponent(username)}`} passHref>
-                      <Button variant="contained" startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
-                    </Link>
+                      <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
                   </Grid>
                 </div>
           </CardContent>
@@ -285,6 +395,79 @@ function MyInfoPage() {
           <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
         </DialogActions>
       </Dialog>
+
+        <Dialog  id="course-selection"
+            open={coursesOpen}
+            onClose={handleCoursesClose}
+            component="form" validate="true" onSubmit={handleCoursesSubmit}
+        >
+          <DialogTitle>Courses</DialogTitle>
+          <DialogContent>
+            <Box sx={{width: 500}}>
+            <DialogContentText>
+              Edit your courses.
+            </DialogContentText>
+
+            <Autocomplete
+                multiple
+                id="tags-standard"
+                options={courses}
+                getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
+                value={coursesSelect}
+                isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
+                onChange={(e, params) => setCoursesSelect(params)}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        variant="standard"
+                        label="Multiple values"
+                        placeholder="Favorites"
+                    />
+                )}
+            />
+              <br/>
+              <Stack direction="row" sx={{alignItems:"center"}}>
+                <p>Not there?</p><Button variant="contained" onClick={() => handleAddCoursesOpen()}>+ Add Course</Button>
+              </Stack>
+            </Box>
+
+          </DialogContent>
+
+          <DialogActions>
+
+            <Button onClick={handleCoursesClose}>Cancel</Button>
+            <Button variant="contained" type="submit" onSubmit={handleCoursesSubmit} color="primary">Save</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/*adding courses not in system*/}
+        <Dialog  id="course-adding"
+                 open={addCoursesOpen}
+                 onClose={handleAddCoursesClose}
+                 component="form" validate="true" onSubmit={handleAddCoursesSubmit}
+        >
+          <DialogTitle>Add Course</DialogTitle>
+          <DialogContent>
+            <Box sx={{width: 500}}>
+              <DialogContentText>
+                Add your course.
+              </DialogContentText>
+
+              <Box  sx={{ margin: 5 }}
+                    component="form" validate="true">
+                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
+                <br/>
+                <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
+              </Box>
+            </Box>
+
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handleAddCoursesClose}>Cancel</Button>
+            <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
+          </DialogActions>
+        </Dialog>
     </div>
   );
 }

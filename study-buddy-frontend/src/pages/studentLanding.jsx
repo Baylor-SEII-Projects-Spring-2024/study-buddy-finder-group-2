@@ -24,8 +24,15 @@ import CreateIcon from "@mui/icons-material/Create";
 import EventIcon from "@mui/icons-material/Event";
 import dayjs from "dayjs";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
 
 function StudentLandingPage() {
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
     const [username, setUsername] = useState(null);
     const [user, setUser] = useState(null);
     const[other, setSelectedUser] = useState(null);
@@ -47,27 +54,32 @@ function StudentLandingPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/'
-        baseURL: 'http://34.16.169.60:8080/'
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
+        headers: {'Authorization': `Bearer ${token}`},
+
     });
-    const router = useRouter();
 
     useEffect( ()  => {
-        const params = new URLSearchParams(window.location.search),
-            name = params.get("username");
-        setUsername(name);
-        console.log(username);
+        try{
+            // only authorized users can do this (must have token)
+            const decodedUser = jwtDecode(token);
+            setUsername(decodedUser.sub);
 
-        api.get(`users/${name}`)
-            .then((res) => {
-                setUser(res.data);
-                console.log(res.data);
-                fetchRecommendations(name);
-                fetchRecommendedMeetups(name);
-            })
-            .catch((err) => {
-                window.alert("User not found");
-            })
+            api.get(`users/${decodedUser.sub}`)
+                .then((res) => {
+                    setUser(res.data);
+                    console.log(res.data);
+                    fetchRecommendations(decodedUser.sub);
+                    fetchRecommendedMeetups(decodedUser.sub);
+                })
+                .catch((err) => {
+                    window.alert("User not found");
+                })
+        }
+        catch(err) {
+            router.push(`/error`);
+        }
     }, [])
     console.log("hi " + username);
 
@@ -256,35 +268,35 @@ function StudentLandingPage() {
             for (let i = 0; i < a.length; i += chunkSize)
                 arrays.push(a.slice(i, i + chunkSize))
             return (
-                 arrays.map((section, index) => (
-                     <Stack sx={{
-                         overflow: 'auto',
-                         flexDirection:'row'}} key={`stack-${index}`}>
-                         {section ? section.map((user, i) => (
-                                 <Card key={i} sx={{margin:5, boxShadow:10, width: 350}}>
-                                     <CardContent>
-                                         <Stack spacing={13} direction="row" justifyContent="space-evenly">
-                                             <Box >
-                                                 <strong>Username: </strong> {user.username}
-                                                 <br/>
-                                                 <strong>Name: </strong> {user.firstName + " " + user.lastName}
-                                                 <br/>
-                                             </Box>
-                                             <Button
-                                                 variant='contained'
-                                                 color="primary"
-                                                 size="small"
-                                                 onClick={() => handleClickOpenProfile(user)}
-                                             >
-                                                 View Profile</Button>
-                                         </Stack>
-                                         {/* Other user details here */}
-                                     </CardContent>
-                                 </Card>
-                         )) : console.log("Nope")}
+                arrays.map((section, index) => (
+                    <Stack sx={{
+                        overflow: 'auto',
+                        flexDirection:'row'}} key={`stack-${index}`}>
+                        {section ? section.map((user, i) => (
+                            <Card key={i} sx={{margin:5, boxShadow:10, width: 350}}>
+                                <CardContent>
+                                    <Stack spacing={13} direction="row" justifyContent="space-evenly">
+                                        <Box >
+                                            <strong>Username: </strong> {user.username}
+                                            <br/>
+                                            <strong>Name: </strong> {user.firstName + " " + user.lastName}
+                                            <br/>
+                                        </Box>
+                                        <Button
+                                            variant='contained'
+                                            color="primary"
+                                            size="small"
+                                            onClick={() => handleClickOpenProfile(user)}
+                                        >
+                                            View Profile</Button>
+                                    </Stack>
+                                    {/* Other user details here */}
+                                </CardContent>
+                            </Card>
+                        )) : console.log("Nope")}
 
-                     </Stack>
-                 ))
+                    </Stack>
+                ))
             );
         }
 

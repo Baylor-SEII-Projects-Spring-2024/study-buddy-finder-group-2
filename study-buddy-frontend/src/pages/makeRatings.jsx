@@ -16,25 +16,42 @@ import {
   Rating,
   TextField
 } from "@mui/material";
+import {jwtDecode} from "jwt-decode";
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
 
 function RatingsPage() {
-  const [thisUser, setThisUser] = useState(null);
-  const [ratingScore, setRatingScore] = useState(0);
-  const [review, setReview] = useState('');
-  const [id, setId] = useState(null);
-  const [ratings, setRatings] = useState([]);
-  const [openEdit, setOpenEdit] = useState(false); 
+    const router = useRouter();
+
+    const token = useSelector(state => state.authorization.token); //get current state
+    const dispatch = useDispatch(); // use to change state
+
+    const [thisUser, setThisUser] = useState(null);
+    const [ratingScore, setRatingScore] = useState(0);
+    const [review, setReview] = useState('');
+    const [id, setId] = useState(null);
+    const [ratings, setRatings] = useState([]);
+    const [openEdit, setOpenEdit] = useState(false);
+
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseUrl: 'http://34.16.169.60:8080/'
+      //baseURL: 'http://localhost:8080/',
+      baseUrl: 'http://34.16.169.60:8080/',
+      // must add the header to associate requests with the authenticated user
+      headers: {'Authorization': `Bearer ${token}`},
   });
 
   // get the user's username
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const user = params.get("username");
-    setThisUser(user);
-    fetchPendingRatings(user);
+      try{
+          // only authorized users can do this (must have token)
+          const decodedUser = jwtDecode(token);
+          setThisUser(decodedUser.sub);
+
+          fetchPendingRatings(decodedUser.sub);
+      }
+      catch(err) {
+          router.push(`/error`);
+      }
   }, []);
 
   const fetchPendingRatings = async (user) => {

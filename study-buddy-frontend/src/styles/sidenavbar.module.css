@@ -1,0 +1,13 @@
+.side-navbar {
+    background-color: #f0f0f0;
+    width: 250px;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: -250px;
+    transition: left 0.3s ease;
+}
+
+.side-navbar.active {
+    left: 0;
+}

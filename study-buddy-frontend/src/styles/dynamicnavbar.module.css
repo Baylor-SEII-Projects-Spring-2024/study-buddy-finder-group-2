@@ -1,0 +1,15 @@
+.dynamic-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.nav-links {
+    display: flex;
+    transition: right 0.3s ease;
+}
+
+.dynamic-navbar.active {
+    left: 0;
+}

@@ -21,6 +21,8 @@ public class CourseService {
         return courseRepository.findAllCourses();
     }
 
+    public Set<Course> findAllCoursesBySchoolId(Long id){return courseRepository.findCoursesBySchoolId(id);}
+
     /**
      * saveCourse
      * stores course to the repository

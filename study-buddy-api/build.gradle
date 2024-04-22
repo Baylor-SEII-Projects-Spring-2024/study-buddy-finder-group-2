@@ -29,7 +29,11 @@ dependencies {
 
 	// starter-security REQUIRES authentication to move past login or registration page
 	// can check that works by going to localhost:8080/login
-	//implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+	// add jaxb bind so jjwt.signWith() works
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
