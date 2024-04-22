@@ -55,4 +55,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      */
     public Course removeCoursesByCourseId(long courseId);
 
+    /**
+     * findCoursesBySchoolId
+     *
+     * @param schoolId
+     * @return set of Courses of school
+     */
+    public Set<Course> findCoursesBySchoolId(long schoolId);
+
 }

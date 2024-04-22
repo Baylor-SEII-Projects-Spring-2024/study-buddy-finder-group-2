@@ -95,6 +95,15 @@ public class AlterCoursesEndpoint{
         return new ResponseEntity<>(courseService.findAllCourses(), HttpStatus.OK);
     }
 
+    @RequestMapping(
+            value = "/api/get-all-courses/{id}",
+            method = RequestMethod.GET,
+            produces = "application/json"
+    )
+    public ResponseEntity<Set<Course>> getAllCoursesBySchool(@PathVariable Long id){
+        return new ResponseEntity<>(courseService.findAllCoursesBySchoolId(id), HttpStatus.OK);
+    }
+
 
     @RequestMapping(
             value = "/api/remove-course/{username}",

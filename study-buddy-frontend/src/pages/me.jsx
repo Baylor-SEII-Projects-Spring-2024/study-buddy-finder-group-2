@@ -147,7 +147,7 @@ function MyInfoPage() {
   };
 
   const getCourses = () => {
-    api.get(`api/get-all-courses/`)
+    api.get(`api/get-all-courses/${school.id}`)
         .then((res1) =>{
           setCourses(res1.data);
         })
