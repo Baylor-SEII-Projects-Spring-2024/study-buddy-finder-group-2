@@ -156,7 +156,12 @@ function RegistrationPage() {
         setEmail(newEmail);
         if (newEmail === '') {
             setErrEmail("Please input an email");
-        } else {
+        } else if(school && emailAddress.length < school.emailDomain.length &&
+            emailAddress.substring(
+                emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain) {
+            setErrEmail("Email is not a school email. Try again.");
+        }
+        else {
             api.get(`api/find-email/${newEmail}`)
                 .then(() => {
                     setErrEmail("");
@@ -247,6 +252,7 @@ function RegistrationPage() {
         api.post("api/authorization/register", user)
             .then((res) => {
                 console.log('No Existing User! User is now registered!')
+                console.log(res.data)
                 router.push('/login')
             })
             .catch((err) => {
@@ -303,15 +309,19 @@ function RegistrationPage() {
                 /> <br/>
 
                 <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
+                           error={errFirstName !== ""}
                            onChange={handleChangeFirstName}
                 /><br/>
                 <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
+                           error={errLastName !== ""}
                            onChange={handleChangeLastName}
                 /><br/>
                 <TextField autoComplete="email" id="email" name="email" label="Email"
+                           error={errEmail !== ""}
                            onChange={handleChangeEmail}
                 /><br/>
                 <TextField id="username" name="username" label="Username"
+                           error={errUser !== ""}
                            onChange={handleChangeUsername}
                 /><br/>
                 <TextField
@@ -320,6 +330,7 @@ function RegistrationPage() {
                     id="password"
                     name="password"
                     label="Password"
+                    error={errPwd !== ""}
                     onChange={handleChangePassword}
                     fullWidth
                     sx={{marginBottom: 1, width: '14%'}} // Set the width of the TextField to 75%
@@ -340,6 +351,7 @@ function RegistrationPage() {
                     type="password"
                     name="confirm_password"
                     label="Confirm Password"
+                    error={errCPwd !== ""}
                     onChange={handleChangeConfirmPassword}
                     fullWidth
                     sx={{width: '14%'}}
