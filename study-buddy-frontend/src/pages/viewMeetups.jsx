@@ -430,6 +430,8 @@ function MeetupsPage() {
         else {
             console.log("error with request type?!");
         }
+
+        
     }
 
     const handleJoinMeetupInvite = (event) => {
@@ -657,13 +659,7 @@ function MeetupsPage() {
                                                 {req.invitee}
                                             </Typography>
                                         )}
-
-                                        {requestType === "outgoing" && (
-                                            <Typography variant="body2" color="text.secondary">
-                                                {req.meetupId}
-                                            </Typography>
-                                        )}
-
+                                        
                                     </Box>
                                     <Stack direction="row" spacing={1}>
 

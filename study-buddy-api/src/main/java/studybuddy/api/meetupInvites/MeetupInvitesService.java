@@ -31,4 +31,8 @@ public class MeetupInvitesService {
     public void deleteMeetupInvite(String thisUser, String otherUser, Long meetupId){
         meetupInvitesRepository.deleteMeetupInvite(thisUser,otherUser, meetupId);
     }
+
+    public List<String> getInvitees(String creator, Long meetupId){
+        return meetupInvitesRepository.getInvitees(creator, meetupId);
+    }
 }
