@@ -26,6 +26,11 @@ public interface SchoolRepository extends JpaRepository<School, Long> {
     @Query(value = "SELECT * FROM schools s", nativeQuery = true)
     public List<String> getAllSchoolNames();
 
-
+    /**
+     *
+     * @param id
+     * @return School with matching id
+     */
+    public School findSchoolById(long id);
 
 }

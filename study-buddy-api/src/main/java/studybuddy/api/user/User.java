@@ -53,7 +53,7 @@ public class User {
 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "SCHOOL_ID")
     private School school;
 

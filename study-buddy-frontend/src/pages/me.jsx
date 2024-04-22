@@ -92,6 +92,7 @@ function MyInfoPage() {
     api.get(`me/${user}`)
       .then(data => {
         setUser(data.data);
+        console.log(data.data);
         setSchool(data.data.school);
       })
       .catch(error => console.error('Error fetching user:', error));
@@ -227,7 +228,7 @@ function MyInfoPage() {
     console.log('before:'+userCourses);
     if (coursePrefix && courseNumber) {
       const course = {
-        coursePrefix, courseNumber, school:user.school
+        coursePrefix, courseNumber, school
       }
       console.log(course);
       api.post(`api/add-course`, course)
