@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
+import { Rating, Box, Button, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -326,7 +326,7 @@ function MeetupsPage() {
             const response = await api.put(`updateRating/${ratingId}`, updatedRating);
             if (response.status === 200) {
                 handleCloseEditRating();
-                fetchPendingRatings(thisUser);
+                fetchPendingRatings(user);
                
             } else { 
                 console.error("Failed to update rating.");
@@ -380,18 +380,29 @@ function MeetupsPage() {
             {/*View user profile and add as connection*/}
             <Dialog open={openEditRating} onClose={handleCloseEditRating}>
                 <DialogTitle>Edit Rating</DialogTitle>
-                <DialogContent>
-                <input 
-                    type="number" 
-                    value={ratingScore} 
-                    onChange={(e) => setRatingScore(parseFloat(e.target.value))}  
-                    onBlur={() => setRatingScore(Math.min(Math.max(ratingScore, 0.5), 5))}
-                />
-                <textarea value={review} onChange={(e) => setReview(e.target.value)} />
+                <DialogContent style={{ height: '300px' }}>
+                    <Rating
+                        name="rating-score"
+                        value={ratingScore}
+                        precision={0.5}
+                        onChange={(e, newValue) => setRatingScore(newValue)}
+                    />
+                    <TextField
+                        label="Review"
+                        multiline
+                        rows={5}
+                        value={review}
+                        onChange={(e) => setReview(e.target.value)}
+                        fullWidth
+                        variant="outlined"
+                        margin="normal"
+                
+                        InputLabelProps={{ style: { color: 'black' } }} 
+                    />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseEditRating}>Cancel</Button>
-                    <Button onClick={() => handleUpdateRating(ratingId)}>Save Changes</Button>
+                    <Button onClick={handleCloseEditRating} variant="contained" style={{ backgroundColor: 'red', color: 'white' }}>Cancel</Button>
+                    <Button onClick={() => handleUpdateRating(ratingId)} variant="contained" sx={{ marginRight: '10px' }}>Save Changes</Button>
                 </DialogActions>
             </Dialog>
             </Box>
