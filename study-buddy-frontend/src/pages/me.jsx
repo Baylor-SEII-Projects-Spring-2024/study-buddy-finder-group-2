@@ -36,7 +36,7 @@ function MyInfoPage() {
   const dispatch = useDispatch(); // use to change state
 
   const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
+  // const [profile, setProfile] = useState(null);
   const [id, setId] = useState(null);
   const [bio, setBio] = useState('');
   const [pictureUrl, setPictureUrl] = useState('');
@@ -55,8 +55,8 @@ function MyInfoPage() {
   const [courseNumber, setNumber] = useState(null);
 
   const api = axios.create({
-    baseURL: 'http://localhost:8080/',
-    //baseURL: 'http://34.16.169.60:8080/',
+    //baseURL: 'http://localhost:8080/',
+    baseURL: 'http://34.16.169.60:8080/',
     // must add the header to associate requests with the authenticated user
     headers: {'Authorization': `Bearer ${token}`},
   });
@@ -70,7 +70,7 @@ function MyInfoPage() {
 
       const fetchData = async () => {
         fetchUser(decodedUser.sub);
-        fetchProfile(decodedUser.sub);
+        //fetchProfile(decodedUser.sub);
         await fetchUserCourses(decodedUser.sub);
         fetchConnectionCount(decodedUser.sub);
         await fetchRatingsForMe(decodedUser.sub);
@@ -96,13 +96,13 @@ function MyInfoPage() {
       .catch(error => console.error('Error fetching user:', error));
   };
 
-  const fetchProfile = (user) => {
-    console.log("Profile to fetch for: " + user);
+  // const fetchProfile = (user) => {
+  //   console.log("Profile to fetch for: " + user);
 
-    api.get(`profile/${user}`)
-        .then(data => setProfile(data.data))
-        .catch(error => console.error('Error fetching profile:', error));
-  };
+  //   api.get(`profile/${user}`)
+  //       .then(data => setProfile(data.data))
+  //       .catch(error => console.error('Error fetching profile:', error));
+  // };
 
   const fetchConnectionCount = (user) => {
 
@@ -155,20 +155,20 @@ function MyInfoPage() {
     setPictureUrl(pic);
   }
 
-
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const profileData = {
-      id,
-      username,
-      bio, pictureUrl
+
+    const userInfo = {
+      username: user.username,
+      pictureUrl: pictureUrl,
+      bio: bio
     };
 
     try {
-      const res = await api.put("me", profileData);
+      const res = await api.put("me", userInfo);
       if (res.status === 200) {
         handleSettingsClose();
-        fetchProfile(username);
+        fetchUser(username);
       }
     } catch (err) {
       console.error("ERROR UPDATING PROFILE:", err);
@@ -178,8 +178,9 @@ function MyInfoPage() {
   //SETTINGS
   const handleSettingsOpen = () => {
     setSettingsOpen(true);
-    setId(profile.id);
-    setBio(profile.bio);
+    setId(user.id);
+    setBio(user.bio);
+    setPictureUrl(user.pictureUrl);
   };
 
   const handleSettingsClose = () => {
@@ -264,13 +265,13 @@ function MyInfoPage() {
       <div>
         <NotificationPage></NotificationPage><br/>
 
-        {user && profile && (
+        {user && (
             <Card sx={{width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto'}}
                   elevation={4}>
               <CardContent>
                 <Grid container alignItems="center">
                   <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
-                    <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
+                    <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
 
                     <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                     <div style={{ color: 'gray' }}>@{user.username}</div>
@@ -297,7 +298,7 @@ function MyInfoPage() {
                 <br />
 
                 <Typography variant="body1" style={{ marginLeft: '100px' }}>
-                  {profile.bio}
+                  {user.bio}
                 </Typography>
 
                 {user.userType === 'tutor' && (
@@ -380,16 +381,16 @@ function MyInfoPage() {
             type="string"
             fullWidth
             variant="standard"
-            defaultValue={profile?.bio || ''}
+            defaultValue={user?.bio || ''}
             onChange={(e) => setBio(e.target.value)}
           />
   
           <div>Profile Picture</div>
           <div style={{ display: 'flex' }}>
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer'}} onClick={() => handleProfilePic('/devil.jpg')} src="/devil.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
           </div>
         </DialogContent>
   
