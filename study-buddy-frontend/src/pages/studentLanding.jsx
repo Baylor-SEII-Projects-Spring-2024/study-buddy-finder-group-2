@@ -136,24 +136,70 @@ function StudentLandingPage() {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
 
-                    // add the attendee to meetups state variable
-                    const updatedMeetups = meetups.map(m => {
+                    // add the attendee to recommend meetups state variable
+                    const updatedRecommended = recommendedMeetups.map(m => {
                         if(m.id === meetup.id){
                             return{
                                 ...m,
-                                attendees: [...m.attendees, { username: currentUser }]
+                                attendees: [...m.attendees, { username: username}]
                             };
                         }
                         return m;
                     });
 
-                    setRecommendedMeetups(updatedMeetups);
+                    setRecommendedMeetups(updatedRecommended);
                 }
             })
             .catch((err) => {
                 console.error('Error joining meetup:', err);
             });
     };
+
+    const handleLeave = (meetup) => {
+        // get up to date version of the meetup to make sure its not deleted
+        api.get(`viewMeetup/${meetup.id}`)
+            .then(response => {
+                if(response.data === null){
+                    alert("This meetup has been removed. You cannot leave it.");
+                    return;
+                }
+            })
+            .catch(error => console.error('Error getting meetup', error));
+
+
+        if(new Date(meetup.startDate) <= new Date()){
+            alert("This meetup is ongoing or has expired. You cannot leave it.");
+            return;
+        }
+
+        console.log("LEAVING")
+        console.log(username);
+        console.log(meetup.id);
+
+        api.delete(`api/searchMeetups/${username}?meetingId=${meetup.id}`)
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log('Left meetup:', res.data);
+
+                // remove user from recommend meetups state variable
+                const updatedRecommended = recommendedMeetups.map(m => {
+                    if (m.id === meetup.id) {
+                        return {
+                            ...m,
+                            attendees: m.attendees.filter(attendee => attendee.username !== username)
+                        };
+                    }
+                    return m;
+                });
+
+                setRecommendedMeetups(updatedRecommended);
+                }
+            })
+            .catch((err) => {
+                console.error('Error leaving meetup:', err);
+            });
+    };
+
 
     function handleClickOpenProfile(other) {
         setSelectedUser(other);
