@@ -158,9 +158,14 @@ function RatingsPage() {
             </Card>
           ))
         ) : (
-          <Typography variant="body1" align="center">
-            No ratings available.
-          </Typography>
+          <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
+            <CardContent>
+              <Typography variant="body1" align="center">
+                No ratings available.
+              </Typography>
+            </CardContent>
+          </Card>
+         
         )}
   
       </Stack>

@@ -588,9 +588,14 @@ function MeetupsPage() {
                             </Card>
                         ))
                     ) : (
-                            <Typography variant="body1" align="center">
-                                No ratings available.
-                            </Typography>
+                            <Card key={index} sx={{ width: 375, margin: 'auto', marginTop: 1, marginRight: 'auto', marginLeft: 0, height: 'auto' }} elevation={3}>
+                                <CardContent>
+                                    <Typography variant="body1" align="center">
+                                        No ratings available.
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            
                         )}
     
                     {/*View user profile and add as connection*/}
