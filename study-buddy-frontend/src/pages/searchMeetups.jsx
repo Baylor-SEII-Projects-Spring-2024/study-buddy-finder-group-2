@@ -39,8 +39,8 @@ function SearchMeetupsPage() {
     const [courses, setCourses] = useState([]);
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/',
-        //baseURL: 'http://34.16.169.60:8080/',
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`,},
     });
@@ -275,11 +275,6 @@ function SearchMeetupsPage() {
                             <br />
 
                             <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '5px'}}>Attendees</Typography>
-                            {/* <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
-                                {meetup.attendees.map((attendee, index) => (
-                                    <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '10px', fontSize: '12px' }}>{attendee.username}</li>
-                                ))}
-                            </ul> */}
 
                             {/* map students */}
                             <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
