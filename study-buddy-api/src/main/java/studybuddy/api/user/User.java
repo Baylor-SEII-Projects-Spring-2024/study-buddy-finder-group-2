@@ -64,6 +64,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
     private List<Role> roles = new ArrayList<>();
 
+    @Column(name = "PICTURE_URL")
+    String pictureUrl;
+
+    @Column(name = "BIO")
+    String bio;
+
 
     public void addCourse(Course c){
         if(courses  == null){
