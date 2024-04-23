@@ -1,6 +1,7 @@
 package studybuddy.api.school;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.checkerframework.common.aliasing.qual.Unique;
 
 @Data
 @Entity
@@ -18,7 +19,7 @@ public class School {
     @Column(name = "SCHOOL_ID")
     Long id;
 
-    @Column(name = "SCHOOL_NAME")
+    @Column(name = "SCHOOL_NAME", unique = true)
     String schoolName;
 
     @Column(name = "EMAIL_DOMAIN")

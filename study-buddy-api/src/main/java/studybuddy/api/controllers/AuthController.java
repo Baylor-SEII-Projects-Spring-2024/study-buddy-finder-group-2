@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import studybuddy.api.dto.LoginDto;
 import studybuddy.api.dto.RegisterDto;
+import studybuddy.api.school.SchoolService;
 import studybuddy.api.security.JwtGenerator;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
@@ -23,6 +24,8 @@ import studybuddy.api.user.UserService;
 public class AuthController {
     private AuthenticationManager authenticationManager;
     private UserService userService;
+
+    private SchoolService schoolService;
     private PasswordEncoder passwordEncoder;
     private JwtGenerator jwtGenerator;
 
@@ -56,7 +59,7 @@ public class AuthController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
+    public ResponseEntity<String> register(@RequestBody User registerDto) {
         if(userService.findByUsername(registerDto.getUsername()).isPresent()) {
             return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
         }
@@ -71,7 +74,7 @@ public class AuthController {
         user.setLastName(registerDto.getLastName());
         user.setEmailAddress(registerDto.getEmailAddress());
         // TODO: associate school
-        //user.setSchool(registerDto.getSchool());
+        user.setSchool(registerDto.getSchool());
 
         // save user
         // can't return token because user must be in database already (completed transaction)

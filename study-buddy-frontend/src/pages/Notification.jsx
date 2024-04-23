@@ -113,15 +113,15 @@ function NotificationPage() {
     }, []);
 
     const viewNotifications = (name) => {
-            api.get(`api/notification/getNotifications/${name}`)
-                .then((res) => {
-                    setNotifList(res.data);
-                    setCount(res.data.filter(x => x.read === false).length);
-                })
-                .catch((err) => {
-                    console.log("Uh oh, can't get notifications");
-                    setNotifList(null);
-                });
+        api.get(`api/notification/getNotifications/${name}`)
+            .then((res) => {
+                setNotifList(res.data);
+                setCount(res.data.filter(x => x.read === false).length);
+            })
+            .catch((err) => {
+                console.log("Uh oh, can't get notifications");
+                setNotifList(null);
+            });
     }
 
     const switchNotifReadStatus = (value) => {
@@ -175,18 +175,18 @@ function NotificationPage() {
 
     const empty = () => {
         return (
-          <MenuItem>No Notifications</MenuItem>
+            <MenuItem>No Notifications</MenuItem>
         );
     };
 
     return (
         <ThemeProvider theme={theme}>
-        <Box>
-            <AppBar  style={{
+            <Box>
+                <AppBar  style={{
 
-                boxShadow: "none"
-            }}>
-                <Toolbar>
+                    boxShadow: "none"
+                }}>
+                    <Toolbar>
 
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {/* must use a link, otherwise page refreshes!! */}

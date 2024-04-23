@@ -3,7 +3,9 @@ package studybuddy.api.user;
 import jakarta.persistence.*;
 import lombok.Data;
 import studybuddy.api.course.Course;
+import studybuddy.api.school.School;
 import studybuddy.api.roles.Role;
+
 
 import java.util.*;
 
@@ -49,6 +51,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "course_id"))
     Set<Course> courses;
 
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "SCHOOL_ID")
+    private School school;
+
     // creates join table with Role
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles",
@@ -56,10 +64,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
     private List<Role> roles = new ArrayList<>();
 
-    /*
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id", referencedColumnName = "school_id")
-    School school; */
 
     public void addCourse(Course c){
         if(courses  == null){

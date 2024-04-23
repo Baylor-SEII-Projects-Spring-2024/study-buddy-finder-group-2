@@ -20,13 +20,20 @@ public class SchoolService{
      *
      */
     public List<School> getSchools(){
-        List<School> schools = new ArrayList<>();
         School baylor = new School();
         baylor.setSchoolName("Baylor University");
-        baylor.setId(1l);
         baylor.setEmailDomain("baylor.edu");
-        schools.add(baylor);
-        return schools;
+        schoolRepository.save(baylor);
+        School am = new School();
+        am.setSchoolName("Texas A&M");
+        am.setEmailDomain("tamu.edu");
+        schoolRepository.save(am);
+        School uta = new School();
+        uta.setSchoolName("University of Texas Austin");
+        uta.setEmailDomain("utexas.edu");
+        schoolRepository.save(uta);
+
+        return schoolRepository.getAllSchools();
     }
 
     /**
@@ -37,4 +44,6 @@ public class SchoolService{
      * @return
      */
     public School saveSchool(School school){return schoolRepository.save(school);}
+
+    public School getSchoolById(Long id){return schoolRepository.findSchoolById(id);}
 }
