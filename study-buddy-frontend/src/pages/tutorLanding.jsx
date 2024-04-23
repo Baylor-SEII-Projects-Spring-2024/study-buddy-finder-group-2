@@ -26,6 +26,7 @@ import dayjs from "dayjs";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
+import Avatar from '@mui/material/Avatar';
 
 function TutorLandingPage() {
     const router = useRouter();
@@ -54,8 +55,8 @@ function TutorLandingPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         headers: {'Authorization': `Bearer ${token}`},
 
     });
@@ -135,22 +136,67 @@ function TutorLandingPage() {
                 if (res.status === 200) {
                     console.log('Joined meetup:', res.data);
 
-                    // add the attendee to meetups state variable
-                    const updatedMeetups = meetups.map(m => {
+                    // add the attendee to recommend meetups state variable
+                    const updatedRecommended = recommendedMeetups.map(m => {
                         if(m.id === meetup.id){
                             return{
                                 ...m,
-                                attendees: [...m.attendees, { username: currentUser }]
+                                attendees: [...m.attendees, { username: username}]
                             };
                         }
                         return m;
                     });
 
-                    setRecommendedMeetups(updatedMeetups);
+                    setRecommendedMeetups(updatedRecommended);
                 }
             })
             .catch((err) => {
                 console.error('Error joining meetup:', err);
+            });
+    };
+
+    const handleLeave = (meetup) => {
+        // get up to date version of the meetup to make sure its not deleted
+        api.get(`viewMeetup/${meetup.id}`)
+            .then(response => {
+                if(response.data === null){
+                    alert("This meetup has been removed. You cannot leave it.");
+                    return;
+                }
+            })
+            .catch(error => console.error('Error getting meetup', error));
+
+
+        if(new Date(meetup.startDate) <= new Date()){
+            alert("This meetup is ongoing or has expired. You cannot leave it.");
+            return;
+        }
+
+        console.log("LEAVING")
+        console.log(username);
+        console.log(meetup.id);
+
+        api.delete(`api/searchMeetups/${username}?meetingId=${meetup.id}`)
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log('Left meetup:', res.data);
+
+                // remove user from recommend meetups state variable
+                const updatedRecommended = recommendedMeetups.map(m => {
+                    if (m.id === meetup.id) {
+                        return {
+                            ...m,
+                            attendees: m.attendees.filter(attendee => attendee.username !== username)
+                        };
+                    }
+                    return m;
+                });
+
+                setRecommendedMeetups(updatedRecommended);
+                }
+            })
+            .catch((err) => {
+                console.error('Error leaving meetup:', err);
             });
     };
 
@@ -274,25 +320,27 @@ function TutorLandingPage() {
                         flexDirection:'row'}} key={`stack-${index}`}>
                         {section ? section.map((user, i) => (
                             <Card key={i} sx={{margin:5, boxShadow:10, width: 350}}>
-                                <CardContent>
-                                    <Stack spacing={13} direction="row" justifyContent="space-evenly">
-                                        <Box >
-                                            <strong>Username: </strong> {user.username}
-                                            <br/>
-                                            <strong>Name: </strong> {user.firstName + " " + user.lastName}
-                                            <br/>
-                                        </Box>
-                                        <Button
-                                            variant='contained'
-                                            color="primary"
-                                            size="small"
-                                            onClick={() => handleClickOpenProfile(user)}
-                                        >
-                                            View Profile</Button>
-                                    </Stack>
-                                    {/* Other user details here */}
-                                </CardContent>
-                            </Card>
+                            <CardContent>
+                                <Stack spacing={13} direction="row" justifyContent="space-evenly">
+                                    <Box >
+                                        <Avatar sx={{ width: 30, height: 30, marginBottom: '3px' }} src={user.pictureUrl} />
+                                        <strong>{user.username}</strong>
+                                        <br/>
+                                        <i>{user.firstName + " " + user.lastName}</i>
+                                        <br/>
+                                    </Box>
+                                    <Button
+                                        variant='contained'
+                                        color="primary"
+                                        size="small"
+                                        sx={{ width: '100px', height: '40px' }}
+                                        onClick={() => handleClickOpenProfile(user)}
+                                    >
+                                        View Profile</Button>
+                                </Stack>
+                                {/* Other user details here */}
+                            </CardContent>
+                        </Card>
                         )) : console.log("Nope")}
 
                     </Stack>
@@ -425,7 +473,7 @@ function TutorLandingPage() {
                         <Typography variant='s2'></Typography>
                         <Typography variant='s1'>Username: {otherUsername}</Typography>
                         <Typography variant='s1'>Email: {otherEmailAddress}</Typography>
-                        <Typography variant='s1'>School: {otherSchool}</Typography>
+                        {/* <Typography variant='s1'>School: {otherSchool}</Typography> */}
                         <Typography variant='s1'>Courses...</Typography>
                     </Stack>
                 </DialogContent>

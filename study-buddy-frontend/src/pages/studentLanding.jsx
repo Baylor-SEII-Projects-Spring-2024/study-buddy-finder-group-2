@@ -26,6 +26,7 @@ import dayjs from "dayjs";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
+import Avatar from '@mui/material/Avatar';
 
 function StudentLandingPage() {
     const router = useRouter();
@@ -54,8 +55,8 @@ function StudentLandingPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         headers: {'Authorization': `Bearer ${token}`},
 
     });
@@ -277,15 +278,17 @@ function StudentLandingPage() {
                                 <CardContent>
                                     <Stack spacing={13} direction="row" justifyContent="space-evenly">
                                         <Box >
-                                            <strong>Username: </strong> {user.username}
+                                            <Avatar sx={{ width: 30, height: 30, marginBottom: '3px' }} src={user.pictureUrl} />
+                                            <strong>{user.username}</strong>
                                             <br/>
-                                            <strong>Name: </strong> {user.firstName + " " + user.lastName}
+                                            <i>{user.firstName + " " + user.lastName}</i>
                                             <br/>
                                         </Box>
                                         <Button
                                             variant='contained'
                                             color="primary"
                                             size="small"
+                                            sx={{ width: '100px', height: '40px' }}
                                             onClick={() => handleClickOpenProfile(user)}
                                         >
                                             View Profile</Button>
@@ -425,7 +428,7 @@ function StudentLandingPage() {
                         <Typography variant='s2'></Typography>
                         <Typography variant='s1'>Username: {otherUsername}</Typography>
                         <Typography variant='s1'>Email: {otherEmailAddress}</Typography>
-                        <Typography variant='s1'>School: {otherSchool}</Typography>
+                        {/* <Typography variant='s1'>School: {otherSchool}</Typography> */}
                         <Typography variant='s1'>Courses...</Typography>
                     </Stack>
                 </DialogContent>
