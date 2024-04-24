@@ -24,3 +24,8 @@ a {
 .no-scroll {
   overflow: hidden;
 }
+
+.hover-underline:hover {
+  text-decoration: underline;
+  color: blue;
+}

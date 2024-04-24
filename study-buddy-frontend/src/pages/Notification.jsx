@@ -28,6 +28,7 @@ import Link from "next/link";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
+import {deauthorize} from "@/utils/authSlice";
 
 function NotificationPage() {
     const router = useRouter();
@@ -199,9 +200,6 @@ function NotificationPage() {
                         <Link href={ref} passHref>
                             <Button color="inherit"><HomeIcon></HomeIcon>Home</Button>
                         </Link>
-                        <Link href={`/invitations`} passHref>
-                            <Button color="inherit">Invitations</Button>
-                        </Link>
                         <Link href={`/viewMeetups`} passHref>
                             <Button color="inherit"><MeetingRoomIcon></MeetingRoomIcon>View Meetups</Button>
                         </Link>
@@ -293,10 +291,10 @@ function NotificationPage() {
                               anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                               transformOrigin={{vertical: 'top', horizontal: 'right'}}
                               keepMounted>
-                            <MenuItem><Link href={`/me?`} passHref>
+                            <MenuItem><Link href={`/me`} passHref>
                                 My Profile
                             </Link></MenuItem>
-                            <MenuItem><Link href={`/`} passHref>
+                            <MenuItem><Link href={`/`} passHref onClick={dispatch(deauthorize)}>
                                 Logout
                             </Link></MenuItem>
                         </Menu>
