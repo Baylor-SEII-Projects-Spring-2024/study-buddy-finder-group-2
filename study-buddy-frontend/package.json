@@ -29,10 +29,12 @@
     "react-material-ui-carousel": "^3.4.2",
     "react-redux": "^9.0.4",
     "react-slick": "^0.30.2",
+    "react-tsparticles": "^2.9.3",
     "react-use-websocket": "^4.8.1",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^3.1.0",
     "sass": "^1.75.0",
+    "tsparticles": "^2.9.3",
     "socket.io": "^4.7.5"
   }
 }
