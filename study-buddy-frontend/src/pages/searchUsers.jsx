@@ -21,7 +21,7 @@ import NotificationPage from "@/pages/Notification";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
-
+import Avatar from '@mui/material/Avatar';
 
 function SearchUsersPage() {
     const router = useRouter();
@@ -228,29 +228,35 @@ function SearchUsersPage() {
         <Box>
             <NotificationPage></NotificationPage> <br/>
             <div style={{display: 'flex', flexDirection: 'row'}}>
-                <Box sx={{width: '30%', paddingTop:4}}>
+                <Box sx={{width: '20%', paddingTop:4}}>
                     <Card sx={{height: 50, marginBottom: 2, elevation: 6}}>
                         <Typography align='center' variant='h6'>Recommended Users</Typography>
                     </Card>
                     {recommendedUsers.map((user, index) => (
                         <Card key={index} sx={{marginBottom: 2}}>
-                            <CardContent>
-                                <Stack spacing={13} direction="row" justifyContent="space-evenly">
-                                    <Box sx={{ width: 50 }}>
-                                        <Typography variant='subtitle1'>{user.username}</Typography>
-                                    </Box>
-
+                        <CardContent>
+                            <Stack spacing={2} direction="column">
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center">
+                                        <Avatar sx={{ width: 30, height: 30, marginBottom: '3px' }} src={user.pictureUrl} />
+                                        <Typography sx={{ marginLeft: '15px', fontWeight: 'bold'}} variant='subtitle1'>{user.username}</Typography>
+                                    </Stack>
                                     <Button
                                         variant='contained'
-                                        color= "primary"
+                                        color="primary"
                                         size="small"
                                         onClick={() => handleClickOpenProfile(user)}
                                     >
-                                        View Profile</Button>
+                                        View Profile
+                                    </Button>
                                 </Stack>
-                                {/* Other user details here */}
-                            </CardContent>
-                        </Card>
+                                <Typography variant='body2' color='textSecondary'>
+                                    <i>{user.firstName} {user.lastName}</i>
+                                </Typography>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                    
                     ))}
                 </Box>
                 <Box sx={{width: '70%'}}>
@@ -313,6 +319,7 @@ function SearchUsersPage() {
                                             <Box sx={{ width: 200 }}>
                                                 <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                                     <li>
+                                                        <Avatar sx={{ width: 50, height: 50, marginBottom: '15px' }} src={user.pictureUrl} />
                                                         <strong>Username: </strong> {user.username}
                                                         <br />
                                                         <strong>Name: </strong> {user.firstName + " " + user.lastName}
@@ -361,7 +368,8 @@ function SearchUsersPage() {
                                 <Typography variant='s2'></Typography>
                                 <Typography variant='s1'>Username: {username}</Typography>
                                 <Typography variant='s1'>Email: {emailAddress}</Typography>
-                                <Typography variant='s1'>School: {school}</Typography>
+                                {/* error printing school */}
+                                {/* <Typography variant='s1'>School: {school}</Typography> */}
                                 <Typography variant='s1'>Courses...</Typography>
                             </Stack>
                         </DialogContent>

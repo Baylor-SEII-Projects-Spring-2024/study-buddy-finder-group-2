@@ -29,59 +29,10 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     @Query(value = "SELECT DISTINCT m.* FROM meetings m " +
             "JOIN meetups_users mu ON m.meeting_id = mu.meeting_id " +
             "JOIN users u ON u.user_id = mu.user_id " +
-            "WHERE u.username IN (" +
-            "    SELECT c.requested FROM connection c WHERE c.requester = (" +
-            "        SELECT username FROM users WHERE user_id = ?1" +
-            "    ) AND c.is_connected = true " +
-            "    UNION " +
-            "    SELECT c.requester FROM connection c WHERE c.requested = (" +
-            "        SELECT username FROM users WHERE user_id = ?1" +
-            "    ) AND c.is_connected = true " +
-            ") AND m.meeting_id NOT IN (" +
-            "    SELECT mu2.meeting_id FROM meetups_users mu2 WHERE mu2.user_id = ?1" +
-            ") ORDER BY RAND() LIMIT 3", nativeQuery = true)
-    public List<Meeting> recommendMeetupsWithConnections(long id);
-
-    @Query(value = "SELECT DISTINCT m.* FROM meetings m " +
-            "JOIN meetups_users mu ON m.meeting_id = mu.meeting_id " +
-            "JOIN users u ON u.user_id = mu.user_id " +
-            "WHERE EXISTS (" +
-            "    SELECT 1 FROM users_courses uc " +
-            "    JOIN users_courses uc2 ON uc.course_id = uc2.course_id " +
-            "    WHERE uc.username = u.user_id " +
-            "    AND uc2.username = ?1" +
-            ") " +
-            "AND m.meeting_id NOT IN (" +
-            "    SELECT mu2.meeting_id FROM meetups_users mu2 WHERE mu2.user_id = ?1" +
-            ") " +
-            "ORDER BY RAND() " +
-            "LIMIT 3", nativeQuery = true)
-    public List<Meeting> recommendMeetingsFromSameCourse(long userId);
-
-    @Query(value = "SELECT DISTINCT m.* FROM meetings m " +
-            "JOIN meetups_users mu ON m.meeting_id = mu.meeting_id " +
-            "JOIN users u ON u.user_id = mu.user_id " +
-            "JOIN users_courses uc ON u.user_id = uc.username " +
-            "JOIN courses c ON uc.course_id = c.course_id " +
-            "WHERE c.course_prefix IN (" +
-            "    SELECT c2.course_prefix FROM users_courses uc2 " +
-            "    JOIN courses c2 ON uc2.course_id = c2.course_id " +
-            "    WHERE uc2.username = ?1" +
-            ") " +
-            "AND m.meeting_id NOT IN (" +
-            "    SELECT mu2.meeting_id FROM meetups_users mu2 WHERE mu2.user_id = ?1" +
-            ") " +
-            "ORDER BY RAND() " +
-            "LIMIT 3", nativeQuery = true)
-    public List<Meeting> recommendMeetingsFromSameCoursePrefix(long userId);
-
-    @Query(value = "SELECT DISTINCT m.* FROM meetings m " +
             "WHERE m.meeting_id NOT IN (" +
-            "    SELECT mu.meeting_id FROM meetups_users mu WHERE mu.user_id = ?1" +
-            ") " +
-            "ORDER BY RAND() " +
-            "LIMIT 3", nativeQuery = true)
-    public List<Meeting> findRandomMeetingsNotAttending(long userId);
+            "    SELECT mu2.meeting_id FROM meetups_users mu2 WHERE mu2.user_id = ?1" +
+            ") ", nativeQuery = true)
+    public List<Meeting> findAllPotentialMeetings(long userId);
 
     @Transactional
     @Query(value = "DELETE FROM meetups_users WHERE meeting_id = ?1", nativeQuery = true)

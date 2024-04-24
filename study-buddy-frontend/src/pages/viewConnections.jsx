@@ -15,6 +15,7 @@ import NotificationPage from "@/pages/Notification";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
+import Avatar from '@mui/material/Avatar';
 
 function viewConnectionsPage() {
     const router = useRouter();
@@ -145,6 +146,7 @@ function viewConnectionsPage() {
                                     <Box sx={{ width: 200 }}>
                                         <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                             <li>
+                                                <Avatar sx={{ width: 50, height: 50, marginBottom: '15px' }} src={user.pictureUrl} />
                                                 <strong>Username: </strong> {user.username}
                                                 <br />
                                                 <strong>Name: </strong> {user.firstName + " " + user.lastName}
@@ -192,7 +194,8 @@ function viewConnectionsPage() {
                         <Typography variant='s2'></Typography>
                         <Typography variant='s1'>Username: {username}</Typography>
                         <Typography variant='s1'>Email: {emailAddress}</Typography>
-                        <Typography variant='s1'>School: {school}</Typography>
+                        {/* error printing school */}
+                        {/* <Typography variant='s1'>School: {school}</Typography> */}
                         <Typography variant='s1'>Courses...</Typography>
                     </Stack>
                 </DialogContent>

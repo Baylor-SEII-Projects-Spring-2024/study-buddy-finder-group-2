@@ -10,6 +10,7 @@ import EventIcon from '@mui/icons-material/Event';
 import {jwtDecode} from "jwt-decode";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
+import Avatar from '@mui/material/Avatar';
 
 const theme = createTheme({
     palette: {
@@ -134,7 +135,19 @@ function SearchMeetupsPage() {
                         return m;
                     });
 
+                    // add the attendee to recommend meetups state variable
+                    const updatedRecommended = recommendedMeetups.map(m => {
+                        if(m.id === meetup.id){
+                            return{
+                                ...m,
+                                attendees: [...m.attendees, { username: currentUser }]
+                            };
+                        }
+                        return m;
+                    });
+
                     setMeetups(updatedMeetups);
+                    setRecommendedMeetups(updatedRecommended);
                 }
             })
             .catch((err) => {
@@ -180,7 +193,19 @@ function SearchMeetupsPage() {
                     return m;
                 });
 
+                // remove user from recommend meetups state variable
+                const updatedRecommended = meetups.map(m => {
+                    if (m.id === meetup.id) {
+                        return {
+                            ...m,
+                            attendees: m.attendees.filter(attendee => attendee.username !== currentUser)
+                        };
+                    }
+                    return m;
+                });
+
                 setMeetups(updatedMeetups);
+                setRecommendedMeetups(updatedRecommended);
                 }
             })
             .catch((err) => {
@@ -250,21 +275,39 @@ function SearchMeetupsPage() {
                             <br />
 
                             <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '5px'}}>Attendees</Typography>
-                            <ul style={{ listStyleType: 'none', paddingInlineStart: '20px' }}>
-                                {meetup.attendees.map((attendee, index) => (
-                                    <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '10px', fontSize: '12px' }}>{attendee.username}</li>
+
+                            {/* map students */}
+                            <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px' }}>Students</Typography>
+                                {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
+                                    <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                        <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                        <span>{attendee.username}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            {/* map tutors */}
+                            <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px', marginTop: '5px'}}>Tutors</Typography>
+                                {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
+                                    <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                        <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                        <span>{attendee.username}</span>
+                                    </li>
                                 ))}
                             </ul>
 
                             {meetup.attendees.some(attendee => attendee.username === currentUser) ? (
-                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
+                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white', marginTop: '10px'}} onClick={() => handleLeave(meetup)}>
                                 Leave Meetup
                             </Button>
-                        ) : (
-                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)}>
-                                Join Meetup
-                            </Button>
-                        )}
+                            ) : (
+                                <Button variant='contained' color="primary" size="small" style={{ marginTop: '10px' }} onClick={() => handleJoin(meetup)}>
+                                    Join Meetup
+                                </Button>
+                            )}
+
 
                             </CardContent>
                         </Card>
@@ -370,19 +413,36 @@ function SearchMeetupsPage() {
                             <br />
 
                                     
-                            <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px'}}>Attendees</Typography>
-                            <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
-                                {meetup.attendees.map((attendee, index) => (
-                                    <li key={index} style={{  color: 'gray', fontStyle: 'italic', marginRight: '20px'}}>{attendee.username}</li>
-                                ))}
-                            </ul>
+                            <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px', marginBottom: '15px'}}>Attendees</Typography>
+
+                                        {/* map students */}
+                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px' }}>Students</Typography>
+                                            {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
+                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                    <span>{attendee.username}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                         {/* map tutors */}
+                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px', marginTop: '5px'}}>Tutors</Typography>
+                                            {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
+                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                    <span>{attendee.username}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
 
                         {meetup.attendees.some(attendee => attendee.username === currentUser) ? (
-                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
+                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white', marginTop: '10px'}} onClick={() => handleLeave(meetup)}>
                                 Leave Meetup
                             </Button>
                         ) : (
-                            <Button variant='contained' color="primary" size="small" onClick={() => handleJoin(meetup)}>
+                            <Button variant='contained' color="primary" size="small" style={{ marginTop: '10px' }} onClick={() => handleJoin(meetup)}>
                                 Join Meetup
                             </Button>
                         )}

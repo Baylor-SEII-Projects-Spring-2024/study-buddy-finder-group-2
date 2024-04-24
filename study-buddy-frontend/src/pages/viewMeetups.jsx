@@ -16,6 +16,7 @@ import EventIcon from '@mui/icons-material/Event';
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
+import Avatar from '@mui/material/Avatar';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -779,16 +780,34 @@ function MeetupsPage() {
     
                                         <br />
     
-                                        <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px' }}>Attendees</Typography>
+                                        <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px', marginBottom: '15px'}}>Attendees</Typography>
+
+                                        {/* map students */}
                                         <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
-                                            {meetup.attendees.map((attendee, index) => (
-                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px' }}>{attendee.username}</li>
+                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px' }}>Students</Typography>
+                                            {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
+                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                    <span>{attendee.username}</span>
+                                                </li>
                                             ))}
                                         </ul>
+
+                                         {/* map tutors */}
+                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px', marginTop: '5px'}}>Tutors</Typography>
+                                            {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
+                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                    <span>{attendee.username}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
     
                                         {/* attendee can leave meeting except when its ongoing */}
                                         {meetup.username !== username && (new Date(meetup.startDate) > new Date() || new Date(meetup.endDate) < new Date()) ? (
-                                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleLeave(meetup)}>
+                                            <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white', marginTop: '10px'}} onClick={() => handleLeave(meetup)}>
                                                 Leave Meetup
                                             </Button>
                                         ) : (null)}
