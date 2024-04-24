@@ -25,7 +25,6 @@ import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Link from "next/link";
-import {Span} from "next/dist/server/lib/trace/tracer";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -55,8 +54,8 @@ function MyInfoPage() {
   const [courseNumber, setNumber] = useState(null);
 
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/',
-    baseURL: 'http://34.16.169.60:8080/',
+    baseURL: 'http://localhost:8080/',
+    //baseURL: 'http://34.16.169.60:8080/',
     // must add the header to associate requests with the authenticated user
     headers: {'Authorization': `Bearer ${token}`},
   });
@@ -95,14 +94,6 @@ function MyInfoPage() {
       })
       .catch(error => console.error('Error fetching user:', error));
   };
-
-  // const fetchProfile = (user) => {
-  //   console.log("Profile to fetch for: " + user);
-
-  //   api.get(`profile/${user}`)
-  //       .then(data => setProfile(data.data))
-  //       .catch(error => console.error('Error fetching profile:', error));
-  // };
 
   const fetchConnectionCount = (user) => {
 
@@ -248,7 +239,10 @@ function MyInfoPage() {
 
   }
 
-  //RATINGS
+
+  const handleViewConnections = () =>{
+    router.push(`/viewConnections`);
+  }
 
 
   const displayRatings = () => {
@@ -276,19 +270,27 @@ function MyInfoPage() {
                     <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                     <div style={{ color: 'gray' }}>@{user.username}</div>
                     <br/>
-                    <div style={{ marginRight: '10px'}}>
-                  <span style={{ fontWeight: 'bold' }}>
-                    {connectionCount === 1 ? '1 ' : `${connectionCount} `}
-                  </span>
-                      <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                    {connectionCount === 1 ? 'connection' : 'connections'}
-                  </span>
+                    <div className="hover-underline" style={{ marginRight: '10px'}}>
+                        <Link href="/viewConnections">
+                          <span className="hover-underline" onclick={handleViewConnections} style={{ fontWeight: 'bold', cursor: 'pointer'}}>
+                            {connectionCount === 1 ? '1 ' : `${connectionCount} `}
+                          </span>
+                        </Link>
 
-                  <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
-                    {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
-                  </Typography>
+                        <Link href="/viewConnections">
+                          <span onclick={handleViewConnections} style={{ color: 'blue', fontWeight: 'bold', cursor: 'pointer'}}>
+                            {connectionCount === 1 ? 'connection' : 'connections'}
+                          </span>
+                        </Link>
 
                     </div>
+
+                    <div style={{ marginRight: '10px'}}>
+                        <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
+                          {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
+                        </Typography>
+                    </div>
+
                   </Grid>
 
                   <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
