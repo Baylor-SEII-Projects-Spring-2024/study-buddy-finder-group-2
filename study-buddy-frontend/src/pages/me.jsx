@@ -55,8 +55,8 @@ function MyInfoPage() {
   const [courseNumber, setNumber] = useState(null);
 
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/',
-    baseURL: 'http://34.16.169.60:8080/',
+    baseURL: 'http://localhost:8080/',
+    //baseURL: 'http://34.16.169.60:8080/',
     // must add the header to associate requests with the authenticated user
     headers: {'Authorization': `Bearer ${token}`},
   });
@@ -248,18 +248,10 @@ function MyInfoPage() {
 
   }
 
-  //RATINGS
 
 
-  const displayRatings = () => {
-    return(
-        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
-          <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
-            Average Rating Score:
-          </Typography>
-          <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
-        </div>);
-  }
+
+  
 
   return (
       <div>

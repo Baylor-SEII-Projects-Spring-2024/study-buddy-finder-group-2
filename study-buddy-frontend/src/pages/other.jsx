@@ -5,14 +5,22 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
 import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
+import {useRouter} from "next/navigation";
+import {useDispatch, useSelector} from "react-redux";
+import {jwtDecode} from "jwt-decode";
+import { useRouter } from 'next/router';
 
 //This is the page that the user themself sees (able to edit and such)
 
 //TODO: Display links
 
 function OthersInfoPage() {
+  const router = useRouter();
+  const otherUser = router.query;
+  const token = useSelector(state => state.authorization.token); //get current state
+  const dispatch = useDispatch(); // use to change state
+
   const [user, setUser] = useState(null);
-  const [thisUser, setThisUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [username, setUsername] = useState(null);
   const [ratingScore, setRatingScore] = useState(0);
@@ -20,48 +28,50 @@ function OthersInfoPage() {
   const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    baseURL: 'http://localhost:8080/'
+    //baseURL: 'http://34.16.169.60:8080/'
   });
-
-  
-
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search),
-      thisUser = params.get("username");
-    
-    setUsername(user);
+    try{
+      // only authorized users can do this (must have token)
+      const decodedUser = jwtDecode(token);
+      setUsername(decodedUser.sub);
 
-    const fetchData = async () => {
-      fetchUser(user);
-      fetchProfile(user);
-      await fetchUserCourses(user);
-      fetchConnectionCount(user);
-      await fetchRatingsForMe(user);
-      await fetchAverageScore(user);
-    };
+      const fetchData = async () => {
+        fetchUser(otherUser);
+        //fetchProfile(decodedUser.sub);
+        await fetchUserCourses(otherUser);
+        fetchConnectionCount(otherUser);
+        await fetchRatingsForMe(otherUser);
+        await fetchAverageScore(otherUser);
+      };
 
-    fetchData();
+      fetchData();
+    }
+    catch(err) {
+      router.push(`/error`);
+    }
   }, []);
-  const fetchUser = (user) => {
-    console.log("User to fetch for: " + user);
 
-    api.get(`me/${user}`)
+  const fetchUser = (otherUser) => {
+    console.log("User to fetch for: " + otherUser);
+
+    api.get(`me/${otherUser}`)
       .then(data => setUser(data.data))
       .catch(error => console.error('Error fetching user:', error));
   };
 
-  const fetchProfile = (user) => {
+  const fetchProfile = (otherUser) => {
     console.log("Profile to fetch for: " + user);
 
-    api.get(`profile/${user}`)
+    api.get(`profile/${otherUser}`)
       .then(data => setProfile(data.data))
       .catch(error => console.error('Error fetching profile:', error));
   };
 
-    const fetchConnectionCount = (user) => {
+    const fetchConnectionCount = (otherUser) => {
 
-      api.get(`/api/viewConnections/getConnectionCount/${user}`)
+      api.get(`/api/viewConnections/getConnectionCount/${otherUser}`)
           .then(data =>{
               setConnectionCount(data.data)
               console.log(data.data);}
@@ -71,30 +81,30 @@ function OthersInfoPage() {
 
   
 
-  const fetchAverageScore = async (user) => {
+  const fetchAverageScore = async (otherUser) => {
     try {
-      const res = await api.get(`averageRating/${user}`);
+      const res = await api.get(`averageRating/${otherUser}`);
       setRatingScore(res.data);
     } catch (error) {
       console.error('Error fetching average rating:', error);
     }
   };
 
-  const fetchRatingsForMe = async (user) => {
+  const fetchRatingsForMe = async (otherUser) => {
     try {
-      const res = await api.get(`viewRatingsForMe/${user}`);
+      const res = await api.get(`viewRatingsForMe/${otherUser}`);
       setRatings(res.data);
     } catch (error) {
       console.error('Error fetching ratings:', error);
     }
   };
 
-  const fetchUserCourses = async (user) => {
+  const fetchUserCourses = async (otherUser) => {
     try {
-      const res = await api.get(`api/get-courses-user/${user}`);
+      const res = await api.get(`api/get-courses-user/${otherUser}`);
       setUserCourses(res.data);
     } catch (error) {
-      console.error(`Error fetching ${username}'s courses:`, error);
+      console.error(`Error fetching ${otherUser}'s courses:`, error);
     }
   };
 
@@ -127,13 +137,7 @@ function OthersInfoPage() {
                     {connectionCount === 1 ? 'connection' : 'connections'}
                   </span>
                 </div>
-
-
-
-
               </Grid>
-
-              
             </Grid>
             <br />
 
