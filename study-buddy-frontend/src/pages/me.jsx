@@ -54,8 +54,8 @@ function MyInfoPage() {
   const [courseNumber, setNumber] = useState(null);
 
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/',
-    baseURL: 'http://34.16.169.60:8080/',
+    baseURL: 'http://localhost:8080/',
+    //baseURL: 'http://34.16.169.60:8080/',
     // must add the header to associate requests with the authenticated user
     headers: {'Authorization': `Bearer ${token}`},
   });
@@ -260,7 +260,7 @@ function MyInfoPage() {
         <NotificationPage></NotificationPage><br/>
 
         {user && (
-            <Card sx={{width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto'}}
+            <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto', border: '3px solid black'}}
                   elevation={4}>
               <CardContent>
                 <Grid container alignItems="center">
@@ -279,7 +279,7 @@ function MyInfoPage() {
 
                         <Link href="/viewConnections">
                           <span onclick={handleViewConnections} style={{ color: 'blue', fontWeight: 'bold', cursor: 'pointer'}}>
-                            {connectionCount === 1 ? 'connection' : 'connections'}
+                            {connectionCount === 1 ? 'buddy' : 'buddies'}
                           </span>
                         </Link>
 
@@ -355,7 +355,7 @@ function MyInfoPage() {
                         Not enrolled in any courses.
                       </Typography>
                   )}
-                  <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
+                  <Grid item sx={{ marginLeft: '80px', marginRight: '100px', marginTop: '40px' }}>
                       <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
                   </Grid>
                 </div>
@@ -387,12 +387,13 @@ function MyInfoPage() {
             onChange={(e) => setBio(e.target.value)}
           />
   
-          <div>Profile Picture</div>
-          <div style={{ display: 'flex' }}>
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
+          <div style={{ marginTop: '15px', marginBottom: '10px', color: 'gray', fontSize: '15px'}}>Profile Picture</div>
+          <div style={{ display: 'flex'}}>
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/penguin.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/penguin.jpg')} src="/penguin.jpg" />
           </div>
         </DialogContent>
   
