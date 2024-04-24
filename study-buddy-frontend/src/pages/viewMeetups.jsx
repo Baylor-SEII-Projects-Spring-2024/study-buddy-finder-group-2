@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Rating, Box, Button, ToggleButtonGroup, ToggleButton, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete} from '@mui/material';
+import { Rating, Box, Button, ToggleButtonGroup, ToggleButton, Card,Link,  index, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -57,8 +57,8 @@ function MeetupsPage() {
     const [outgoing, setOutgoing] = useState([]);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -579,7 +579,7 @@ function MeetupsPage() {
                                     </Typography>
                                     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
                                         <Button onClick={() => handleClickOpenEditRating(rating)} variant="contained" sx={{ marginRight: '10px' }}>
-                                            Edit Rating
+                                            Make Rating
                                         </Button>
                                         <Button onClick={() => removeRating(rating.ratingId)} variant="contained" style={{ backgroundColor: '#ff6961', color: 'white' }}>
                                             Remove Rating
@@ -601,7 +601,7 @@ function MeetupsPage() {
     
                     {/*View user profile and add as connection*/}
                     <Dialog open={openEditRating} onClose={handleCloseEditRating}>
-                        <DialogTitle>Edit Rating</DialogTitle>
+                        <DialogTitle>Make Rating</DialogTitle>
                         <DialogContent style={{ height: '300px' }}>
                             <Rating
                                 name="rating-score"
@@ -624,7 +624,7 @@ function MeetupsPage() {
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={handleCloseEditRating} variant="contained" style={{ backgroundColor: 'red', color: 'white' }}>Cancel</Button>
-                            <Button onClick={() => handleUpdateRating(ratingId)} variant="contained" sx={{ marginRight: '10px' }}>Save Changes</Button>
+                            <Button onClick={() => handleUpdateRating(ratingId)} variant="contained" sx={{ marginRight: '10px' }}>Save Rating</Button>
                         </DialogActions>
                     </Dialog>
                 </Box>
@@ -788,7 +788,11 @@ function MeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    <span>{attendee.username}</span>
+                                                        <span>
+  <                                                         Link href={`/profile/${attendee.username}`}>
+                                                                {attendee.username}
+                                                            </Link>
+                                                        </span>
                                                 </li>
                                             ))}
                                         </ul>
@@ -799,7 +803,11 @@ function MeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    <span>{attendee.username}</span>
+                                                        <span>
+  <                                                         Link href={`/profile/${attendee.username}`}>
+                                                                {attendee.username}
+                                                            </Link>
+                                                        </span>
                                                 </li>
                                             ))}
                                         </ul>

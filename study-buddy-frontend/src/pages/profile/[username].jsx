@@ -8,7 +8,6 @@ import Avatar from '@mui/material/Avatar';
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
-import { useRouter } from 'next/router';
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -28,8 +27,9 @@ function OthersInfoPage() {
   const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const api = axios.create({
-    baseURL: 'http://localhost:8080/'
-    //baseURL: 'http://34.16.169.60:8080/'
+    baseURL: 'http://localhost:8080/',
+    //baseURL: 'http://34.16.169.60:8080/',
+    headers: {'Authorization': `Bearer ${token}`},
   });
   useEffect(() => {
     try{
@@ -37,20 +37,30 @@ function OthersInfoPage() {
       const decodedUser = jwtDecode(token);
       setUsername(decodedUser.sub);
 
-      const fetchData = async () => {
-        fetchUser(otherUser);
-        //fetchProfile(decodedUser.sub);
-        await fetchUserCourses(otherUser);
-        fetchConnectionCount(otherUser);
-        await fetchRatingsForMe(otherUser);
-        await fetchAverageScore(otherUser);
-      };
+      api.get(`users/${username}`)
+      .then((res) => {
+          setUser(res.data);
+          console.log(res.data);
+          const fetchData = async () => {
+              fetchUser(username);
+              fetchProfile(username);
+              await fetchUserCourses(username);
+              fetchConnectionCount(username);
+              await fetchRatingsForMe(username);
+              await fetchAverageScore(username);
+          };
 
-      fetchData();
-    }
-    catch(err) {
-      router.push(`/error`);
-    }
+          
+
+          handleSetConnection();
+
+          fetchData();
+      });
+
+}
+catch(err) {
+  router.push(`/error`);
+}
   }, []);
 
   const fetchUser = (otherUser) => {
@@ -120,7 +130,7 @@ function OthersInfoPage() {
       <NotificationPage></NotificationPage><br/>
 
       {user && profile && (
-        <Card sx={{ width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
+        <Card sx={{ width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
           <CardContent>
             <Grid container alignItems="center">
               <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>

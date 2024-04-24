@@ -258,7 +258,7 @@ function MyInfoPage() {
         <NotificationPage></NotificationPage><br/>
 
         {user && (
-            <Card sx={{width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto'}}
+            <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto'}}
                   elevation={4}>
               <CardContent>
                 <Grid container alignItems="center">
@@ -302,7 +302,7 @@ function MyInfoPage() {
                     </div>
                 )}
 
-            {user.userType !== 'tutor' && (
+            {user.userType === 'tutor' && (
               <>
                 {ratings.length > 0 ? (
                   ratings.map((rating, index) => (

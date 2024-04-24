@@ -14,7 +14,8 @@ import {
   Stack,
   Typography,
   Rating,
-  TextField
+  TextField,
+  index
 } from "@mui/material";
 import {jwtDecode} from "jwt-decode";
 import {useRouter} from "next/navigation";
@@ -34,8 +35,8 @@ function RatingsPage() {
     const [openEdit, setOpenEdit] = useState(false);
 
   const api = axios.create({
-      //baseURL: 'http://localhost:8080/',
-      baseUrl: 'http://34.16.169.60:8080/',
+      baseURL: 'http://localhost:8080/',
+      //baseUrl: 'http://34.16.169.60:8080/',
       // must add the header to associate requests with the authenticated user
       headers: {'Authorization': `Bearer ${token}`},
   });
@@ -148,7 +149,7 @@ function RatingsPage() {
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
                   <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginRight: '10px' }}>
-                    Edit Rating
+                    Make Rating
                   </Button>
                   <Button onClick={() => removeRating(rating.ratingId)} variant="contained" style={{ backgroundColor: '#ff6961', color:  'white' }}>
                     Remove Rating
@@ -172,7 +173,7 @@ function RatingsPage() {
   
       {/*View user profile and add as connection*/}
       <Dialog open={openEdit} onClose={handleCloseEdit}>
-        <DialogTitle>Edit Rating</DialogTitle>
+        <DialogTitle>Make Rating</DialogTitle>
           <DialogContent style={{ height: '300px' }}>
             <Rating
                 name="rating-score"
@@ -195,7 +196,7 @@ function RatingsPage() {
           </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEdit}>Cancel</Button>
-          <Button onClick={() => handleUpdateRating(id)}>Save Changes</Button>
+          <Button onClick={() => handleUpdateRating(id)}>Save Rating</Button>
         </DialogActions>
       </Dialog>
     </div>
