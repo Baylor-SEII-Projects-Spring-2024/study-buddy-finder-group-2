@@ -16,7 +16,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      *
      * @return List of All stored Courses
      */
-    @Query(value = "SELECT course_prefix, course_id, course_number FROM courses c ORDER BY course_prefix", nativeQuery = true)
+    @Query(value = "SELECT * FROM courses c ORDER BY course_prefix", nativeQuery = true)
     public Set<Course> findAllCourses();
 
     /**
@@ -27,7 +27,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      * @param prefix
      * @return list of courses with the prefix
      */
-    @Query(value = "SELECT course_prefix, course_id, course_number FROM courses c WHERE course_prefix = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM courses c WHERE course_prefix = ?1", nativeQuery = true)
     public Set<Course> findAllCoursesByPrefix(String prefix);
 
     /**
@@ -38,7 +38,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      * @param id
      * @return Course with matching id
      */
-    @Query(value = "SELECT course_prefix, course_id, course_number FROM courses c WHERE course_id = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM courses c WHERE course_id = ?1", nativeQuery = true)
     public Course findCourseById(long id);
 
     /**
@@ -54,5 +54,13 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
      * @return course that is deleted from join table
      */
     public Course removeCoursesByCourseId(long courseId);
+
+    /**
+     * findCoursesBySchoolId
+     *
+     * @param schoolId
+     * @return set of Courses of school
+     */
+    public Set<Course> findCoursesBySchoolId(long schoolId);
 
 }

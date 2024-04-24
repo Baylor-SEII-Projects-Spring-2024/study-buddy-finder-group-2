@@ -12,6 +12,7 @@ import Avatar from '@mui/material/Avatar';
 
 function OthersInfoPage() {
   const [user, setUser] = useState(null);
+  const [thisUser, setThisUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [username, setUsername] = useState(null);
   const [ratingScore, setRatingScore] = useState(0);
@@ -27,8 +28,8 @@ function OthersInfoPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search),
-      user = params.get("username");
-
+      thisUser = params.get("username");
+    
     setUsername(user);
 
     const fetchData = async () => {

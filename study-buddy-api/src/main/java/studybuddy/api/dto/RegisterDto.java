@@ -1,7 +1,6 @@
 package studybuddy.api.dto;
 
 import lombok.Data;
-import studybuddy.api.school.School;
 
 @Data
 public class RegisterDto {
@@ -11,5 +10,5 @@ public class RegisterDto {
     private String lastName;
     private String userType;
     private String emailAddress;
-    //private String school;
+    private long schoolid;
 }

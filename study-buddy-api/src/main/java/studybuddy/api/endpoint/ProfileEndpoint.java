@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import studybuddy.api.meetings.Meeting;
-import studybuddy.api.profile.Profile;
-import studybuddy.api.profile.ProfileService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
@@ -23,26 +21,10 @@ import java.util.Optional;
 public class ProfileEndpoint {
     @Autowired
     private UserService userService;
-    @Autowired
-    private ProfileService profileService;
 
     @GetMapping("/me/{username}")
     public Optional<User> getUser(@PathVariable String username) {
         return userService.findByUsername(username);
-    }
-
-    @GetMapping("/profile/{username}")
-    public Optional<Profile> getProfile(@PathVariable String username) {
-        //create profile for authorized user if first time viewing profile
-        if(!profileService.findByUsername(username).isPresent()){
-            Profile p = new Profile();
-
-            p.setUsername(username);
-            p.setBio("");
-            profileService.save(p);
-        }
-
-        return profileService.findByUsername(username);
     }
 
     @RequestMapping(
@@ -51,14 +33,12 @@ public class ProfileEndpoint {
             consumes = "application/json",
             produces = "application/json"
     )
-    public ResponseEntity<Profile> updateProfile(@RequestBody Profile profile) {
-        Optional<Profile> oldProfile = profileService.findById(profile.getId());
+    public ResponseEntity<User> updateProfile(@RequestBody User userInfo) {
+        User user = userService.findByUsernameExists(userInfo.getUsername());
 
-        if(oldProfile.isPresent()){
-            return ResponseEntity.ok(profileService.save(profile));
-        }
-        else{
-            return ResponseEntity.badRequest().build();
-        }
+        user.setBio(userInfo.getBio());
+        user.setPictureUrl(userInfo.getPictureUrl());
+
+        return ResponseEntity.ok(userService.saveUser(user));
     }
 }

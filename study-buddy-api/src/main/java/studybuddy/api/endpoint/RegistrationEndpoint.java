@@ -31,8 +31,8 @@ public class RegistrationEndpoint {
             produces = "application/json"
     )
     public ResponseEntity<List<School>> getSchoolOptions(){
-        System.out.println("here");
-        return new ResponseEntity<>(schoolService.getSchools(), HttpStatus.OK);
+        System.out.println("GETTING SCHOOLS");
+        return ResponseEntity.ok(schoolService.getSchools());
     }
 
     @RequestMapping(

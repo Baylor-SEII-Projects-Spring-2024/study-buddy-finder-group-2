@@ -1,25 +1,22 @@
-import React, {useEffect, useState} from 'react';
-import {Button, RadioGroup, TextField, Box, Grid} from '@mui/material/';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Button, RadioGroup, TextField, Box} from '@mui/material/';
 import { LinearProgress } from '@mui/material';
 import {
     Autocomplete,
-    ButtonGroup,
     FormControlLabel,
     FormLabel,
-    InputLabel,
-    MenuItem,
     Radio,
-    Select,
     Typography
 } from "@mui/material";
-import axios, {get} from "axios";
-import {NextResponse as r} from "next/server";
+import axios from "axios";
 import {useDispatch, useSelector} from "react-redux";
 import {useRouter} from "next/navigation";
+import Particles from "react-tsparticles";
+import { loadFull } from 'tsparticles';
 
 const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/',
+    baseURL: 'http://34.16.169.60:8080/',
 });
 
 const evaluatePasswordStrength = (password) => {
@@ -29,7 +26,15 @@ const evaluatePasswordStrength = (password) => {
     if (/[a-z]/.test(password)) strength += 1;
     if (/[0-9]/.test(password)) strength += 1;
     if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    return strength;
+    return Math.min(strength, 4);
+};
+
+const passwordStrengthColors = {
+    0: 'linear-gradient(to right, #ffcccc, #ff6666)',
+    1: 'linear-gradient(to right, #ff6666, #ffcc66)',
+    2: 'linear-gradient(to right, #ffcc66, #ccff66)',
+    3: 'linear-gradient(to right, #ccff66, #66cc66)',
+    4: 'linear-gradient(to right, #66cc66, #006400)'
 };
 
 function RegistrationPage() {
@@ -60,11 +65,17 @@ function RegistrationPage() {
     const [errUserType, setErrUserType] = useState("");
 
     const [passwordStrength, setPasswordStrength] = useState(0);
+    const [borderStyle, setBorderStyle] = useState('1px solid #ddd');
 
+    useEffect(() => {
+        if (passwordStrengthColors[passwordStrength]) {
+            setBorderStyle(`3px solid transparent; border-image: ${passwordStrengthColors[passwordStrength]} 1 stretch;`);
+        }
+    }, [passwordStrength]);
 
     //getting list of schools from database
     useEffect(() => {
-        api.get("/api/request-school-options")
+        api.get("api/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -77,7 +88,7 @@ function RegistrationPage() {
         const newUserType = event.target.value;
         setType(newUserType);
         if (!newUserType) {
-            setErrUserType("Please select a user type.");  // Set an error if no user type is selected
+            setErrUserType("Please select a user type.");
         } else {
             setErrUserType("");
         }
@@ -141,7 +152,7 @@ function RegistrationPage() {
             setErrUser("Please input a username");
         }
         else {
-            api.get(`/api/find-username/${newUsername}`)
+            api.get(`api/find-username/${newUsername}`)
                 .then(() => {
                     setErrUser("");
                 })
@@ -156,8 +167,13 @@ function RegistrationPage() {
         setEmail(newEmail);
         if (newEmail === '') {
             setErrEmail("Please input an email");
-        } else {
-            api.get(`/api/find-email/${newEmail}`)
+        } else if(school && emailAddress.length < school.emailDomain.length &&
+            emailAddress.substring(
+                emailAddress.length - school.emailDomain.length, emailAddress.length) !== school.emailDomain) {
+            setErrEmail("Email is not a school email. Try again.");
+        }
+        else {
+            api.get(`api/find-email/${newEmail}`)
                 .then(() => {
                     setErrEmail("");
                 })
@@ -177,11 +193,6 @@ function RegistrationPage() {
         // check if fields are empty first
         if (firstName === '' || lastName === '' || emailAddress === '' || username === '' || password === '' || confirmPassword === '' || userType === null || school === null) {
             alert("Please fill out all fields");
-            return;
-        }
-
-        if (errUserType !== "") {
-            alert(errUserType);
             return;
         }
 
@@ -230,7 +241,7 @@ function RegistrationPage() {
 
     const registerUser = () => {
         const user = {
-            username, password, firstName, lastName, emailAddress, userType
+            username, password, firstName, lastName, emailAddress, userType, school
         }
 
         console.log({
@@ -239,12 +250,14 @@ function RegistrationPage() {
             emailAddress: emailAddress,
             username: username,
             userType: userType,
-            password: password
+            password: password,
+            school: school
         });
 
-        api.post("/api/authorization/register", user)
+        api.post("api/authorization/register", user)
             .then((res) => {
                 console.log('No Existing User! User is now registered!')
+                console.log(res.data)
                 router.push('/login')
             })
             .catch((err) => {
@@ -254,110 +267,241 @@ function RegistrationPage() {
 
 
     const getColor = (strength) => {
-        if (strength < 2) return 'error';   // Red
-        if (strength < 3) return 'warning'; // Orange
-        if (strength < 4) return 'info';    // Yellow
-        return 'success';                   // Green
+        if (strength < 2) return 'error';
+        if (strength < 3) return 'warning';
+        if (strength < 4) return 'info';
+        return 'success';
     };
 
+    const colorByStrength = (strength) => {
+        switch (strength) {
+            case 1:
+                return ['#ffcccc', '#ff6666', '#ff4d4d'];
+            case 2:
+                return ['#ffeb99', '#ffcc66', '#ffbf00'];
+            case 3:
+                return ['#d9f2d9', '#ccff66', '#b3ff66'];
+            case 4:
+                return ['#66cc66', '#33cc33', '#009900'];
+            default:
+                return ["#006400", "#2F4F4F", "#228B22", "#B8860B", "#DAA520", "#FFD700"];
+        }
+    };
+
+    const particlesInit = useCallback(async (engine) => {
+        await loadFull(engine);
+    }, []);
+
+    const particlesLoaded = useCallback(async (container) => {
+        console.log('Particles Loaded');
+    }, []);
 
     return (
-        <Box>
-            <Box component="form" validate="true"
-                 sx={{
-                     marginTop: 5,
-                     display: 'flex',
-                     flexDirection: 'column',
-                     alignItems: 'center',
-                 }}>
+        <Box sx={{
+            position: 'relative',
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+        }}>
+            <Particles
+                id="tsparticles"
+                init={particlesInit}
+                loaded={particlesLoaded}
+                options={{
+                    fullScreen: { enable: true, zIndex: -1 },
+                    particles: {
+                        number: {
+                            value: 160,
+                        },
+                        color: {
+                            value: colorByStrength(passwordStrength),
+                        },
+                        shape: {
+                            type: "circle",
+                        },
+                        opacity: {
+                            value: { min: 0.3, max: 0.5 },
+                        },
+                        size: {
+                            value: { min: 1, max: 5 },
+                        },
+                        links: {
+                            enable: true,
+                            distance: 150,
+                            color: "#aaaaa",
+                            opacity: 0.4,
+                            width: 1,
+                        },
+                        move: {
+                            enable: true,
+                            speed: 2,
+                            direction: "none",
+                        }
+                    },
+                    interactivity: {
+                        events: {
+                            onHover: {
+                                enable: true,
+                                mode: "repulse"
+                            },
+                            onClick: {
+                                enable: true,
+                                mode: "push"
+                            },
+                        }
+                    },
+                    detectRetina: true
+                }}
+            />
+            <Box component="form" validate="true" sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '30vw',
+                minHeight: '600px',
+                maxHeight: '80vh',
+                overflowY: 'auto',
+                padding: 4,
+                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                borderRadius: '8px',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                zIndex: 2,
+                border: '3px solid transparent',
+                borderImage: borderStyle,
+                transition: 'border-image 0.5s ease-in-out'
+            }}>
                 <Typography component="h1" variant="h5">Register</Typography><br/>
-                <InputLabel id="schoolLabel">School</InputLabel>
-
-                <Autocomplete // school selector
+                <Autocomplete
                     id="school-select"
                     options={schools}
-                    sx={{width: 200}}
+                    sx={{ width: '100%', mb: 2 }}
                     autoHighlight
                     getOptionLabel={(option) => option.schoolName}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     onChange={handleChangeSchool}
-                    renderOption={(props, option) => (
-                        <Box component="li" sx={{display: 'flex'}} {...props}>
-                            {option.schoolName}
-                        </Box>
-                    )}
                     renderInput={(params) => (
                         <TextField
-                            error={errSchool !== ''}
-                            helperText={errSchool !== '' ? errSchool : ''}
                             {...params}
                             label="Choose a School"
-                            inputProps={{
-                                ...params.inputProps,
-                                autoComplete: 'new-password', // disable autocomplete and autofill
-                            }}
+                            error={errSchool !== ''}
+                            helperText={errSchool !== '' ? errSchool : ''}
+                            fullWidth
+                            autoComplete='off'
                         />
                     )}
-                /> <br/>
+                />
 
-                <TextField autoComplete="given-name" id="fname" name="fname" label="First Name"
-                           onChange={handleChangeFirstName}
-                /><br/>
-                <TextField autoComplete="last-name" id="lname" name="lname" label="Last Name"
-                           onChange={handleChangeLastName}
-                /><br/>
-                <TextField autoComplete="email" id="email" name="email" label="Email"
-                           onChange={handleChangeEmail}
-                /><br/>
-                <TextField id="username" name="username" label="Username"
-                           onChange={handleChangeUsername}
-                /><br/>
                 <TextField
-                    autoComplete="new-password"
+                    label="First Name"
+                    autoComplete="given-name"
+                    id="fname"
+                    name="fname"
+                    fullWidth
+                    error={errFirstName !== ""}
+                    helperText={errFirstName !== "" ? errFirstName : ""}
+                    onChange={handleChangeFirstName}
+                    sx={{ mb: 2 }}
+                />
+
+                <TextField
+                    label="Last Name"
+                    autoComplete="last-name"
+                    id="lname"
+                    name="lname"
+                    fullWidth
+                    error={errLastName !== ""}
+                    helperText={errLastName !== "" ? errLastName : ""}
+                    onChange={handleChangeLastName}
+                    sx={{ mb: 2 }}
+                />
+
+                <TextField
+                    label="Email"
+                    autoComplete="email"
+                    id="email"
+                    name="email"
+                    fullWidth
+                    error={errEmail !== ""}
+                    helperText={errEmail !== "" ? errEmail : ""}
+                    onChange={handleChangeEmail}
+                    sx={{ mb: 2 }}
+                />
+
+                <TextField
+                    label="Username"
+                    id="username"
+                    name="username"
+                    fullWidth
+                    error={errUser !== ""}
+                    helperText={errUser !== "" ? errUser : ""}
+                    onChange={handleChangeUsername}
+                    sx={{ mb: 2 }}
+                />
+
+                <TextField
                     type="password"
+                    label="Password"
                     id="password"
                     name="password"
-                    label="Password"
-                    onChange={handleChangePassword}
                     fullWidth
-                    sx={{marginBottom: 1, width: '14%'}} // Set the width of the TextField to 75%
+                    error={errPwd !== ""}
+                    onChange={handleChangePassword}
+                    sx={{ mb: 1 }}
                 />
-                <br/>
+
                 {password && (
-                    <Box sx={{width: '13.5%', mb: 2}}>
+                    <Box sx={{ width: '100%', mb: 2, transition: 'width 0.5s ease-in-out' }}>
                         <LinearProgress
                             variant="determinate"
                             value={(passwordStrength / 4) * 100}
                             color={getColor(passwordStrength)}
-                            sx={{height: 10}}
+                            sx={{ width: '100%', height: 10 }}
                         />
+                        <Typography sx={{ textAlign: 'center', mt: 1 }}>
+                            Password Strength: {['Weak', 'Fair', 'Good', 'Strong'][passwordStrength - 1]}
+                        </Typography>
                     </Box>
                 )}
+
                 <TextField
-                    id="confirm_password"
                     type="password"
-                    name="confirm_password"
                     label="Confirm Password"
-                    onChange={handleChangeConfirmPassword}
+                    id="confirm_password"
+                    name="confirm_password"
                     fullWidth
-                    sx={{width: '14%'}}
+                    error={errCPwd !== ""}
+                    helperText={errCPwd !== "" ? errCPwd : ""}
+                    onChange={handleChangeConfirmPassword}
+                    sx={{ mb: 2 }}
                 />
-                <br/>
 
-                <FormLabel htmlFor="user_type">Are you a:</FormLabel>
-
-                <RadioGroup id="user_type" row onChange={handleChangeUserType} value={userType}>
-                    <FormControlLabel value="student" control={<Radio/>} label="Student"/>
-                    <FormControlLabel value="tutor" control={<Radio/>} label="Tutor"/>
+                <FormLabel htmlFor="user_type" sx={{ mb: 1 }}>Are you a:</FormLabel>
+                <RadioGroup
+                    id="user_type"
+                    row
+                    onChange={handleChangeUserType}
+                    value={userType}
+                    sx={{ mb: 3 }}
+                >
+                    <FormControlLabel value="student" control={<Radio />} label="Student" />
+                    <FormControlLabel value="tutor" control={<Radio />} label="Tutor" />
                 </RadioGroup>
-                <Box>
-                    <Button id="cancel" variant="outlined" color="error" href="/">Cancel</Button>
-                    <Button id="register" variant="contained" onClick={() => {
-                        submitInfo();
-                    }}>Next</Button>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    <Button variant="outlined" color="error" href="/">Cancel</Button>
+                    <Button variant="contained" onClick={() => submitInfo()}>Next</Button>
                 </Box>
+
             </Box>
         </Box>
+
     );
 }
 

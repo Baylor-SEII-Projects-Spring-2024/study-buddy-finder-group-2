@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
+
 import NotificationPage from "@/pages/Notification";
 import {
   Box,
@@ -12,8 +13,8 @@ import {
   DialogTitle,
   Stack,
   Typography,
-  ToggleButton,
-  ToggleButtonGroup
+  Rating,
+  TextField
 } from "@mui/material";
 import {jwtDecode} from "jwt-decode";
 import {useRouter} from "next/navigation";
@@ -149,7 +150,7 @@ function RatingsPage() {
                   <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginRight: '10px' }}>
                     Edit Rating
                   </Button>
-                  <Button onClick={() => removeRating(rating.ratingId)} variant="outlined" color="secondary">
+                  <Button onClick={() => removeRating(rating.ratingId)} variant="contained" style={{ backgroundColor: '#ff6961', color:  'white' }}>
                     Remove Rating
                   </Button>
                 </Box>
@@ -167,15 +168,26 @@ function RatingsPage() {
       {/*View user profile and add as connection*/}
       <Dialog open={openEdit} onClose={handleCloseEdit}>
         <DialogTitle>Edit Rating</DialogTitle>
-        <DialogContent>
-          <input 
-            type="number" 
-            value={ratingScore} 
-            onChange={(e) => setRatingScore(parseFloat(e.target.value))}  
-            onBlur={() => setRatingScore(Math.min(Math.max(ratingScore, 0.5), 5))}
-          />
-          <textarea value={review} onChange={(e) => setReview(e.target.value)} />
-        </DialogContent>
+          <DialogContent style={{ height: '300px' }}>
+            <Rating
+                name="rating-score"
+                value={ratingScore}
+                precision={0.5}
+                onChange={(e, newValue) => setRatingScore(newValue)}
+            />
+            <TextField
+                label="Review"
+                multiline
+                rows={5}
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                fullWidth
+                variant="outlined"
+                margin="normal"
+        
+                InputLabelProps={{ style: { color: 'black' } }} 
+            />
+          </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEdit}>Cancel</Button>
           <Button onClick={() => handleUpdateRating(id)}>Save Changes</Button>

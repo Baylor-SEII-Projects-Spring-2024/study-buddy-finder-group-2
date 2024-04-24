@@ -20,6 +20,7 @@ import {jwtDecode} from "jwt-decode";
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import Avatar from '@mui/material/Avatar';
 
 
 function InvitationsPage() {
@@ -257,6 +258,7 @@ function InvitationsPage() {
                         <CardContent>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Box>
+                                    <Avatar sx={{ width: 50, height: 50, marginBottom: '15px' }} src={user.pictureUrl} />
                                     <Typography variant="subtitle1" fontWeight="bold">{user.firstName} {user.lastName}</Typography>
                                     <Typography variant="body2" color="text.secondary">{user.username}</Typography>
                                 </Box>
@@ -320,7 +322,8 @@ function InvitationsPage() {
                         <Typography variant='s2'></Typography>
                         <Typography variant='s1'>Username: {username}</Typography>
                         <Typography variant='s1'>Email: {emailAddress}</Typography>
-                        <Typography variant='s1'>School: {school}</Typography>
+                        {/* error printing school */}
+                        {/* <Typography variant='s1'>School: {school}</Typography> */}
                         <Typography variant='s1'>Courses...</Typography>
                     </Stack>
                 </DialogContent>
