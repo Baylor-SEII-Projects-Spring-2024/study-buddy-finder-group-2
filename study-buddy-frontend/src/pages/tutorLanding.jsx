@@ -52,6 +52,7 @@ function TutorLandingPage() {
     const [isConnected, setIsConnected] = useState(null);
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [openProfile, setOpenProfile] = useState(false);
+    const [notificationCount, setNotificationCount] = useState(false);
 
 
     const api = axios.create({
@@ -73,6 +74,7 @@ function TutorLandingPage() {
                     console.log(res.data);
                     fetchRecommendations(decodedUser.sub);
                     fetchRecommendedMeetups(decodedUser.sub);
+                    fetchNotificationCount(decodedUser.sub);
                 })
                 .catch((err) => {
                     window.alert("User not found");
@@ -109,6 +111,16 @@ function TutorLandingPage() {
             })
             .catch(error => console.error('Error fetching recommended meetups:', error));
     }
+
+    const fetchNotificationCount = (username) => {
+        api.get(`api/notification/getNotificationCount/${username}`)
+            .then((response) => {
+                setNotificationCount(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching notification count:', error);
+            });
+    };
 
     const handleJoin = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted
@@ -454,6 +466,13 @@ function TutorLandingPage() {
                     <Card sx={{width: 600}} elevation={1}>
                         <CardContent>
                             <Typography variant='h4' align='center'>Welcome {username}!</Typography>
+                            <div style={{ display: 'inline-block', marginLeft: '170px'}}>You have</div>
+                            <div style={{ display: 'inline-block', margin: '0 5px', color: 'blue'}}>{notificationCount}</div>
+
+
+                            <div style={{ display: 'inline-block'}}>
+                                {notificationCount === 1 ? 'unread notification.' : 'unread notifications.'}
+                            </div>
                         </CardContent>
                     </Card>
 

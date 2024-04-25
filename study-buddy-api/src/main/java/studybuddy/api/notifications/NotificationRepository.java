@@ -20,4 +20,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query(value = "DELETE FROM notifications WHERE notification_id = ?1", nativeQuery = true)
     public void removeNotificationByNotificationId(long id);
 
+    @Query(value = "SELECT COUNT(*) FROM notifications WHERE notification_read = false AND RECIEVER = ?1", nativeQuery = true)
+    public int getUnreadNotificationCount(Long userId);
+
 }
