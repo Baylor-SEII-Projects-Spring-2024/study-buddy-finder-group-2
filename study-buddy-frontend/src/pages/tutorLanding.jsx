@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Head from "next/head";
+import Footer from '@/components/Footer';
 
 import {
     Box,
@@ -493,6 +494,8 @@ function TutorLandingPage() {
                     }
 
                 </Box>
+
+                <Footer/>
 
             </main>
             {/*View user profile and add as connection*/}

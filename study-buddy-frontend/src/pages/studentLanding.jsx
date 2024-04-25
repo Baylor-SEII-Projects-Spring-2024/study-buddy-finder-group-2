@@ -27,6 +27,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 import Avatar from '@mui/material/Avatar';
+import Footer from '@/components/Footer';
 
 function StudentLandingPage() {
     const router = useRouter();
@@ -496,6 +497,8 @@ function StudentLandingPage() {
                     }
 
                 </Box>
+
+                <Footer/>
 
             </main>
             {/*View user profile and add as connection*/}
