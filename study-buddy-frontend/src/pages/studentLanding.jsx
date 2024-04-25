@@ -320,7 +320,7 @@ function StudentLandingPage() {
                         overflow: 'auto',
                         flexDirection:'row'}} key={`stack-${index}`}>
                         {section ? section.map((user, i) => (
-                            <Card key={i} sx={{margin:5, boxShadow:10, width: 350}}>
+                            <Card key={i} sx={{margin:5, boxShadow:3, width: 350}}>
                                 <CardContent>
                                     <Stack spacing={13} direction="row" justifyContent="space-evenly">
                                         <Box >
@@ -462,16 +462,19 @@ function StudentLandingPage() {
                 </Stack>
                 <Box sx={{margin:5}}>
                     <Typography variant='h2'>Recommended Users</Typography>
-                    {recommendedUsers ? arraySplitter(recommendedUsers, carouselUserMaker): console.log("Nope")}
+                    <Typography variant='h6' color='textSecondary'>Users we think you should become buddies with.</Typography>
+                    {recommendedUsers && recommendedUsers.length > 0 ? arraySplitter(recommendedUsers, carouselUserMaker):
+                    <div style={{ marginTop: '80px', marginLeft: '300px', marginBottom: '150px', fontSize: '20px', fontWeight: 'bold'}}>No users available.</div>
+                    }
 
                 </Box>
                 <Box sx={{margin:5}}>
                     <Typography variant='h2'>Recommended Meetups</Typography>
-                    {recommendedMeetups ? arraySplitter(recommendedMeetups, carouselMeetupMaker): console.log("Nope")}
+                    <Typography variant='h6' color='textSecondary'>Meetups we think you should partake in.</Typography>
+                    {recommendedMeetups && recommendedMeetups.length > 0 ? arraySplitter(recommendedMeetups, carouselMeetupMaker):
+                    <div style={{ marginTop: '80px', marginLeft: '300px', marginBottom: '150px', fontSize: '20px', fontWeight: 'bold'}}>No meetups available.</div>
+                    }
 
-                </Box>
-                <Box sx={{paddingTop: 60, paddingLeft: 70}}>
-                    <Typography variant="s2">By: StuCon</Typography>
                 </Box>
 
             </main>
