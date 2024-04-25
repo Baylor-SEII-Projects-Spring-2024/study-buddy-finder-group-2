@@ -12,7 +12,9 @@ import {
     ListItem,
     Paper,
     Stack,
-    Typography
+    Typography,
+    AppBar,
+    Toolbar
 } from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
@@ -27,7 +29,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 import Avatar from '@mui/material/Avatar';
-import Footer from "@/pages/Footer";
+// import Footer from "@/pages/Footer";
 
 function StudentLandingPage() {
     const router = useRouter();
@@ -57,8 +59,8 @@ function StudentLandingPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         headers: {'Authorization': `Bearer ${token}`},
 
     });
@@ -498,8 +500,14 @@ function StudentLandingPage() {
 
                 </Box>
 
-                <Footer/>
-
+                <AppBar position="static" sx={{ backgroundColor: '#2d4726'}}>
+                <Toolbar>
+                    <Typography variant="body2" color="white">
+                    &copy; 2024 StuCon Corporation. All rights reserved.
+                    </Typography>
+                </Toolbar>
+                </AppBar>
+                    
             </main>
             {/*View user profile and add as connection*/}
             <Dialog

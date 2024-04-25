@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Head from "next/head";
-import Footer from '@/pages/footer';
+// import Footer from '@/pages/footer';
 
 import {
     Box,
@@ -13,7 +13,9 @@ import {
     ListItem,
     Paper,
     Stack,
-    Typography
+    Typography,
+    AppBar,
+    Toolbar
 } from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
@@ -57,8 +59,8 @@ function TutorLandingPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         headers: {'Authorization': `Bearer ${token}`},
 
     });
@@ -495,7 +497,14 @@ function TutorLandingPage() {
 
                 </Box>
 
-                <Footer/>
+                <AppBar position="static" sx={{ backgroundColor: '#2d4726'}}>
+                <Toolbar>
+                    <Typography variant="body2" color="white">
+                    &copy; 2024 StuCon Corporation. All rights reserved.
+                    </Typography>
+                </Toolbar>
+                </AppBar>
+
 
             </main>
             {/*View user profile and add as connection*/}
