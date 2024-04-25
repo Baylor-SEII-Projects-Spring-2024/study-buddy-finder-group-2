@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Head from "next/head";
-import Footer from '@/components/Footer';
+import Footer from '@/pages/footer';
 
 import {
     Box,
