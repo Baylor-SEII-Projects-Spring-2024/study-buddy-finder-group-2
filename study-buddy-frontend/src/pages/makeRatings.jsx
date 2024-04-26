@@ -34,8 +34,8 @@ function RatingsPage() {
     const [openEdit, setOpenEdit] = useState(false);
 
   const api = axios.create({
-      //baseURL: 'http://localhost:8080/',
-      baseUrl: 'http://34.16.169.60:8080/',
+      baseURL: 'http://localhost:8080/',
+      //baseUrl: 'http://34.16.169.60:8080/',
       // must add the header to associate requests with the authenticated user
       headers: {'Authorization': `Bearer ${token}`},
   });

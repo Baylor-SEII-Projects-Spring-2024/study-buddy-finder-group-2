@@ -52,8 +52,8 @@ function LoginPage() {
     const dispatch = useDispatch(); // use to change state
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
     });
 
 
@@ -118,7 +118,7 @@ function LoginPage() {
                         //params.append("username", res.data.username);
 
                         if (decodedUser.userType === "student") {
-                            router.push(`/studentLanding`);
+                            router.push(`/other/${username}`);
                         }
                         else if (decodedUser.userType === "tutor") {
                             router.push(`/tutorLanding`);
