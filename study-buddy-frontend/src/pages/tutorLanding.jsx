@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Head from "next/head";
+// import Footer from '@/pages/footer';
 
 import {
     Box,
@@ -12,7 +13,9 @@ import {
     ListItem,
     Paper,
     Stack,
-    Typography
+    Typography,
+    AppBar,
+    Toolbar
 } from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
@@ -52,6 +55,7 @@ function TutorLandingPage() {
     const [isConnected, setIsConnected] = useState(null);
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [openProfile, setOpenProfile] = useState(false);
+    const [notificationCount, setNotificationCount] = useState(false);
 
 
     const api = axios.create({
@@ -73,6 +77,7 @@ function TutorLandingPage() {
                     console.log(res.data);
                     fetchRecommendations(decodedUser.sub);
                     fetchRecommendedMeetups(decodedUser.sub);
+                    fetchNotificationCount(decodedUser.sub);
                 })
                 .catch((err) => {
                     window.alert("User not found");
@@ -109,6 +114,16 @@ function TutorLandingPage() {
             })
             .catch(error => console.error('Error fetching recommended meetups:', error));
     }
+
+    const fetchNotificationCount = (username) => {
+        api.get(`api/notification/getNotificationCount/${username}`)
+            .then((response) => {
+                setNotificationCount(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching notification count:', error);
+            });
+    };
 
     const handleJoin = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted
@@ -319,7 +334,7 @@ function TutorLandingPage() {
                         overflow: 'auto',
                         flexDirection:'row'}} key={`stack-${index}`}>
                         {section ? section.map((user, i) => (
-                            <Card key={i} sx={{margin:5, boxShadow:10, width: 350}}>
+                            <Card key={i} sx={{margin:5, boxShadow:4, width: 350}}>
                             <CardContent>
                                 <Stack spacing={13} direction="row" justifyContent="space-evenly">
                                     <Box >
@@ -454,23 +469,42 @@ function TutorLandingPage() {
                     <Card sx={{width: 600}} elevation={1}>
                         <CardContent>
                             <Typography variant='h4' align='center'>Welcome {username}!</Typography>
+                            <div style={{ display: 'inline-block', marginLeft: '170px'}}>You have</div>
+                            <div style={{ display: 'inline-block', margin: '0 5px', color: 'blue'}}>{notificationCount}</div>
+
+
+                            <div style={{ display: 'inline-block'}}>
+                                {notificationCount === 1 ? 'unread notification.' : 'unread notifications.'}
+                            </div>
                         </CardContent>
                     </Card>
 
                 </Stack>
                 <Box sx={{margin:5}}>
                     <Typography variant='h2'>Recommended Users</Typography>
-                    {recommendedUsers ? arraySplitter(recommendedUsers, carouselUserMaker): console.log("Nope")}
+                    <Typography variant='h6' color='textSecondary'>Users we think you should become buddies with.</Typography>
+                    {recommendedUsers && recommendedUsers.length > 0 ? arraySplitter(recommendedUsers, carouselUserMaker):
+                    <div style={{ marginTop: '80px', marginLeft: '300px', marginBottom: '150px', fontSize: '20px', fontWeight: 'bold'}}>No users available.</div>
+                    }
 
                 </Box>
                 <Box sx={{margin:5}}>
                     <Typography variant='h2'>Recommended Meetups</Typography>
-                    {recommendedMeetups ? arraySplitter(recommendedMeetups, carouselMeetupMaker): console.log("Nope")}
+                    <Typography variant='h6' color='textSecondary'>Meetups we think you should partake in.</Typography>
+                    {recommendedMeetups && recommendedMeetups.length > 0 ? arraySplitter(recommendedMeetups, carouselMeetupMaker):
+                    <div style={{ marginTop: '80px', marginLeft: '300px', marginBottom: '150px', fontSize: '20px', fontWeight: 'bold'}}>No meetups available.</div>
+                    }
 
                 </Box>
-                <Box sx={{paddingTop: 60, paddingLeft: 70}}>
-                    <Typography variant="s2">By: StuCon</Typography>
-                </Box>
+
+                <AppBar position="static" sx={{ backgroundColor: '#2d4726'}}>
+                <Toolbar>
+                    <Typography variant="body2" color="white">
+                    &copy; 2024 StuCon Corporation. All rights reserved.
+                    </Typography>
+                </Toolbar>
+                </AppBar>
+
 
             </main>
             {/*View user profile and add as connection*/}

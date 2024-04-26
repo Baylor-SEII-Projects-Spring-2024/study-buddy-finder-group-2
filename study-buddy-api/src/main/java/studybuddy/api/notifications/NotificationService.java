@@ -57,4 +57,8 @@ public class NotificationService {
         return notification;
     }
 
+    public int getUnreadNotificationCount(Long userId){
+        return notificationRepository.getUnreadNotificationCount(userId);
+    }
+
 }

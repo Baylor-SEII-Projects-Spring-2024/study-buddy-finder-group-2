@@ -349,6 +349,7 @@ function MeetupsPage() {
 
     // OPEN INCOMING MEETUP
     const handleOpenIncoming = (inc) => {
+        console.log("DUDE");
         setSelectedMeeting(inc);
 
         // set state variables to the currently selected meeting
@@ -360,20 +361,6 @@ function MeetupsPage() {
         setEndDate(inc.endDate);
         setLocation(inc.location);
         setAttendees(inc.attendees);
-
-        // set connection values for existing connection
-        // api.post(`api/viewRequests/getConnection/${thisUser}`, user.username)
-        //     .then((res) => {
-        //         setSelectedConnection(res.data);
-
-        //         setRequester(res.data.requester);
-        //         setRequested(res.data.requested);
-        //         setIsConnected(res.data.isConnected);
-        //         setId(res.data.id);
-        //     })
-        //     .catch((err) => {
-        //         console.error('Error getting connection:', err)
-        //     });
 
         setOpenIncoming(true);
     };
@@ -390,11 +377,6 @@ function MeetupsPage() {
         setEndDate(null);
         setLocation(null);
         setAttendees(null);
-
-        // setSelectedConnection(null);
-        // setRequested(null);
-        // setRequester(null);
-        // setIsConnected(false);
 
         setText("Join");
     };
@@ -832,10 +814,10 @@ function MeetupsPage() {
                         </Card>
                     ))}
     
-                    <Button startIcon={<AddIcon />} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
+                    <Button startIcon={<AddIcon />} style={{ marginBottom: '70px' }} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
+    
                 </Stack>
-    
-    
+
     
                 {/*CREATE MEETUP DIALOG BOX*/}
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1133,15 +1115,131 @@ function MeetupsPage() {
     
                         <DialogActions>
                             <Button onClick={handleCloseEdit}>Cancel</Button>
-                            <Button variant="contained" type="submit" onSubmit={handleSubmitUpdate} color="primary">Save Changes</Button>
+                            <Button onClick={handleDelete} variant="contained" style={{ backgroundColor: 'red', color: 'white' }}>Delete</Button>
+                            <Button variant="contained" type="submit" onSubmit={handleSubmitUpdate} color="primary">Update</Button>
                         </DialogActions>
     
                     </Dialog>
                 </LocalizationProvider>
+
+                {/* OPEN INCOMING MEETUP DIALOG BOX */}
+            <Dialog
+                open={openIncoming}
+                onClose={handleCloseIncoming}
+                fullWidth
+                component="form"
+                validate="true"
+                onSubmit={handleJoinMeetupInvite}
+            >
+                <DialogTitle variant='s2'>{selectedMeeting?.username}'s Invitation</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={2}>
+                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
+                                <li>
+                                <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end'}}>
+                                    {Math.floor(dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') / (24 * 60)) !== 0 && (
+                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                            {Math.floor(dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') / (24 * 60))}D
+                                        </span>
+                                    )}
+                                    {Math.floor((dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
+                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                            {Math.floor((dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % (24 * 60)) / 60)}HR
+                                        </span>
+                                    )}
+                                    {dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % 60 !== 0 && (
+                                        <span style={{ fontSize: '30px', color: 'gray' }}>
+                                            {dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % 60}MIN
+                                        </span>
+                                    )}
+                                </div>
+
+                                    {/* FIX INDENTATION */}
+                                    <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{selectedMeeting?.title}</Typography>
+
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{selectedMeeting?.username}</span>
+                                    </div>
+
+                                    <br />
+
+
+                                    <span style={{ marginLeft: '30px'}}>{selectedMeeting?.description}</span>
+
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{selectedMeeting?.subject}</span>
+                                    </div>
+
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{dayjs(selectedMeeting?.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(selectedMeeting?.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                                    </div>
+
+
+
+                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                        <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                        <span>{selectedMeeting?.location}</span>
+                                    </div>
+
+                                    <br />
+
+                                    {/* map students */}
+                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px' }}>Students</Typography>
+                                            {selectedMeeting?.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
+                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                    <span>{attendee.username}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                         {/* map tutors */}
+                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px', marginTop: '5px'}}>Tutors</Typography>
+                                            {selectedMeeting?.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
+                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                    <span>{attendee.username}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                </li>
+                            </ul>
+                    </Stack>
+                </DialogContent>
+
+                <DialogActions>
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={handleCloseIncoming}
+                    >
+                        Back</Button>
+                    <Button
+                        variant="contained"
+                        sx={{
+                            backgroundColor: isJoined ? '#9c27b0' : 'light blue',
+                            '&:hover': {
+                                backgroundColor: isJoined ? '#6d1b7b' : 'light blue'
+                            },
+                        }}
+                        type="submit"
+                    >
+                        {text}</Button>
+                </DialogActions>
+            </Dialog>
     
             </div>
     
         </Box>
+
     );
 }
 

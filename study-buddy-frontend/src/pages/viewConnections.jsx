@@ -7,7 +7,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Stack,
+    Stack, ToggleButton, ToggleButtonGroup,
     Typography
 } from "@mui/material";
 import axios from "axios";
@@ -15,6 +15,8 @@ import NotificationPage from "@/pages/Notification";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import CancelIcon from "@mui/icons-material/Cancel";
 import Avatar from '@mui/material/Avatar';
 
 function viewConnectionsPage() {
@@ -24,6 +26,9 @@ function viewConnectionsPage() {
     const dispatch = useDispatch(); // use to change state
 
     const [thisUser, setThisUser] = useState(null);
+    const [requestType, setRequestType] = useState("incoming");
+    const [incoming, setIncoming] = useState([]);
+    const [outgoing, setOutgoing] = useState([]);
 
     const [username, setUsername] = useState(null);
     const [firstName, setFirstName] = useState(null);
@@ -35,7 +40,13 @@ function viewConnectionsPage() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const [selectedConnection, setSelectedConnection] = useState();
+    const [id, setId] = useState(null);
+    const [requester, setRequester] = useState(null);
+    const [requested, setRequested] = useState(null);
+    const [isConnected, setIsConnected] = useState(null);
+    const [selectedConnection, setSelectedConnection] = useState(null);
+
+    const [text, setText] = useState("Connect");
 
     const api = axios.create({
         baseURL: 'http://localhost:8080/',
@@ -52,6 +63,8 @@ function viewConnectionsPage() {
             const decodedUser = jwtDecode(token);
             setThisUser(decodedUser.sub);
             fetchConnections(decodedUser.sub);
+
+            fetchInRequests(decodedUser.sub);
         }
         catch(err) {
             router.push(`/error`);
@@ -62,6 +75,20 @@ function viewConnectionsPage() {
     const fetchConnections = (user) => {
         api.get(`api/viewConnections/${user}`)
             .then(data => setUsers(data.data))
+            .catch(error => console.error('Error fetching connections:', error));
+    };
+
+    // get all connections with isConnected = false
+    const fetchInRequests = (user) => {
+        api.get(`api/viewInRequests/${user}`)
+            .then(data => setIncoming(data.data))
+            .catch(error => console.error('Error fetching connections:', error));
+    };
+
+    // get all connections with isConnected = false
+    const fetchOutRequests = (user) => {
+        api.get(`api/viewOutRequests/${user}`)
+            .then(data => setOutgoing(data.data))
             .catch(error => console.error('Error fetching connections:', error));
     };
 
@@ -83,6 +110,29 @@ function viewConnectionsPage() {
 
     };
 
+    const handleConnection = (event) => {
+        event.preventDefault();
+
+        if(text === "Connect") {
+            api.post("api/searchUsers/addConnection", selectedConnection)
+                .then((res) => {
+                    console.log("CONNECTION ADDED.");
+                    if(res.status === 200) {
+                        handleCloseProfile();
+                        fetchConnections(thisUser);
+                        fetchInRequests(thisUser);
+                    }
+                })
+                .catch((err) => {
+                    console.log("ERROR ADDING CONNECTION.");
+                    console.log(err);
+                });
+        }
+        else if(text === "Disconnect") {
+            deleteConnection(event)
+        }
+    }
+
     const [openProfile, setOpenProfile] = React.useState(false);
 
     // show the profile of the connected user
@@ -101,6 +151,18 @@ function viewConnectionsPage() {
         api.post(`api/viewConnections/getConnection/${thisUser}`, user.username)
             .then((res) => {
                 setSelectedConnection(res.data);
+
+                setRequester(res.data.requester);
+                setRequested(res.data.requested);
+                setIsConnected(res.data.isConnected);
+                setId(res.data.id);
+
+                if(res.data.isConnected) {
+                    setText("Disconnect");
+                }
+                else if(res.data.requester === thisUser) {
+                    setText("Pending");
+                }
             })
             .catch((err) => {
                 console.error('Error getting connection:', err)
@@ -123,15 +185,141 @@ function viewConnectionsPage() {
         setSchool(null);
 
         setSelectedConnection(null);
+        setRequested(null);
+        setRequester(null);
+        setIsConnected(false);
+
+        setText("Connect");
     };
+
+    // get incoming or outgoing requests
+    const handleRequestTypeChange = (event) => {
+        // prevents page reload
+        event.preventDefault();
+
+        // incoming
+        if(event.target.value === "incoming") {
+            setText("Connect");
+            fetchInRequests(thisUser);
+        }
+        // outgoing
+        else if(event.target.value === "outgoing") {
+            setText("Pending");
+            fetchOutRequests(thisUser);
+        }
+        else {
+            console.log("error with request type?!");
+        }
+    }
+
+    // cancel a request
+    const handleRemoveRequest = (user, in_out) => {
+
+        const connection = {
+            requester: thisUser,
+            requested: user.username
+        }
+
+        api.post(`api/removeInvitation`, connection)
+            .then((res) => {
+                console.log("REQUEST CANCELLED.");
+                if(res.status === 200) {
+                    if (in_out === "incoming") {
+                        fetchInRequests(thisUser);
+                    }
+                    else if (in_out === "outgoing") {
+                        fetchOutRequests(thisUser);
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log("ERROR CANCELLING REQUEST.");
+                console.log(err);
+            });
+    }
 
     return (
         <div>
             <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
-                <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
-                    <CardContent>
-                        <Typography variant='h4' align='center'>Your Connections</Typography>
+                <Box component="form" noValidate
+                     sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
+                    <Stack spacing={4} direction="row" justifyContent="center">
+                        {/* get request type (incoming or outgoing) */}
+                        <ToggleButtonGroup
+                            color="success"
+                            value={requestType}
+                            exclusive
+                            onChange={(e) => {
+                                setRequestType(e.target.value);
+                                handleRequestTypeChange(e);
+                            }}
+                            label="request type"
+                            type="submit"
+                        >
+                            <ToggleButton value={"incoming"}>
+                                Incoming
+                            </ToggleButton>
+                            <ToggleButton value={"outgoing"}>
+                                Outgoing
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </Stack>
+                </Box>
+
+                { (requestType === "incoming" ? incoming : outgoing).map((req, index) => (
+                    <Card key={index} sx={{ width: '100%', maxWidth: 520, boxShadow: 3 }}>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight="bold">{req.firstName} {req.lastName}</Typography>
+                                    <Typography variant="body2" color="text.secondary">{req.username}</Typography>
+                                </Box>
+                                <Stack direction="row" spacing={1}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        size="small"
+                                        startIcon={<VisibilityIcon />}
+                                        onClick={() => handleClickOpenProfile(req)}
+                                        sx={{
+                                            borderRadius: 20,
+                                            textTransform: 'none',
+                                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                            '&:hover': {
+                                                boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
+                                            }
+                                        }}
+                                    >
+                                        View Profile
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        size="small"
+                                        startIcon={<CancelIcon />}
+                                        onClick={() => handleRemoveRequest(req, requestType)}
+                                        sx={{
+                                            borderRadius: 20,
+                                            textTransform: 'none',
+                                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                            '&:hover': {
+                                                backgroundColor: '#d32f2f',
+                                                boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
+                                            }
+                                        }}
+                                    >
+                                        {requestType === "incoming" ? "Decline" : "Cancel"} Request
+                                    </Button>
+                                </Stack>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                ))}
+
+                <Card sx={{ width: 520, margin: 'auto', marginTop: 3 }} elevation={4}>
+                    <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Typography variant='h4' align='center'>{thisUser}'s Buddies</Typography>
                     </CardContent>
                 </ Card>
 
@@ -147,10 +335,10 @@ function viewConnectionsPage() {
                                         <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                             <li>
                                                 <Avatar sx={{ width: 50, height: 50, marginBottom: '15px' }} src={user.pictureUrl} />
-                                                <strong>Username: </strong> {user.username}
-                                                <br />
-                                                <strong>Name: </strong> {user.firstName + " " + user.lastName}
-                                                <br />
+                                                <strong>{user.username}</strong>
+                                                <br/>
+                                                <i>{user.firstName + " " + user.lastName}</i>
+                                                <br/>
                                             </li>
                                         </ul>
                                     </Box>
@@ -160,6 +348,7 @@ function viewConnectionsPage() {
                                         variant='contained'
                                         color="primary"
                                         size="small"
+                                        sx={{ width: '100px', height: '40px' }}
                                         onClick={() => handleClickOpenProfile(user)}
                                     >
                                         View Profile</Button>
@@ -171,13 +360,13 @@ function viewConnectionsPage() {
 
                 {/* add button back to user's landing page */}
                 {/*<Button
-                    variant="outlined"
-                    color="error"
-                    href="/"
-                >
-                    Back</Button>*/}
-
+                        variant="outlined"
+                        color="error"
+                        href="/"
+                    >
+                        Back</Button>*/}
             </Stack>
+
 
             {/*View user profile and add as connection*/}
             <Dialog
@@ -209,10 +398,15 @@ function viewConnectionsPage() {
                         Back</Button>
                     <Button
                         variant="contained"
-                        color="secondary"
-                        onClick={deleteConnection}
+                        sx={{
+                            backgroundColor: isConnected ? '#9c27b0' : 'light blue',
+                            '&:hover': {
+                                backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
+                            },
+                        }}
+                        onClick={handleConnection}
                     >
-                        Disconnect</Button>
+                        {text}</Button>
                 </DialogActions>
             </Dialog>
         </div>
