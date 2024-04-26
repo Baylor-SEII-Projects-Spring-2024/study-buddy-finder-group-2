@@ -294,7 +294,7 @@ function NotificationPage() {
                             <MenuItem><Link href={`/me`} passHref>
                                 My Profile
                             </Link></MenuItem>
-                            <MenuItem><Link href={`/`} passHref onClick={dispatch(deauthorize)}>
+                            <MenuItem><Link href={`/`} passHref onClick={(e) => {dispatch(deauthorize)}}>
                                 Logout
                             </Link></MenuItem>
                         </Menu>

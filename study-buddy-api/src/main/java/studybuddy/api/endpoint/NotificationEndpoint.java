@@ -23,6 +23,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import studybuddy.api.connection.Connection;
 import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
+import studybuddy.api.user.UserService;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:3000") // for local testing
@@ -31,6 +32,9 @@ public class NotificationEndpoint {
 
     @Autowired
     NotificationService notificationService;
+
+    @Autowired
+    UserService userService;
     @RequestMapping(
             value = "/api/notification/getNotifications/{username}",
             method = RequestMethod.GET
@@ -58,5 +62,14 @@ public class NotificationEndpoint {
     )
     public ResponseEntity<Notification> removeNotification(@RequestBody Notification notification){
         return ResponseEntity.ok(notificationService.deleteNotificationById(notification));
+    }
+
+    @RequestMapping(
+            value = "/api/notification/getNotificationCount/{username}",
+            method = RequestMethod.GET
+    )
+    public int getNotificationCount(@PathVariable String username){
+        Long userId = userService.findByUsernameExists(username).getId();
+        return notificationService.getUnreadNotificationCount(userId);
     }
 }
