@@ -22,7 +22,6 @@ function OthersInfoPage() {
     const [id, setId] = useState(null);
     const [review, setReview] = useState('');
     const [user, setUser] = useState(null);
-    const [thisUser, setThisUser] = useState(null);
     const [thisUsername, setThisUsername] = useState(null);
     const [profile, setProfile] = useState(null);
     const {username} = router.query;
@@ -32,7 +31,7 @@ function OthersInfoPage() {
     const [ratings, setRatings] = useState([]);
     const [requester, setRequester] = useState(null);
     const [requested, setRequested] = useState(null);
-    const [isConnected, setIsConnected] = useState(null);
+    const [isConnected, setIsConnected] = useState(false);
     const [text, setText] = useState("Connect");
     const [pictureUrl, setPictureUrl] = useState(null);
     const [selectedConnection, setSelectedConnection] = useState(null);
@@ -67,8 +66,8 @@ function OthersInfoPage() {
                         await fetchRatingsForMe(username);
                         await fetchAverageScore(username);
                     };
-
-                    fetchConnections(username, decodedUser.sub);
+                    
+                    fetchConnections(username, thisUsername);
 
                     handleSetConnection();
 
@@ -90,11 +89,19 @@ function OthersInfoPage() {
 
     const fetchConnections = (user, thisUser) => {
         api.post(`api/searchUsers/getConnection/${thisUser}`, user)
+
             .then((res) => {
+                if (res.data) {
                 setSelectedConnection(res.data);
+                console.log("HERE");
+                console.log(selectedConnection);
                 setRequester(res.data.requester);
                 setRequested(res.data.requested);
                 setIsConnected(res.data.isConnected);
+                console.log("YEAH");
+                console.log(requester);
+                console.log(requested);
+                console.log(isConnected);
 
                 if(res.data.isConnected) {
                     setText("Disconnect");
@@ -102,6 +109,7 @@ function OthersInfoPage() {
                 else if(res.data.requester === username) {
                     setText("Pending");
                 }
+            }
             })
             .catch((err) => {
                 console.error('Error getting connection:', err)
@@ -170,10 +178,19 @@ function OthersInfoPage() {
     const handleSetConnection = () => {
 
         if(!isConnected) {
+            console.log("this is running");
+            console.log(thisUsername);
+            console.log(username);
             setRequester(thisUsername);
             setRequested(username);
             setIsConnected(false);
+        }else{
+            setIsConnected(true);
         }
+        console.log("YEP");
+                console.log(requester);
+                console.log(requested);
+                console.log(isConnected);
     }
 
     const handleConnection = (event) => {
@@ -182,7 +199,9 @@ function OthersInfoPage() {
         const connection = {
             requester, requested, isConnected
         }
-
+        console.log(requester);
+        console.log(requested);
+        console.log(isConnected);
         // if the users are currently connected
         if(isConnected) {
             api.delete(`api/searchUsers/deleteConnection/${user.id}`)
@@ -260,7 +279,7 @@ function OthersInfoPage() {
         <div>
             <NotificationPage></NotificationPage><br/>
             {user && profile && (
-                <Card sx={{ width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
+                <Card sx={{ width: 1200, margin: 'auto', marginTop: '25px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
                     <CardContent>
                         <Button variant="contained" onClick={router.back}>Back</Button>
                         <Grid container alignItems="center">

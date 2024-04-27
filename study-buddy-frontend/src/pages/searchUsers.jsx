@@ -337,7 +337,7 @@ function SearchUsersPage() {
                                                 variant='contained'
                                                 color= "primary"
                                                 size="small"
-                                                onClick={() => handleClickOpenProfile(user)}
+                                                onClick={() => handleUsernameClick(user.username)}
                                             >
                                                 View Profile</Button>
                                         </Stack>
