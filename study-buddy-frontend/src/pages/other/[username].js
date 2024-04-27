@@ -294,8 +294,11 @@ function OthersInfoPage() {
                                         {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                                     </span>
                                                         <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                                        {connectionCount === 1 ? 'connection' : 'connections'}
+                                        {connectionCount === 1 ? 'buddy' : 'buddies'}
                                     </span>
+                                    <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
+                                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
+                                    </Typography>
                                 </div>
 
 

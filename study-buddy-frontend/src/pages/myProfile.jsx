@@ -41,6 +41,7 @@ function MyInfoPage() {
   const [bio, setBio] = useState('');
   const [pictureUrl, setPictureUrl] = useState('');
   const [username, setUsername] = useState(null);
+  const [passwordOpen, setPasswordOpen] = useState(false); 
   const [ratingScore, setRatingScore] = useState(0);
   const [userCourses, setUserCourses] = useState([]);
   const [coursesSelect, setCoursesSelect] = useState([]);
@@ -247,6 +248,39 @@ function MyInfoPage() {
     console.log("after:"+userCourses);
 
   }
+  const handleViewConnections = () =>{
+
+	
+
+    router.push(`/viewConnections`);
+
+	
+
+  }
+
+
+	
+
+  const handleResetPwdOpen = () => {
+    setPasswordOpen(true);
+
+  };
+
+	
+
+	
+
+  const handleResetPwdClose = () => {
+    setPasswordOpen(false);
+  };
+
+	
+
+	
+
+  const handlePasswordChange = () => {
+
+  }; 
 
 
 
@@ -254,218 +288,289 @@ function MyInfoPage() {
   
 
   return (
-      <div>
-        <NotificationPage></NotificationPage><br/>
+    <div>
+      <NotificationPage></NotificationPage><br/>
 
-        {user && (
-            <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto'}}
-                  elevation={4}>
-              <CardContent>
-                <Grid container alignItems="center">
-                  <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
-                    <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
+      {user && (
+          <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto', border: '3px solid black'}}
+                elevation={4}>
+            <CardContent>
+              <Grid container alignItems="center">
+                <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
+                  <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
 
-                    <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
-                    <div style={{ color: 'gray' }}>@{user.username}</div>
-                    <br/>
-                    <div style={{ marginRight: '10px'}}>
-                  <span style={{ fontWeight: 'bold' }}>
-                    {connectionCount === 1 ? '1 ' : `${connectionCount} `}
-                  </span>
-                      <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                    {connectionCount === 1 ? 'connection' : 'connections'}
-                  </span>
+                  <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
+                  <div style={{ color: 'gray' }}>@{user.username}</div>
+                  <br/>
+                  <div className="hover-underline" style={{ marginRight: '10px'}}>
+                      <Link href="/viewConnections">
+                        <span className="hover-underline" onclick={handleViewConnections} style={{ fontWeight: 'bold', cursor: 'pointer'}}>
+                          {connectionCount === 1 ? '1 ' : `${connectionCount} `}
+                        </span>
+                      </Link>
 
-                  <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
-                    {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
-                  </Typography>
+                      <Link href="/viewConnections">
+                        <span onclick={handleViewConnections} style={{ color: 'blue', fontWeight: 'bold', cursor: 'pointer'}}>
+                          {connectionCount === 1 ? 'buddy' : 'buddies'}
+                        </span>
+                      </Link>
 
-                    </div>
-                  </Grid>
+                  </div>
 
-                  <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
-                    <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
-                  </Grid>
+                  <div style={{ marginRight: '10px'}}>
+                      <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
+                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
+                      </Typography>
+                  </div>
+
                 </Grid>
-                <br />
 
-                <Typography variant="body1" style={{ marginLeft: '100px' }}>
-                  {user.bio}
+                <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
+                  <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
+                  <Button variant="contained" onClick={handleResetPwdOpen} >Reset Password</Button>
+                </Grid>
+              </Grid>
+              <br />
+
+              <Typography variant="body1" style={{ marginLeft: '100px' }}>
+                {user.bio}
+              </Typography>
+
+              {user.userType !== 'tutor' && (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                    <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                      Average Rating Score:
+                    </Typography>
+                    <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                  </div>
+              )}
+
+          {user.userType !== 'tutor' && (
+            <>
+              {ratings.length > 0 ? (
+                ratings.map((rating, index) => (
+                  <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                    <CardContent>
+                      <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                        Rating from {rating.ratingUser.username}
+                      </Typography>
+                      <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                        Meeting: {rating.meetingTitle}
+                      </Typography>
+                      <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                        <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                      </Typography>
+                      <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                        Review: {rating.review}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Typography variant="body1" align="center">
+                  No ratings available.
                 </Typography>
-
-                {user.userType === 'tutor' && (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-                      <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                        Average Rating Score:
-                      </Typography>
-                      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
-                    </div>
-                )}
-
-            {user.userType === 'tutor' && (
-              <>
-                {ratings.length > 0 ? (
-                  ratings.map((rating, index) => (
-                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
-                      <CardContent>
-                        <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-                          Rating from {rating.ratingUser.username}
-                        </Typography>
-                        <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
-                          Meeting: {rating.meetingTitle}
-                        </Typography>
-                        <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                          <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
-                        </Typography>
-                        <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
-                          Review: {rating.review}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))
+              )}
+            </>
+          )}
+              <div>
+                <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                  Courses
+                </Typography>
+                {userCourses && userCourses.length > 0 ? (
+                    userCourses.map((course, index) => (
+                        <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                          {course.coursePrefix} {course.courseNumber}
+                        </div>
+                    ))
                 ) : (
-                  <Typography variant="body1" align="center">
-                    No ratings available.
-                  </Typography>
+                    <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                      Not enrolled in any courses.
+                    </Typography>
                 )}
-              </>
-            )}
-                <div>
-                  <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
-                    Courses
-                  </Typography>
-                  {userCourses && userCourses.length > 0 ? (
-                      userCourses.map((course, index) => (
-                          <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
-                            {course.coursePrefix} {course.courseNumber}
-                          </div>
-                      ))
-                  ) : (
-                      <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                        Not enrolled in any courses.
-                      </Typography>
-                  )}
-                  <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
-                      <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
-                  </Grid>
-                </div>
-          </CardContent>
-        </Card>
-      )}
-  
-      <Dialog
-        open={settingsOpen}
-        onClose={handleSettingsClose}
-        component="form" validate="true" onSubmit={handleSubmit}
+                <Grid item sx={{ marginLeft: '80px', marginRight: '100px', marginTop: '40px' }}>
+                    <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
+                </Grid>
+              </div>
+        </CardContent>
+      </Card>
+    )}
+
+    <Dialog
+      open={settingsOpen}
+      onClose={handleSettingsClose}
+      component="form" validate="true" onSubmit={handleSubmit}
+    >
+      <DialogTitle>Profile Settings</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Edit your profile.
+        </DialogContentText>
+
+        <TextField
+          autoFocus
+          margin="dense"
+          id="bio"
+          name="bio"
+          label="Bio"
+          type="string"
+          fullWidth
+          variant="standard"
+          defaultValue={user?.bio || ''}
+          onChange={(e) => setBio(e.target.value)}
+        />
+
+        <div style={{ marginTop: '15px', marginBottom: '10px', color: 'gray', fontSize: '15px'}}>Profile Picture</div>
+        <div style={{ display: 'flex'}}>
+          <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+          <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+          <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+          <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
+          <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/penguin.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/penguin.jpg')} src="/penguin.jpg" />
+        </div>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={handleSettingsClose}>Cancel</Button>
+        <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
+      </DialogActions>
+    </Dialog>
+
+      <Dialog  id="course-selection"
+          open={coursesOpen}
+          onClose={handleCoursesClose}
+          component="form" validate="true" onSubmit={handleCoursesSubmit}
       >
-        <DialogTitle>Profile Settings</DialogTitle>
+        <DialogTitle>Courses</DialogTitle>
         <DialogContent>
+          <Box sx={{width: 500}}>
           <DialogContentText>
-            Edit your profile.
+            Edit your courses.
           </DialogContentText>
-  
-          <TextField
-            autoFocus
-            margin="dense"
-            id="bio"
-            name="bio"
-            label="Bio"
-            type="string"
-            fullWidth
-            variant="standard"
-            defaultValue={user?.bio || ''}
-            onChange={(e) => setBio(e.target.value)}
+
+          <Autocomplete
+              multiple
+              id="tags-standard"
+              options={courses}
+              getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
+              value={coursesSelect}
+              isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
+              onChange={(e, params) => setCoursesSelect(params)}
+              renderInput={(params) => (
+                  <TextField
+                      {...params}
+                      variant="standard"
+                      label="Multiple values"
+                      placeholder="Favorites"
+                  />
+              )}
           />
-  
-          <div>Profile Picture</div>
-          <div style={{ display: 'flex' }}>
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
-          </div>
+            <br/>
+            <Stack direction="row" sx={{alignItems:"center"}}>
+              <p>Not there?</p><Button variant="contained" onClick={() => handleAddCoursesOpen()}>+ Add Course</Button>
+            </Stack>
+          </Box>
+
         </DialogContent>
-  
+
         <DialogActions>
-          <Button onClick={handleSettingsClose}>Cancel</Button>
-          <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
+
+          <Button onClick={handleCoursesClose}>Cancel</Button>
+          <Button variant="contained" type="submit" onSubmit={handleCoursesSubmit} color="primary">Save</Button>
         </DialogActions>
       </Dialog>
 
-        <Dialog  id="course-selection"
-            open={coursesOpen}
-            onClose={handleCoursesClose}
-            component="form" validate="true" onSubmit={handleCoursesSubmit}
-        >
-          <DialogTitle>Courses</DialogTitle>
-          <DialogContent>
-            <Box sx={{width: 500}}>
+      {/*adding courses not in system*/}
+      <Dialog  id="course-adding"
+               open={addCoursesOpen}
+               onClose={handleAddCoursesClose}
+               component="form" validate="true" onSubmit={handleAddCoursesSubmit}
+      >
+        <DialogTitle>Add Course</DialogTitle>
+        <DialogContent>
+          <Box sx={{width: 500}}>
             <DialogContentText>
-              Edit your courses.
+              Add your course.
             </DialogContentText>
 
-            <Autocomplete
-                multiple
-                id="tags-standard"
-                options={courses}
-                getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
-                value={coursesSelect}
-                isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
-                onChange={(e, params) => setCoursesSelect(params)}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        variant="standard"
-                        label="Multiple values"
-                        placeholder="Favorites"
-                    />
-                )}
-            />
+            <Box  sx={{ margin: 5 }}
+                  component="form" validate="true">
+              <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
               <br/>
-              <Stack direction="row" sx={{alignItems:"center"}}>
-                <p>Not there?</p><Button variant="contained" onClick={() => handleAddCoursesOpen()}>+ Add Course</Button>
-              </Stack>
+              <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
             </Box>
+          </Box>
 
-          </DialogContent>
+        </DialogContent>
 
-          <DialogActions>
+        <DialogActions>
+          <Button onClick={handleAddCoursesClose}>Cancel</Button>
+          <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
+        </DialogActions>
+      </Dialog>
 
-            <Button onClick={handleCoursesClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onSubmit={handleCoursesSubmit} color="primary">Save</Button>
-          </DialogActions>
-        </Dialog>
+      <Dialog  id="course-adding"
+               open={addCoursesOpen}
+               onClose={handleAddCoursesClose}
+               component="form" validate="true" onSubmit={handleAddCoursesSubmit}
+      >
+        <DialogTitle>Add Course</DialogTitle>
+        <DialogContent>
+          <Box sx={{width: 500}}>
+            <DialogContentText>
+              Add your course.
+            </DialogContentText>
 
-        {/*adding courses not in system*/}
-        <Dialog  id="course-adding"
-                 open={addCoursesOpen}
-                 onClose={handleAddCoursesClose}
-                 component="form" validate="true" onSubmit={handleAddCoursesSubmit}
-        >
-          <DialogTitle>Add Course</DialogTitle>
-          <DialogContent>
-            <Box sx={{width: 500}}>
+            <Box  sx={{ margin: 5 }}
+                  component="form" validate="true">
+              <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
+              <br/>
+              <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
+            </Box>
+          </Box>
+
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleAddCoursesClose}>Cancel</Button>
+          <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog  id="reset-password"
+               open={passwordOpen}
+               onClose={handleResetPwdClose}
+               component="form" validate="true" onSubmit={handleResetPwdClose}
+      >
+        <DialogTitle>Reset Password</DialogTitle>
+        <DialogContent>
+          <Box sx={{width: 500}}>
+
+            <Box  sx={{ margin: 5 }}
+                  component="form" validate="true">
+              <TextField id="pwd-old" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="Old Password" sx={{ width:300 }}/>
+              <br/> <br/>
               <DialogContentText>
-                Add your course.
+                Enter your new password:
               </DialogContentText>
-
-              <Box  sx={{ margin: 5 }}
-                    component="form" validate="true">
-                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
-                <br/>
-                <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
-              </Box>
+              <br/>
+              <TextField id="pwd-new" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="New Password" sx={{ width:300 }}/>
+              <br/> <br/>
+              <TextField id="pwd-confirm" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="Confirm New Password" sx={{ width:300 }}/>
+              <br/>
             </Box>
+          </Box>
 
-          </DialogContent>
+        </DialogContent>
 
-          <DialogActions>
-            <Button onClick={handleAddCoursesClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
-          </DialogActions>
-        </Dialog>
-    </div>
-  );
+        <DialogActions>
+          <Button onClick={handleResetPwdClose}>Cancel</Button>
+          <Button variant="contained" type="submit" onClick={handlePasswordChange()}>Change Password</Button>
+        </DialogActions>
+      </Dialog>
+  </div>
+);
 }
+
 
 export default MyInfoPage;
