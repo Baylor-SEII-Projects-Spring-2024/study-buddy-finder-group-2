@@ -124,6 +124,10 @@ function TutorLandingPage() {
                 console.error('Error fetching notification count:', error);
             });
     };
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     const handleJoin = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted
@@ -349,7 +353,7 @@ function TutorLandingPage() {
                                         color="primary"
                                         size="small"
                                         sx={{ width: '100px', height: '40px' }}
-                                        onClick={() => handleClickOpenProfile(user)}
+                                        onClick={() => handleUsernameClick(user.username)}
                                     >
                                         View Profile</Button>
                                 </Stack>
@@ -508,6 +512,7 @@ function TutorLandingPage() {
 
             </main>
             {/*View user profile and add as connection*/}
+            {/*
             <Dialog
                 open={openProfile}
                 onClose={handleCloseProfile}
@@ -523,7 +528,7 @@ function TutorLandingPage() {
                         <Typography variant='s2'></Typography>
                         <Typography variant='s1'>Username: {otherUsername}</Typography>
                         <Typography variant='s1'>Email: {otherEmailAddress}</Typography>
-                        {/* <Typography variant='s1'>School: {otherSchool}</Typography> */}
+                        {/* <Typography variant='s1'>School: {otherSchool}</Typography> }
                         <Typography variant='s1'>Courses...</Typography>
                     </Stack>
                 </DialogContent>
@@ -550,6 +555,7 @@ function TutorLandingPage() {
                         {text}</Button>
                 </DialogActions>
             </Dialog>
+            */}
         </>
     );
 }

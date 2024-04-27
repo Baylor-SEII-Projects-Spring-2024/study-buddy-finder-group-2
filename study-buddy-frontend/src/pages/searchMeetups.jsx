@@ -96,6 +96,10 @@ function SearchMeetupsPage() {
                 console.log(err.value);
             });
     }
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     const handleJoin = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted

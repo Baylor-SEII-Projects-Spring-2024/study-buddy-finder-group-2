@@ -237,6 +237,10 @@ function viewConnectionsPage() {
                 console.log(err);
             });
     }
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     return (
         <div>
@@ -281,7 +285,7 @@ function viewConnectionsPage() {
                                         color="primary"
                                         size="small"
                                         startIcon={<VisibilityIcon />}
-                                        onClick={() => handleClickOpenProfile(req)}
+                                        onClick={() => handleUsernameClick(req)}
                                         sx={{
                                             borderRadius: 20,
                                             textTransform: 'none',
@@ -349,14 +353,15 @@ function viewConnectionsPage() {
                                         color="primary"
                                         size="small"
                                         sx={{ width: '100px', height: '40px' }}
-                                        onClick={() => handleClickOpenProfile(user)}
+                                        onClick={() => handleUsernameClick(user.username)}
                                     >
-                                        View Info</Button>
+                                        View Profile</Button>
                                 </Stack>
                             </Box>
                         </CardContent>
                     </Card>
                 ))}
+                
 
                 {/* add button back to user's landing page */}
                 {/*<Button
