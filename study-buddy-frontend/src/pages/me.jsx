@@ -11,7 +11,7 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-  Autocomplete, Box, Stack, Input
+  Autocomplete, Box, Stack, Input, LinearProgress, Snackbar
 } from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -25,6 +25,7 @@ import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Link from "next/link";
+import {createTheme} from "@mui/material/styles";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -53,6 +54,33 @@ function MyInfoPage() {
   const [addCoursesOpen, setAddCoursesOpen] = useState(false);
   const [coursePrefix, setPrefix] = useState(null);
   const [courseNumber, setNumber] = useState(null);
+  const [password, setPassword] = useState("");
+  const [oldPwd, setOldpwd] = useState("");
+  const [errCPwd, setErrCPwd] = useState("");
+  const [errPwd, setErrPwd] = useState("");
+  const [errOldPwd, setErrOldPwd] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [borderStyle, setBorderStyle] = useState('3px solid #A9A9A9; border-radius: 20px;');
+  const [isPasswordEntered, setIsPasswordEntered] = useState(false);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [isError, setIsError] = useState(false);
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#4caf50',
+      },
+      secondary: {
+        main: '#ffeb3b',
+      },
+      error: {
+        main: '#f44336',
+      },
+    },
+  });
 
   const api = axios.create({
     //baseURL: 'http://localhost:8080/',
@@ -61,6 +89,11 @@ function MyInfoPage() {
     headers: {'Authorization': `Bearer ${token}`},
   });
 
+  useEffect(() => {
+    if (passwordStrengthColors[passwordStrength]) {
+      setBorderStyle(`3px solid transparent; border-image: ${passwordStrengthColors[passwordStrength]} 1 stretch; border-radius: 20px;`);
+    }
+  }, [passwordStrength]);
 
   useEffect(() => {
     try{
@@ -267,9 +300,124 @@ function MyInfoPage() {
     setPasswordOpen(false);
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = (event) => {
+    event.preventDefault();
+    if (password === '' || confirmPassword === '' || oldPwd === '') {
+      setSnackbarMessage("Please fill out all fields");
+      setIsError(true);
+      setSnackbarOpen(true);
+      return;
+    }
+    if (errPwd !== "") {
+      setSnackbarMessage(errPwd);
+      setIsError(true);
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (errCPwd !== "") {
+      setSnackbarMessage(errCPwd);
+      setIsError(true);
+      setSnackbarOpen(true);
+      return;
+    }
+
+    api.get(`api/is-password/${username}/${oldPwd}`)
+        .then((res) => {
+          api.post(`api/change-password/${username}`, password)
+              .then((e) => {
+                setSnackbarMessage("Password successfully changed!");
+                setIsError(false);
+                setSnackbarOpen(true);
+                handleResetPwdClose();
+              })
+              .catch((err) => {
+                setSnackbarMessage("Password cannot be changed at this time!");
+                setIsError(true);
+                setSnackbarOpen(true);
+              })
+        })
+        .catch((er) => {
+          setErrOldPwd("Old password does not match actual password");
+          setSnackbarMessage("The old password is not correct!");
+          setIsError(true);
+          setSnackbarOpen(true);
+        });
 
   };
+
+  const handleChangePassword = (event) => {
+    const newPassword = event.target.value;
+    setPassword(newPassword);
+    if (newPassword === '') {
+      setIsPasswordEntered(false);
+    } else {
+      setIsPasswordEntered(true);
+    }
+    const strength = evaluatePasswordStrength(newPassword);
+    setPasswordStrength(strength);
+    if (strength < 3) {
+      setErrPwd("Password is too weak. Strong passwords contain at least 8 characters, 1 capital letter, 1 number, and 1 special character (@.#$!%*?&^)");
+    } else {
+      setErrPwd("");
+    }
+  };
+
+  const handleChangeConfirmPassword = (event) => {
+    const newPassword = event.target.value;
+    setConfirmPassword(newPassword);
+    if ( newPassword !== password ) {
+      setErrCPwd("Passwords do not match");
+    } else {
+      setErrCPwd("");
+    }
+  };
+
+  const handleOldPassword = (event) => {
+    const oldPassword = event.target.value;
+    setOldpwd(oldPassword);
+  }
+
+  const evaluatePasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[a-z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    return Math.min(strength, 4);
+  };
+
+  const passwordStrengthColors = {
+    0: 'linear-gradient(to right, #ffcccc, #ff6666)',
+    1: 'linear-gradient(to right, #ff6666, #ffcc66)',
+    2: 'linear-gradient(to right, #ffcc66, #ccff66)',
+    3: 'linear-gradient(to right, #ccff66, #66cc66)',
+    4: 'linear-gradient(to right, #66cc66, #006400)'
+  };
+
+  const getColor = (strength) => {
+    if (strength < 2) return 'error';
+    if (strength < 3) return 'warning';
+    if (strength < 4) return 'info';
+    return 'success';
+  };
+
+  const colorByStrength = (strength) => {
+    switch (strength) {
+      case 1:
+        return ['#ffcccc', '#ff6666', '#ff4d4d'];
+      case 2:
+        return ['#ffeb99', '#ffcc66', '#ffbf00'];
+      case 3:
+        return ['#d9f2d9', '#ccff66', '#b3ff66'];
+      case 4:
+        return ['#66cc66', '#33cc33', '#009900'];
+      default:
+        return ["#006400", "#2F4F4F", "#228B22", "#B8860B", "#DAA520", "#FFD700"];
+    }
+  };
+
 
   return (
       <div>
@@ -496,7 +644,7 @@ function MyInfoPage() {
         <Dialog  id="course-adding"
                  open={addCoursesOpen}
                  onClose={handleAddCoursesClose}
-                 component="form" validate="true" onSubmit={handleAddCoursesSubmit}
+                 component="form" validate="true" onSubmit={(event) => handleAddCoursesSubmit(event)}
         >
           <DialogTitle>Add Course</DialogTitle>
           <DialogContent>
@@ -524,7 +672,7 @@ function MyInfoPage() {
         <Dialog  id="reset-password"
                  open={passwordOpen}
                  onClose={handleResetPwdClose}
-                 component="form" validate="true" onSubmit={handleResetPwdClose}
+                 component="form" validate="true" onSubmit={handlePasswordChange}
         >
           <DialogTitle>Reset Password</DialogTitle>
           <DialogContent>
@@ -532,15 +680,43 @@ function MyInfoPage() {
 
               <Box  sx={{ margin: 5 }}
                     component="form" validate="true">
-                <TextField id="pwd-old" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="Old Password" sx={{ width:300 }}/>
+                <TextField id="pwd-old"
+                           type={"password"}
+                           error={errOldPwd !== ""}
+                           onChange={(event) => handleOldPassword(event)}
+                           label="Old Password"
+                           sx={{ width:300 }}/>
                 <br/> <br/>
                 <DialogContentText>
                   Enter your new password:
                 </DialogContentText>
                 <br/>
-                <TextField id="pwd-new" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="New Password" sx={{ width:300 }}/>
+                {password && (
+                    <Box sx={{ width: '100%', mb: 2, transition: 'width 0.5s ease-in-out' }}>
+                      <LinearProgress
+                          variant="determinate"
+                          value={(passwordStrength / 4) * 100}
+                          color={getColor(passwordStrength)}
+                          sx={{ width: '100%', height: 10 }}
+                      />
+                      <Typography sx={{ textAlign: 'center', mt: 1 }}>
+                        Password Strength: {['Weak', 'Fair', 'Good', 'Strong'][passwordStrength - 1]}
+                      </Typography>
+                    </Box>
+                )}
+                <TextField id="pwd-new"
+                           error={errPwd !== ""}
+                           type={"password"}
+                           onChange={(event) => handleChangePassword(event)}
+                           label="New Password"
+                           sx={{ width:300 }}/>
                 <br/> <br/>
-                <TextField id="pwd-confirm" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="Confirm New Password" sx={{ width:300 }}/>
+                <TextField id="pwd-confirm"
+                           type={"password"}
+                           error={errCPwd !== ""}
+                           onChange={(event) => handleChangeConfirmPassword(event)}
+                           label="Confirm New Password"
+                           sx={{ width:300 }}/>
                 <br/>
               </Box>
             </Box>
@@ -549,9 +725,20 @@ function MyInfoPage() {
 
           <DialogActions>
             <Button onClick={handleResetPwdClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onClick={handlePasswordChange()}>Change Password</Button>
+            <Button variant="contained" type="submit" onClick={(event) => handlePasswordChange(event)}>Change Password</Button>
           </DialogActions>
         </Dialog>
+        <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={() => setSnackbarOpen(false)}
+            message={snackbarMessage}
+            sx={{
+              '& .MuiSnackbarContent-root': {
+                backgroundColor: isError ? theme.palette.error.main : theme.palette.primary.main,
+              },
+            }}
+        />
     </div>
   );
 }
