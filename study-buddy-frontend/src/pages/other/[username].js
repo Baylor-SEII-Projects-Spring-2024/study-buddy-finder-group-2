@@ -18,7 +18,9 @@ function OthersInfoPage() {
 
     const token = useSelector(state => state.authorization.token); //get current state
     const dispatch = useDispatch(); // use to change state
-
+    const [openEdit, setOpenEdit] = useState(false);
+    const [id, setId] = useState(null);
+    const [review, setReview] = useState('');
     const [user, setUser] = useState(null);
     const [thisUser, setThisUser] = useState(null);
     const [thisUsername, setThisUsername] = useState(null);
@@ -124,7 +126,18 @@ function OthersInfoPage() {
             .catch(error => console.error(`Error fetching connection count`, error));
     };
 
-
+    const removeRating = (ratingId) => {
+        console.log("Deleting rating with ID:", ratingId);
+      
+        // Use axios to send a DELETE request to the API
+        api.delete(`deleteRating/${ratingId}`)
+          .then(() => {
+            console.log("Rating deleted successfully.");
+            // Remove the deleted rating from the state
+            setRatings(prevRatings => prevRatings.filter(rating => rating.ratingId !== ratingId));
+          })
+          .catch(error => console.error('Error deleting rating:', error));
+      };
 
     const fetchAverageScore = async (user) => {
         try {
@@ -201,7 +214,48 @@ function OthersInfoPage() {
                 });
         }
     }
-
+    const handleClickOpenEdit = (rating) => {
+        console.log(rating);
+        
+        setRatingScore(rating.ratingScore);
+        setReview(rating.review);
+        setOpenEdit(true);
+        setId(rating.ratingId);
+        console.log(id);
+      };
+    
+      const handleCloseEdit = () => {
+        setOpenEdit(false);
+      };
+      const handleUpdateRating = async (id) => {
+        try {
+            console.log(id);
+            // Check if id is valid
+            if (!id || isNaN(id)) {
+                console.error("Invalid rating ID");
+                return;
+            }
+    
+            // Create a new object with updated properties
+            const updatedRating = {
+                ratingId: id,
+                score: parseFloat(ratingScore),
+                review: review
+            };
+    
+            const response = await api.put(`updateRating/${id}`, updatedRating);
+            if (response.status === 200) {
+                handleCloseEdit();
+                fetchAverageScore(username);
+                fetchRatingsForMe(username);
+               
+            } else { 
+                console.error("Failed to update rating.");
+            }
+        } catch (error) {
+            console.error("Error updating rating:", error);
+        }
+      };
     return (
         <div>
             <NotificationPage></NotificationPage><br/>
@@ -217,12 +271,12 @@ function OthersInfoPage() {
                                 <div style={{ color: 'gray' }}>@{user.username}</div>
                                 <br/>
                                 <div style={{ marginRight: '10px'}}>
-                  <span style={{ fontWeight: 'bold' }}>
-                    {connectionCount === 1 ? '1 ' : `${connectionCount} `}
-                  </span>
-                                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                    {connectionCount === 1 ? 'connection' : 'connections'}
-                  </span>
+                                    <span style={{ fontWeight: 'bold' }}>
+                                        {connectionCount === 1 ? '1 ' : `${connectionCount} `}
+                                    </span>
+                                                        <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                                        {connectionCount === 1 ? 'connection' : 'connections'}
+                                    </span>
                                 </div>
 
 
@@ -249,6 +303,14 @@ function OthersInfoPage() {
                         <Typography variant="body1" style={{ marginLeft: '100px' }}>
                             {profile.bio}
                         </Typography>
+                        {user.userType === 'tutor' && (
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                            <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                                Average Rating Score:
+                            </Typography>
+                            <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                            </div>
+                        )}
                         {user.userType === 'tutor' && ratings.length > 0 ? (
                             ratings.map((rating, index) => (
                                 <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
@@ -267,8 +329,37 @@ function OthersInfoPage() {
                                         </Typography>
                                         {jwtDecode(token).sub === rating.ratingUser.username && (
                                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                             <Button variant="contained" style={{ backgroundColor: 'red', color: 'white' }}  onClick={() => removeRating(rating.id)}>Delete Rating</Button>
-                                             <Button variant="contained"onClick={() => handleEditRating(rating.id)}>Edit Rating</Button>
+                                             <Button variant="contained" style={{ backgroundColor: 'red', color: 'white' }}  onClick={() => removeRating(rating.ratingId)}>Delete Rating</Button>
+                                             <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginRight: '10px' }}>
+                                                Edit Rating
+                                            </Button>
+                                            <Dialog open={openEdit} onClose={handleCloseEdit}>
+                                                <DialogTitle>Edit Rating</DialogTitle>
+                                                <DialogContent style={{ height: '300px' }}>
+                                                    <Rating
+                                                        name="rating-score"
+                                                        value={ratingScore}
+                                                        precision={0.5}
+                                                        onChange={(e, newValue) => setRatingScore(newValue)}
+                                                    />
+                                                    <TextField
+                                                        label="Review"
+                                                        multiline
+                                                        rows={5}
+                                                        value={review}
+                                                        onChange={(e) => setReview(e.target.value)}
+                                                        fullWidth
+                                                        variant="outlined"
+                                                        margin="normal"
+                                                
+                                                        InputLabelProps={{ style: { color: 'black' } }} 
+                                                    />
+                                                </DialogContent>
+                                                <DialogActions>
+                                                <Button onClick={handleCloseEdit}>Cancel</Button>
+                                                <Button onClick={() => handleUpdateRating(id)}>Save Rating</Button>
+                                                </DialogActions>
+                                            </Dialog>
                                              </div>
                                         )}
                                     </CardContent>
