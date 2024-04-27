@@ -615,9 +615,9 @@ function MeetupsPage() {
                     </Dialog>
                 </Box>
     
-                <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
+                <Stack sx={{ paddingTop: 1 }} alignItems='center' gap={2}>
     
-                    <Box component="form" noValidate sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
+                    <Box component="form" noValidate sx={{ paddingTop: 1, width: 550, margin: 'auto' }}>
                         <Stack spacing={4} direction="row" justifyContent="center">
                             {/* get request type (incoming or outgoing) */}
                             <ToggleButtonGroup
