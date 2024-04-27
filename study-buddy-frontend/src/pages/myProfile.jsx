@@ -254,8 +254,6 @@ function MyInfoPage() {
 
     router.push(`/viewConnections`);
 
-	
-
   }
 
 
