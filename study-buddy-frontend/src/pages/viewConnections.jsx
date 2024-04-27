@@ -319,7 +319,7 @@ function viewConnectionsPage() {
 
                 <Card sx={{ width: 520, margin: 'auto', marginTop: 3 }} elevation={4}>
                     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Typography variant='h4' align='center'>{thisUser}'s Connections</Typography>
+                        <Typography variant='h4' align='center'>{thisUser}'s Buddies</Typography>
                     </CardContent>
                 </ Card>
 
@@ -335,10 +335,10 @@ function viewConnectionsPage() {
                                         <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
                                             <li>
                                                 <Avatar sx={{ width: 50, height: 50, marginBottom: '15px' }} src={user.pictureUrl} />
-                                                <strong>Username: </strong> {user.username}
-                                                <br />
-                                                <strong>Name: </strong> {user.firstName + " " + user.lastName}
-                                                <br />
+                                                <strong>{user.username}</strong>
+                                                <br/>
+                                                <i>{user.firstName + " " + user.lastName}</i>
+                                                <br/>
                                             </li>
                                         </ul>
                                     </Box>
@@ -348,6 +348,7 @@ function viewConnectionsPage() {
                                         variant='contained'
                                         color="primary"
                                         size="small"
+                                        sx={{ width: '100px', height: '40px' }}
                                         onClick={() => handleClickOpenProfile(user)}
                                     >
                                         View Profile</Button>

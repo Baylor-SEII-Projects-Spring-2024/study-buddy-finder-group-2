@@ -48,6 +48,7 @@ function MyInfoPage() {
   const [connectionCount, setConnectionCount] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
   const [addCoursesOpen, setAddCoursesOpen] = useState(false);
   const [coursePrefix, setPrefix] = useState(null);
@@ -239,12 +240,14 @@ function MyInfoPage() {
 
   }
 
+  //HANDLING CONNECTIONS
 
   const handleViewConnections = () =>{
     router.push(`/viewConnections`);
   }
 
 
+  //HANDLING RATINGS
   const displayRatings = () => {
     return(
         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
@@ -255,12 +258,25 @@ function MyInfoPage() {
         </div>);
   }
 
+  //HANDLING RESET PASSWORD
+  const handleResetPwdOpen = () => {
+    setPasswordOpen(true);
+  };
+
+  const handleResetPwdClose = () => {
+    setPasswordOpen(false);
+  };
+
+  const handlePasswordChange = () => {
+
+  };
+
   return (
       <div>
         <NotificationPage></NotificationPage><br/>
 
         {user && (
-            <Card sx={{width: 1200, margin: 'auto', marginTop: '125px', marginBottom: '10px', overflow: 'auto'}}
+            <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto', border: '3px solid black'}}
                   elevation={4}>
               <CardContent>
                 <Grid container alignItems="center">
@@ -279,7 +295,7 @@ function MyInfoPage() {
 
                         <Link href="/viewConnections">
                           <span onclick={handleViewConnections} style={{ color: 'blue', fontWeight: 'bold', cursor: 'pointer'}}>
-                            {connectionCount === 1 ? 'connection' : 'connections'}
+                            {connectionCount === 1 ? 'buddy' : 'buddies'}
                           </span>
                         </Link>
 
@@ -295,6 +311,7 @@ function MyInfoPage() {
 
                   <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
                     <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
+                    <Button variant="contained" onClick={handleResetPwdOpen} >Reset Password</Button>
                   </Grid>
                 </Grid>
                 <br />
@@ -355,7 +372,7 @@ function MyInfoPage() {
                         Not enrolled in any courses.
                       </Typography>
                   )}
-                  <Grid item sx={{ marginLeft: '100px', marginRight: '100px', marginTop: '40px' }}>
+                  <Grid item sx={{ marginLeft: '80px', marginRight: '100px', marginTop: '40px' }}>
                       <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
                   </Grid>
                 </div>
@@ -387,12 +404,13 @@ function MyInfoPage() {
             onChange={(e) => setBio(e.target.value)}
           />
   
-          <div>Profile Picture</div>
-          <div style={{ display: 'flex' }}>
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid blue' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
+          <div style={{ marginTop: '15px', marginBottom: '10px', color: 'gray', fontSize: '15px'}}>Profile Picture</div>
+          <div style={{ display: 'flex'}}>
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
+            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/penguin.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/penguin.jpg')} src="/penguin.jpg" />
           </div>
         </DialogContent>
   
@@ -472,6 +490,66 @@ function MyInfoPage() {
           <DialogActions>
             <Button onClick={handleAddCoursesClose}>Cancel</Button>
             <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog  id="course-adding"
+                 open={addCoursesOpen}
+                 onClose={handleAddCoursesClose}
+                 component="form" validate="true" onSubmit={handleAddCoursesSubmit}
+        >
+          <DialogTitle>Add Course</DialogTitle>
+          <DialogContent>
+            <Box sx={{width: 500}}>
+              <DialogContentText>
+                Add your course.
+              </DialogContentText>
+
+              <Box  sx={{ margin: 5 }}
+                    component="form" validate="true">
+                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
+                <br/>
+                <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
+              </Box>
+            </Box>
+
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handleAddCoursesClose}>Cancel</Button>
+            <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog  id="reset-password"
+                 open={passwordOpen}
+                 onClose={handleResetPwdClose}
+                 component="form" validate="true" onSubmit={handleResetPwdClose}
+        >
+          <DialogTitle>Reset Password</DialogTitle>
+          <DialogContent>
+            <Box sx={{width: 500}}>
+
+              <Box  sx={{ margin: 5 }}
+                    component="form" validate="true">
+                <TextField id="pwd-old" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="Old Password" sx={{ width:300 }}/>
+                <br/> <br/>
+                <DialogContentText>
+                  Enter your new password:
+                </DialogContentText>
+                <br/>
+                <TextField id="pwd-new" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="New Password" sx={{ width:300 }}/>
+                <br/> <br/>
+                <TextField id="pwd-confirm" type={"password"} onChange={(event) => setPrefix(event.target.value)} label="Confirm New Password" sx={{ width:300 }}/>
+                <br/>
+              </Box>
+            </Box>
+
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handleResetPwdClose}>Cancel</Button>
+            <Button variant="contained" type="submit" onClick={handlePasswordChange()}>Change Password</Button>
           </DialogActions>
         </Dialog>
     </div>

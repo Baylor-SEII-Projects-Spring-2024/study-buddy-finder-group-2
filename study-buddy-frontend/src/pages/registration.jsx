@@ -65,11 +65,12 @@ function RegistrationPage() {
     const [errUserType, setErrUserType] = useState("");
 
     const [passwordStrength, setPasswordStrength] = useState(0);
-    const [borderStyle, setBorderStyle] = useState('1px solid #ddd');
+    const [borderStyle, setBorderStyle] = useState('3px solid #A9A9A9; border-radius: 20px;');
+    const [isPasswordEntered, setIsPasswordEntered] = useState(false);
 
     useEffect(() => {
         if (passwordStrengthColors[passwordStrength]) {
-            setBorderStyle(`3px solid transparent; border-image: ${passwordStrengthColors[passwordStrength]} 1 stretch;`);
+            setBorderStyle(`3px solid transparent; border-image: ${passwordStrengthColors[passwordStrength]} 1 stretch; border-radius: 20px;`);
         }
     }, [passwordStrength]);
 
@@ -106,6 +107,11 @@ function RegistrationPage() {
     const handleChangePassword = (event) => {
         const newPassword = event.target.value;
         setPassword(newPassword);
+        if (newPassword === '') {
+            setIsPasswordEntered(false);
+        } else {
+            setIsPasswordEntered(true);
+        }
         const strength = evaluatePasswordStrength(newPassword);
         setPasswordStrength(strength);
         if (strength < 3) {
@@ -265,7 +271,6 @@ function RegistrationPage() {
             })
     }
 
-
     const getColor = (strength) => {
         if (strength < 2) return 'error';
         if (strength < 3) return 'warning';
@@ -314,7 +319,7 @@ function RegistrationPage() {
                     fullScreen: { enable: true, zIndex: -1 },
                     particles: {
                         number: {
-                            value: 160,
+                            value: 100,
                         },
                         color: {
                             value: colorByStrength(passwordStrength),
@@ -361,21 +366,22 @@ function RegistrationPage() {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                width: '30vw',
+                width: '400px',
+                minWidth: '400px',
+                maxWidth: '400px',
+                height: '600px',
                 minHeight: '600px',
-                maxHeight: '80vh',
+                maxHeight: '600px',
                 overflowY: 'auto',
                 padding: 4,
-                backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                borderRadius: '8px',
+                backgroundColor: '#fff',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 zIndex: 2,
-                border: '3px solid transparent',
-                borderImage: borderStyle,
-                transition: 'border-image 0.5s ease-in-out'
+                border: isPasswordEntered ? borderStyle : '3px solid #A9A9A9; border-radius: 20px;',
+                transition: 'border 1s ease-in-out, border-image 1s ease-in-out',
             }}>
                 <Typography component="h1" variant="h5">Register</Typography><br/>
                 <Autocomplete
