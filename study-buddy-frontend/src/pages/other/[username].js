@@ -39,8 +39,8 @@ function OthersInfoPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         headers: {'Authorization': `Bearer ${token}`},
     });
 
@@ -153,9 +153,7 @@ function OthersInfoPage() {
         }
     };
 
-    const handleProfilePic = (pic) => {
-        setPictureUrl(pic);
-    }
+    
     const handleSetConnection = () => {
 
         if(!isConnected) {
@@ -251,15 +249,7 @@ function OthersInfoPage() {
                         <Typography variant="body1" style={{ marginLeft: '100px' }}>
                             {profile.bio}
                         </Typography>
-                        {user.userType === 'tutor' && (
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-                                <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                                    Average Rating Score:
-                                </Typography>
-                                <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
-                            </div>
-                        )}
-                        {ratings.length > 0 && user.userType === 'tutor' ? (
+                        {user.userType === 'tutor' && ratings.length > 0 ? (
                             ratings.map((rating, index) => (
                                 <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
                                     <CardContent>
@@ -275,14 +265,20 @@ function OthersInfoPage() {
                                         <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
                                             Review: {rating.review}
                                         </Typography>
+                                        {jwtDecode(token).sub === rating.ratingUser.username && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                             <Button variant="contained" style={{ backgroundColor: 'red', color: 'white' }}  onClick={() => removeRating(rating.id)}>Delete Rating</Button>
+                                             <Button variant="contained"onClick={() => handleEditRating(rating.id)}>Edit Rating</Button>
+                                             </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             ))
-                        ) : (
+                        ) : user.userType === 'tutor' && ratings.length === 0 ? (
                             <Typography variant="body1" align="center">
                                 No ratings available.
                             </Typography>
-                        )}
+                        ) : null}
 
                         <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
                             Courses

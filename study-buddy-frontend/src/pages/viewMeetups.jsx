@@ -507,6 +507,10 @@ function MeetupsPage() {
             })
             .catch(error => console.error('Error deleting rating:', error));
     };
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     const handleUpdateRating = async (ratingId) => {
         try {
@@ -770,11 +774,14 @@ function MeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                        <span>
-  <                                                         Link href={`/profile/${attendee.username}`}>
-                                                                {attendee.username}
-                                                            </Link>
+                                                    {username !== attendee.username && ( // Compare the usernames
+                                                        <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                            {attendee.username}
                                                         </span>
+                                                    )}
+                                                    {username === attendee.username && (
+                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                                    )}
                                                 </li>
                                             ))}
                                         </ul>
@@ -785,11 +792,14 @@ function MeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                        <span>
-  <                                                         Link href={`/profile/${attendee.username}`}>
-                                                                {attendee.username}
-                                                            </Link>
+                                                    {username !== attendee.username && ( // Compare the usernames
+                                                        <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                            {attendee.username}
                                                         </span>
+                                                    )}
+                                                    {username === attendee.username && (
+                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                                    )}
                                                 </li>
                                             ))}
                                         </ul>

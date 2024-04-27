@@ -351,7 +351,7 @@ function viewConnectionsPage() {
                                         sx={{ width: '100px', height: '40px' }}
                                         onClick={() => handleClickOpenProfile(user)}
                                     >
-                                        View Profile</Button>
+                                        View Info</Button>
                                 </Stack>
                             </Box>
                         </CardContent>
@@ -376,7 +376,7 @@ function viewConnectionsPage() {
                 component="form"
                 validate="true"
             >
-                <DialogTitle variant='s2'>{firstName + " " + lastName}'s Profile</DialogTitle>
+                <DialogTitle variant='s2'>{firstName + " " + lastName}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2}>
                         <Typography variant='s2'>{userType}</Typography>
