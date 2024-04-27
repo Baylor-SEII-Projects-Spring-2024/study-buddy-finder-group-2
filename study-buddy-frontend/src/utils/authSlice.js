@@ -12,7 +12,7 @@ const initialState = {
 }
 
 export const authSlice = createSlice({
-    name: 'authoriztion',
+    name: 'authorization',
     initialState,
     reducers: {
         authorize: (state, action) => {
@@ -20,10 +20,8 @@ export const authSlice = createSlice({
             state.auth = true
         },
         deauthorize: (state) => {
-            console.log("logged-in: " + state.auth)
             state.token = ""
             state.auth = false
-            console.log("logged-in: " + state.auth)
         },
     },
 })
