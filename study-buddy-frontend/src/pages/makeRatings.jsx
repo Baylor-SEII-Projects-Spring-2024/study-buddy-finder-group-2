@@ -57,6 +57,7 @@ function RatingsPage() {
 
   const fetchPendingRatings = async (user) => {
     try {
+        console.log(user);
         const res = await api.get(`newRatings/${user}`);
         console.log(res);
         setRatings(res.data);
