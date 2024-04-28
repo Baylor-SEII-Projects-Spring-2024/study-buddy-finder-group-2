@@ -19,8 +19,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class SearchUserEndpoint {
 
     @Autowired
@@ -49,8 +49,12 @@ public class SearchUserEndpoint {
 
         // remove the current user from search results
         users.removeIf(u -> u.getUsername().equals(username));
+
+        //TODO: Courses logic
+
         if(userSearch.getCourses() != null && userSearch.getCourses().stream().findFirst().isPresent()) {
-            users.removeIf(u -> !u.getCourses().contains(userSearch.getCourses().stream().findFirst().get()));
+            List<User> usersWithCourses = userService.getUsersByCourse(userSearch.getCourses().stream().findFirst().get());
+            users.removeIf(u -> !usersWithCourses.contains(u));
             System.out.println("WOO");
         }
         return ResponseEntity.ok(users);
