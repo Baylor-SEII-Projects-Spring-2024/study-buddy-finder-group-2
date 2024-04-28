@@ -17,6 +17,8 @@ import studybuddy.api.security.JwtGenerator;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
+import java.util.Optional;
+
 @RestController
 //@CrossOrigin(origins = "http://localhost:3000") // for local testing
 @CrossOrigin(origins = "http://34.16.169.60:3000")
@@ -81,4 +83,28 @@ public class AuthController {
         userService.saveUser(user);
         return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
     }
+    @RequestMapping(value = "/is-password/{username}/{oldPwd}",
+            method = RequestMethod.GET)
+    public ResponseEntity<Boolean> checkPassword(@PathVariable String username, @PathVariable String oldPwd){
+        Optional<User> user = userService.findByUsername(username);
+        if(user.isPresent()) {
+            if(passwordEncoder.matches(oldPwd,user.get().getPassword())){
+                return ResponseEntity.ok(true);
+            }
+        }
+        return ResponseEntity.badRequest().build();
+    };
+
+    @RequestMapping(value="/change-password/{username}/{password}",
+            method=RequestMethod.POST)
+    public ResponseEntity<Boolean> changePassword(@PathVariable String username, @PathVariable String password){
+        Optional<User> user = userService.findByUsername(username);
+        if(user.isPresent()) {
+            User ope = user.get();
+            ope.setPassword(passwordEncoder.encode(password));
+            userService.saveUser(ope);
+            return ResponseEntity.ok(true);
+        }
+        return ResponseEntity.badRequest().build();
+    };
 }

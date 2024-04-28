@@ -322,9 +322,9 @@ function MyInfoPage() {
       return;
     }
 
-    api.get(`api/is-password/${username}/${oldPwd}`)
+    api.get(`api/authorization/is-password/${username}/${oldPwd}`)
         .then((res) => {
-          api.post(`api/change-password/${username}`, password)
+          api.post(`api/authorization/change-password/${username}/${password}`)
               .then((e) => {
                 setSnackbarMessage("Password successfully changed!");
                 setIsError(false);
