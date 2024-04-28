@@ -11,6 +11,8 @@ import {jwtDecode} from "jwt-decode";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
+import {deauthorize} from "@/utils/authSlice";
 
 const theme = createTheme({
     palette: {
@@ -55,6 +57,7 @@ function SearchMeetupsPage() {
             fetchRecommendedMeetups(decodedUser.sub);
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, []);
@@ -243,6 +246,9 @@ function SearchMeetupsPage() {
 
     return (
         <ThemeProvider theme={theme}>
+            <Head>
+                <title>Search Meetups</title>
+            </Head>
             <NotificationPage></NotificationPage> <br/>
             <Box sx={{ display: 'flex', flexDirection: 'row', p: 2 }}>
                 <Box sx={{ width: '30%', marginRight: '2%' }}>

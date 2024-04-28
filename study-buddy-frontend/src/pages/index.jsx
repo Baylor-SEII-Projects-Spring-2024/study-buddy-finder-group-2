@@ -29,7 +29,7 @@ export default function HomePage() {
   return (
     <>
       <Head>
-        <title>Home Page</title>
+        <title>Studdy Buddy</title>
       </Head>
 
       <main style={{ height: '100vh', display: 'flex' }}>
@@ -64,8 +64,8 @@ export default function HomePage() {
             <Grid item>
               <Stack direction="column" spacing={2} alignItems="center">
                 <Card sx={{ maxWidth: 450, boxShadow: 3, backgroundColor: '#ccffcc', mb: 2 }}>
-                  <CardContent>
-                    <Typography variant='h4' align='center' gutterBottom>Welcome to Study Buddies!</Typography>
+                  <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <img src="StuddyBuddyLogo.png" alt="logo" style={{ width: '400px'}}/>
                     <Typography variant='body1' align='center'>Connect with peers to enhance your learning journey. Please login or register to continue.</Typography>
                   </CardContent>
                 </Card>

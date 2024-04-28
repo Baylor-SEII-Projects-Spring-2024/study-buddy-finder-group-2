@@ -21,6 +21,8 @@ import {jwtDecode} from "jwt-decode";
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
+import {deauthorize} from "@/utils/authSlice";
 
 
 function InvitationsPage() {
@@ -66,6 +68,7 @@ function InvitationsPage() {
             fetchInRequests(decodedUser.sub);
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])
@@ -218,6 +221,9 @@ function InvitationsPage() {
 
     return (
         <div>
+            <Head>
+                <title>My Invitations</title>
+            </Head>
             <NotificationPage></NotificationPage><br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>

@@ -23,6 +23,7 @@ import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
 
 function SearchUsersPage() {
     const router = useRouter();
@@ -148,8 +149,6 @@ function SearchUsersPage() {
         }
         // the users are not currently connected
         else {
-            
-
             api.post("api/searchUsers/addConnection", connection)
                 .then((res) => {
                     console.log("CONNECTION ADDED.");
@@ -258,6 +257,9 @@ function SearchUsersPage() {
 
     return (
         <Box>
+            <Head>
+                <title>Search Users</title>
+            </Head>
             <NotificationPage></NotificationPage> <br/>
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 <Box sx={{width: '20%', paddingTop:4}}>
@@ -449,7 +451,7 @@ function SearchUsersPage() {
                                     },
                                 }}
                                 type="submit"
-                                onClick={handleSetConnection}
+                                onClick={handleConnection}
                             >
                                 {text}</Button>
                         </DialogActions>

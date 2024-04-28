@@ -192,7 +192,7 @@ function NotificationPage() {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {/* must use a link, otherwise page refreshes!! */}
                         <Link href={ref}>
-                            StuddyBuddy
+                            <img src="StuddyBuddyLogo.png" alt="logo" style={{ width: '100px', marginTop:'7px'}}/>
                         </Link>
                     </Typography>
 

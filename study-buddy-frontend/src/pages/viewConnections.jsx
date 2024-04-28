@@ -18,6 +18,8 @@ import {jwtDecode} from "jwt-decode";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
+import {deauthorize} from "@/utils/authSlice";
 
 function viewConnectionsPage() {
     const router = useRouter();
@@ -67,6 +69,7 @@ function viewConnectionsPage() {
             fetchInRequests(decodedUser.sub);
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])
@@ -244,6 +247,9 @@ function viewConnectionsPage() {
 
     return (
         <div>
+            <Head>
+                <title>My Buddies</title>
+            </Head>
             <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Box component="form" noValidate
@@ -285,7 +291,7 @@ function viewConnectionsPage() {
                                         color="primary"
                                         size="small"
                                         startIcon={<VisibilityIcon />}
-                                        onClick={() => handleUsernameClick(req)}
+                                        onClick={() => handleUsernameClick(req.username)}
                                         sx={{
                                             borderRadius: 20,
                                             textTransform: 'none',

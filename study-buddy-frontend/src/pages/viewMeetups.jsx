@@ -20,6 +20,8 @@ import Avatar from '@mui/material/Avatar';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import Head from "next/head";
+import {deauthorize} from "@/utils/authSlice";
 
 function MeetupsPage() {
     const router = useRouter();
@@ -77,6 +79,7 @@ function MeetupsPage() {
             fetchInRequests(decodedUser.sub);
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])
@@ -543,6 +546,9 @@ function MeetupsPage() {
 
     return (
         <Box>
+            <Head>
+                <title>My Meetups</title>
+            </Head>
             <NotificationPage />
             <br />
             <div style={{ display: 'flex', flexDirection: 'row' }}>

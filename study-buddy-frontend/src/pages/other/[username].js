@@ -8,6 +8,9 @@ import Avatar from '@mui/material/Avatar';
 import {useRouter} from "next/router";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
+import Head from "next/head";
+import Link from "next/link";
+import {deauthorize} from "@/utils/authSlice";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -18,26 +21,29 @@ function OthersInfoPage() {
 
     const token = useSelector(state => state.authorization.token); //get current state
     const dispatch = useDispatch(); // use to change state
+
     const [openEdit, setOpenEdit] = useState(false);
     const [id, setId] = useState(null);
     const [review, setReview] = useState('');
     const [user, setUser] = useState(null);
     const [thisUsername, setThisUsername] = useState(null);
     const [profile, setProfile] = useState(null);
+
     const {username} = router.query;
+
     const [ratingScore, setRatingScore] = useState(0);
     const [userCourses, setUserCourses] = useState([]);
     const [connectionCount, setConnectionCount] = useState(0);
+
     const [ratings, setRatings] = useState([]);
     const [requester, setRequester] = useState(null);
     const [requested, setRequested] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
+
     const [text, setText] = useState("Connect");
+
     const [pictureUrl, setPictureUrl] = useState(null);
     const [selectedConnection, setSelectedConnection] = useState(null);
-
-
-
 
     const api = axios.create({
         //baseURL: 'http://localhost:8080/',
@@ -48,37 +54,30 @@ function OthersInfoPage() {
 
 
     useEffect(() => {
-
         try{
             // only authorized users can do this (must have token)
             const decodedUser = jwtDecode(token);
             setThisUsername(decodedUser.sub);
 
-            api.get(`users/${decodedUser.sub}`)
-                .then((res) => {
-                    setUser(res.data);
-                    console.log(res.data);
-                    const fetchData = async () => {
-                        fetchUser(username);
-                        fetchProfile(username);
-                        await fetchUserCourses(username);
-                        fetchConnectionCount(username);
-                        await fetchRatingsForMe(username);
-                        await fetchAverageScore(username);
-                    };
-                    
-                    fetchConnections(username, thisUsername);
+            const fetchData = async () => {
+                fetchUser(username);
+                //fetchProfile(username)
+                await fetchUserCourses(username);
+                fetchConnectionCount(username);
+                await fetchRatingsForMe(username);
+                await fetchAverageScore(username);
+            };
 
-                    handleSetConnection();
-
-                    fetchData();
-                });
+            fetchConnection(username, decodedUser.sub);
+            fetchData();
 
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [username]);
+
     const fetchUser = (user) => {
         console.log("User to fetch for: " + user);
 
@@ -87,42 +86,31 @@ function OthersInfoPage() {
             .catch(error => console.error('Error fetching user:', error));
     };
 
-    const fetchConnections = (user, thisUser) => {
+    const fetchConnection = (user, thisUser) => {
         api.post(`api/searchUsers/getConnection/${thisUser}`, user)
-
             .then((res) => {
-                if (res.data) {
                 setSelectedConnection(res.data);
-                console.log("HERE");
-                console.log(selectedConnection);
                 setRequester(res.data.requester);
                 setRequested(res.data.requested);
                 setIsConnected(res.data.isConnected);
-                console.log("YEAH");
-                console.log(requester);
-                console.log(requested);
-                console.log(isConnected);
 
                 if(res.data.isConnected) {
                     setText("Disconnect");
                 }
-                else if(res.data.requester === username) {
+                else if(res.data.requester === thisUser) {
                     setText("Pending");
                 }
-            }
+                else {
+                    setRequester(thisUser);
+                    setRequested(user);
+                    setIsConnected(false);
+                    setText("Connect");
+                }
             })
             .catch((err) => {
                 console.error('Error getting connection:', err)
             });
     }
-
-    const fetchProfile = (user) => {
-        console.log("Profile to fetch for: " + user);
-
-        api.get(`me/${user}`)
-            .then(data => setProfile(data.data))
-            .catch(error => console.error('Error fetching profile:', error));
-    };
 
     const fetchConnectionCount = (user) => {
 
@@ -174,39 +162,23 @@ function OthersInfoPage() {
         }
     };
 
-    
-    const handleSetConnection = () => {
-
-        if(!isConnected) {
-            console.log("this is running");
-            console.log(thisUsername);
-            console.log(username);
-            setRequester(thisUsername);
-            setRequested(username);
-            setIsConnected(false);
-        }else{
-            setIsConnected(true);
-        }
-        console.log("YEP");
-                console.log(requester);
-                console.log(requested);
-                console.log(isConnected);
-    }
-
     const handleConnection = (event) => {
         // prevents page reload
         event.preventDefault();
+
         const connection = {
             requester, requested, isConnected
         }
+
         console.log(requester);
         console.log(requested);
         console.log(isConnected);
         // if the users are currently connected
         if(isConnected) {
-            api.delete(`api/searchUsers/deleteConnection/${user.id}`)
+            api.delete(`api/searchUsers/deleteConnection/${selectedConnection.id}`)
                 .then((res) => {
                     if(res.status === 200) {
+                        fetchConnection(username, thisUsername);
                     }
                 })
                 .catch((err) => {
@@ -215,7 +187,7 @@ function OthersInfoPage() {
                 });
         }
         // the connection is pending
-        else if(requester === username) {
+        else if(selectedConnection.requester === thisUsername) {
             console.log(username + " oops");
             // TODO: cancel connection??
         }
@@ -225,6 +197,7 @@ function OthersInfoPage() {
                 .then((res) => {
                     console.log("CONNECTION ADDED.");
                     if(res.status === 200) {
+                        fetchConnection(username, thisUsername);
                     }
                 })
                 .catch((err) => {
@@ -246,6 +219,7 @@ function OthersInfoPage() {
       const handleCloseEdit = () => {
         setOpenEdit(false);
       };
+
       const handleUpdateRating = async (id) => {
         try {
             console.log(id);
@@ -268,23 +242,29 @@ function OthersInfoPage() {
                 fetchAverageScore(username);
                 fetchRatingsForMe(username);
                
-            } else { 
+            }
+            else {
                 console.error("Failed to update rating.");
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Error updating rating:", error);
         }
       };
+
     return (
         <div>
+            <Head>
+                <title>{user?.username}'s Profile</title>
+            </Head>
             <NotificationPage></NotificationPage><br/>
-            {user && profile && (
-                <Card sx={{ width: 1200, margin: 'auto', marginTop: '25px', marginBottom: '10px', overflow: 'auto' }} elevation={4}>
+            {user && (
+                <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto', border: '3px solid black'}}
+                      elevation={4}>
                     <CardContent>
-                        <Button variant="contained" onClick={router.back}>Back</Button>
                         <Grid container alignItems="center">
-                            <Grid item sx={{ marginLeft: '100px', marginTop: '40px'}}>
-                                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={profile.pictureUrl} />
+                            <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
+                                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
 
                                 <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
                                 <div style={{ color: 'gray' }}>@{user.username}</div>
@@ -293,15 +273,21 @@ function OthersInfoPage() {
                                     <span style={{ fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                                     </span>
-                                                        <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? 'buddy' : 'buddies'}
                                     </span>
+                                </div>
+
+                                <div style={{ marginRight: '10px'}}>
                                     <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
                                         {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
                                     </Typography>
                                 </div>
 
+                            </Grid>
 
+                            <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
+                                <Button variant="outlined" color="error" onClick={() => router.back()} >Back</Button>
                                 <Button
                                     id="connection"
                                     variant="contained"
@@ -315,98 +301,76 @@ function OthersInfoPage() {
                                     onClick={handleConnection}
                                 >
                                     {text}</Button>
-
                             </Grid>
-
-
                         </Grid>
                         <br />
 
                         <Typography variant="body1" style={{ marginLeft: '100px' }}>
-                            {profile.bio}
+                            {user.bio}
                         </Typography>
+
                         {user.userType === 'tutor' && (
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-                            <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                                Average Rating Score:
-                            </Typography>
-                            <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                                <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                                    Average Rating Score:
+                                </Typography>
+                                <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
                             </div>
                         )}
-                        {user.userType === 'tutor' && ratings.length > 0 ? (
-                            ratings.map((rating, index) => (
-                                <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
-                                    <CardContent>
-                                        <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-                                            Rating from {rating.ratingUser.username}
-                                        </Typography>
-                                        <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
-                                            Meeting: {rating.meetingTitle}
-                                        </Typography>
-                                        <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                                            <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
-                                        </Typography>
-                                        <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
-                                            Review: {rating.review}
-                                        </Typography>
-                                        {jwtDecode(token).sub === rating.ratingUser.username && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                             <Button variant="contained" style={{ backgroundColor: 'red', color: 'white' }}  onClick={() => removeRating(rating.ratingId)}>Delete Rating</Button>
-                                             <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginRight: '10px' }}>
-                                                Edit Rating
-                                            </Button>
-                                            <Dialog open={openEdit} onClose={handleCloseEdit}>
-                                                <DialogTitle>Edit Rating</DialogTitle>
-                                                <DialogContent style={{ height: '300px' }}>
-                                                    <Rating
-                                                        name="rating-score"
-                                                        value={ratingScore}
-                                                        precision={0.5}
-                                                        onChange={(e, newValue) => setRatingScore(newValue)}
-                                                    />
-                                                    <TextField
-                                                        label="Review"
-                                                        multiline
-                                                        rows={5}
-                                                        value={review}
-                                                        onChange={(e) => setReview(e.target.value)}
-                                                        fullWidth
-                                                        variant="outlined"
-                                                        margin="normal"
-                                                
-                                                        InputLabelProps={{ style: { color: 'black' } }} 
-                                                    />
-                                                </DialogContent>
-                                                <DialogActions>
-                                                <Button onClick={handleCloseEdit}>Cancel</Button>
-                                                <Button onClick={() => handleUpdateRating(id)}>Save Rating</Button>
-                                                </DialogActions>
-                                            </Dialog>
-                                             </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            ))
-                        ) : user.userType === 'tutor' && ratings.length === 0 ? (
-                            <Typography variant="body1" align="center">
-                                No ratings available.
-                            </Typography>
-                        ) : null}
 
-                        <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
-                            Courses
-                        </Typography>
-                        {userCourses && userCourses.length > 0 ? (
-                            userCourses.map((course, index) => (
-                                <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
-                                    {course.coursePrefix} {course.courseNumber}
-                                </div>
-                            ))
-                        ) : (
-                            <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                                Not enrolled in any courses.
-                            </Typography>
+                        {user.userType === 'tutor' && (
+                            <div>
+                                {ratings.length > 0 ? (
+                                    ratings.map((rating, index) => (
+                                        <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                                            <CardContent>
+                                                <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                                                    Rating from {rating.ratingUser.username}
+                                                </Typography>
+                                                <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                                                    Meeting: {rating.meetingTitle}
+                                                </Typography>
+                                                <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                                                    <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                                                </Typography>
+                                                <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                                                    Review: {rating.review}
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    ))
+                                ) : (
+                                    <Typography variant="body1" align="center">
+                                        No ratings available.
+                                    </Typography>
+                                )}
+                            </div>
                         )}
+
+                        <div>
+                            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                                Courses
+                            </Typography>
+                            {userCourses && userCourses.length > 0 ? (
+                                userCourses.map((course, index) => (
+                                    <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                                        {course.coursePrefix} {course.courseNumber}
+                                    </div>
+                                ))
+                            ) : (
+                                user.userType === 'student' ? (
+                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                            Not enrolled in any courses.
+                                        </Typography>
+                                    ) :
+                                    (
+                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                            Not teaching any courses.
+                                        </Typography>
+                                    )
+
+                            )}
+                        </div>
                     </CardContent>
                 </Card>
             )}

@@ -25,8 +25,9 @@ import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Link from "next/link";
+import Head from "next/head";
 import {createTheme} from "@mui/material/styles";
-
+import {deauthorize} from "@/utils/authSlice";
 //This is the page that the user themself sees (able to edit and such)
 
 function MyInfoPage() {
@@ -113,6 +114,7 @@ function MyInfoPage() {
       fetchData();
     }
     catch(err) {
+      dispatch(deauthorize());
       router.push(`/error`);
     }
   }, []);
@@ -413,6 +415,9 @@ function MyInfoPage() {
 
   return (
       <div>
+        <Head>
+          <title>My Profile</title>
+        </Head>
         <NotificationPage></NotificationPage><br/>
 
         {user && (

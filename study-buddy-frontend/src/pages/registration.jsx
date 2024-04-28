@@ -13,10 +13,11 @@ import {useDispatch, useSelector} from "react-redux";
 import {useRouter} from "next/navigation";
 import Particles from "react-tsparticles";
 import { loadFull } from 'tsparticles';
+import Head from "next/head";
 
 const api = axios.create({
-    //baseURL: 'http://localhost:8080/'
-    baseURL: 'http://34.16.169.60:8080/'
+    //baseURL: 'http://localhost:8080/',
+    baseURL: 'http://34.16.169.60:8080/',
 });
 
 const evaluatePasswordStrength = (password) => {
@@ -311,6 +312,9 @@ function RegistrationPage() {
             justifyContent: 'center',
             overflow: 'hidden'
         }}>
+            <Head>
+                <title>Register</title>
+            </Head>
             <Particles
                 id="tsparticles"
                 init={particlesInit}

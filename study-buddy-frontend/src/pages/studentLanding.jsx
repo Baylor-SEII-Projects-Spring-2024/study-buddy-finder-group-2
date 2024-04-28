@@ -29,6 +29,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 import Avatar from '@mui/material/Avatar';
+import {deauthorize} from "@/utils/authSlice";
 // import Footer from "@/pages/Footer";
 
 function StudentLandingPage() {
@@ -84,6 +85,7 @@ function StudentLandingPage() {
                 })
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])
@@ -472,7 +474,7 @@ function StudentLandingPage() {
     return (
         <>
             <Head>
-                <title>Home - (Student)</title>
+                <title>Home Page</title>
             </Head>
 
             <main>

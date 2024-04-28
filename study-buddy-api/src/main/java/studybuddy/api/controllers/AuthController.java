@@ -22,7 +22,7 @@ import java.util.Optional;
 @RestController
 //@CrossOrigin(origins = "http://localhost:3000") // for local testing
 @CrossOrigin(origins = "http://34.16.169.60:3000")
-@RequestMapping("/api/authorization")
+//@RequestMapping("/api/authorization")
 public class AuthController {
     private AuthenticationManager authenticationManager;
     private UserService userService;

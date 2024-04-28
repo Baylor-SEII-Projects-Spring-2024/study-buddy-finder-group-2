@@ -52,8 +52,8 @@ function LoginPage() {
     const dispatch = useDispatch(); // use to change state
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
     });
 
 
@@ -143,6 +143,9 @@ function LoginPage() {
 
     return (
         <ThemeProvider theme={theme}>
+            <Head>
+                <title>Login</title>
+            </Head>
             <Box sx={backgroundStyle}>
                 <Card
                     sx={{
