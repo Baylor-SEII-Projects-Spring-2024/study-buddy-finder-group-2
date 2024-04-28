@@ -219,6 +219,11 @@ function InvitationsPage() {
         setText("Connect");
     };
 
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
+
     return (
         <div>
             <Head>
@@ -274,7 +279,7 @@ function InvitationsPage() {
                                         color="primary"
                                         size="small"
                                         startIcon={<VisibilityIcon />}
-                                        onClick={() => handleClickOpenProfile(user)}
+                                        onClick={() => handleUsernameClick(user.username)}
                                         sx={{
                                             borderRadius: 20,
                                             textTransform: 'none',
