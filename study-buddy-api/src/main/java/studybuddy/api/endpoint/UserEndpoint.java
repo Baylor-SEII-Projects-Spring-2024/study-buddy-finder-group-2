@@ -12,8 +12,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // for local testing
-//@CrossOrigin(origins = "http://34.16.169.60:3000")
+//@CrossOrigin(origins = "http://localhost:3000") // for local testing
+@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class UserEndpoint {
     @Autowired
     private UserService userService;
@@ -51,30 +51,5 @@ public class UserEndpoint {
     public User saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
-
-    @RequestMapping(value = "/api/is-password/{username}/{oldPwd}",
-            method = RequestMethod.GET)
-    public ResponseEntity<Boolean> checkPassword(@PathVariable String username, @PathVariable String oldPwd){
-      Optional<User> user = userService.findByUsername(username);
-      if(user.isPresent()) {
-          if(user.get().getPassword().equals(passwordEncoder.encode(oldPwd))){
-              return ResponseEntity.ok(true);
-          }
-      }
-      return ResponseEntity.badRequest().build();
-    };
-
-    @RequestMapping(value="/api/change-password/{username}",
-            method=RequestMethod.POST)
-    public ResponseEntity<Boolean> changePassword(@PathVariable String username, @RequestParam String password){
-        Optional<User> user = userService.findByUsername(username);
-        if(user.isPresent()) {
-            User ope = user.get();
-            ope.setPassword(passwordEncoder.encode(password));
-            userService.saveUser(ope);
-            return ResponseEntity.ok(true);
-        }
-        return ResponseEntity.badRequest().build();
-    };
 
 }
