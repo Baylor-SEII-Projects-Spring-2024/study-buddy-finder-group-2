@@ -628,7 +628,7 @@ function MyInfoPage() {
 
               <Box  sx={{ margin: 5 }}
                     component="form" validate="true">
-                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
+                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value.toUpperCase())} label="Course Prefix" sx={{ width:100 }}/>
                 <br/>
                 <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
               </Box>
