@@ -20,6 +20,7 @@ import Avatar from '@mui/material/Avatar';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import Head from "next/head";
 
 function MeetupsPage() {
     const router = useRouter();
@@ -57,8 +58,8 @@ function MeetupsPage() {
     const [outgoing, setOutgoing] = useState([]);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -539,6 +540,9 @@ function MeetupsPage() {
 
     return (
         <Box>
+            <Head>
+                <title>My Meetups</title>
+            </Head>
             <NotificationPage />
             <br />
             <div style={{ display: 'flex', flexDirection: 'row' }}>

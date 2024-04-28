@@ -21,6 +21,7 @@ import {jwtDecode} from "jwt-decode";
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
 
 
 function InvitationsPage() {
@@ -49,8 +50,8 @@ function InvitationsPage() {
     const [selectedConnection, setSelectedConnection] = useState(null);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -218,6 +219,9 @@ function InvitationsPage() {
 
     return (
         <div>
+            <Head>
+                <title>My Invitations</title>
+            </Head>
             <NotificationPage></NotificationPage><br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from "next/link";
 import {Stack, Typography} from "@mui/material";
+import Head from "next/head";
 
 function ErrorPage() {
     return (
@@ -9,6 +10,9 @@ function ErrorPage() {
                justifyContent="center"
                style={{ minHeight: '100vh' }}
         >
+            <Head>
+                <title>Unauthorized</title>
+            </Head>
             {/* Jurassic park!!!*/}
             <img src="bearWaving.webp" alt="GIF" style={{ width: '100px', marginRight: '20px' }} />
 

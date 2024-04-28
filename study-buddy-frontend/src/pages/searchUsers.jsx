@@ -22,6 +22,7 @@ import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
 
 function SearchUsersPage() {
     const router = useRouter();
@@ -48,8 +49,8 @@ function SearchUsersPage() {
     const [selectedConnection, setSelectedConnection] = useState(null);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -226,6 +227,9 @@ function SearchUsersPage() {
 
     return (
         <Box>
+            <Head>
+                <title>Search Users</title>
+            </Head>
             <NotificationPage></NotificationPage> <br/>
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 <Box sx={{width: '20%', paddingTop:4}}>

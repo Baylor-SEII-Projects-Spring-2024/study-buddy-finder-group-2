@@ -25,6 +25,7 @@ import Rating from '@mui/material/Rating';
 import Avatar from '@mui/material/Avatar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Link from "next/link";
+import Head from "next/head";
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -55,8 +56,8 @@ function MyInfoPage() {
   const [courseNumber, setNumber] = useState(null);
 
   const api = axios.create({
-    //baseURL: 'http://localhost:8080/',
-    baseURL: 'http://34.16.169.60:8080/',
+    baseURL: 'http://localhost:8080/',
+    //baseURL: 'http://34.16.169.60:8080/',
     // must add the header to associate requests with the authenticated user
     headers: {'Authorization': `Bearer ${token}`},
   });
@@ -273,6 +274,9 @@ function MyInfoPage() {
 
   return (
       <div>
+        <Head>
+          <title>My Profile</title>
+        </Head>
         <NotificationPage></NotificationPage><br/>
 
         {user && (

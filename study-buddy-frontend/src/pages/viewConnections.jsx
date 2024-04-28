@@ -18,6 +18,7 @@ import {jwtDecode} from "jwt-decode";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
 
 function viewConnectionsPage() {
     const router = useRouter();
@@ -49,8 +50,8 @@ function viewConnectionsPage() {
     const [text, setText] = useState("Connect");
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`}
     });
@@ -240,6 +241,9 @@ function viewConnectionsPage() {
 
     return (
         <div>
+            <Head>
+                <title>My Buddies</title>
+            </Head>
             <NotificationPage></NotificationPage> <br/>
             <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
                 <Box component="form" noValidate

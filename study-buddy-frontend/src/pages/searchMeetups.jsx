@@ -11,6 +11,7 @@ import {jwtDecode} from "jwt-decode";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
 import Avatar from '@mui/material/Avatar';
+import Head from "next/head";
 
 const theme = createTheme({
     palette: {
@@ -39,8 +40,8 @@ function SearchMeetupsPage() {
     const [courses, setCourses] = useState([]);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`,},
     });
@@ -239,6 +240,9 @@ function SearchMeetupsPage() {
 
     return (
         <ThemeProvider theme={theme}>
+            <Head>
+                <title>Search Meetups</title>
+            </Head>
             <NotificationPage></NotificationPage> <br/>
             <Box sx={{ display: 'flex', flexDirection: 'row', p: 2 }}>
                 <Box sx={{ width: '30%', marginRight: '2%' }}>

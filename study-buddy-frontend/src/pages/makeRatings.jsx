@@ -19,6 +19,7 @@ import {
 import {jwtDecode} from "jwt-decode";
 import {useRouter} from "next/navigation";
 import {useDispatch, useSelector} from "react-redux";
+import Head from "next/head";
 
 function RatingsPage() {
     const router = useRouter();
@@ -34,8 +35,8 @@ function RatingsPage() {
     const [openEdit, setOpenEdit] = useState(false);
 
   const api = axios.create({
-      //baseURL: 'http://localhost:8080/',
-      baseUrl: 'http://34.16.169.60:8080/',
+      baseURL: 'http://localhost:8080/',
+      //baseUrl: 'http://34.16.169.60:8080/',
       // must add the header to associate requests with the authenticated user
       headers: {'Authorization': `Bearer ${token}`},
   });
@@ -128,6 +129,9 @@ function RatingsPage() {
 
   return (
     <div>
+        <Head>
+            <title>Make Ratings</title>
+        </Head>
       {/* NotificationPage component */}
       <NotificationPage></NotificationPage><br/>
       <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>

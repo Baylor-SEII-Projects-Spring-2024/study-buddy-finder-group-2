@@ -55,8 +55,8 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -192,7 +192,7 @@ function NotificationPage() {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {/* must use a link, otherwise page refreshes!! */}
                         <Link href={ref}>
-                            StuddyBuddy
+                            <img src="StuddyBuddyLogo.png" alt="logo" style={{ width: '100px', marginTop:'7px'}}/>
                         </Link>
                     </Typography>
 
