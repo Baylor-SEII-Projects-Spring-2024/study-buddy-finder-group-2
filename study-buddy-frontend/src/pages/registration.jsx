@@ -15,8 +15,8 @@ import Particles from "react-tsparticles";
 import { loadFull } from 'tsparticles';
 
 const api = axios.create({
-    //baseURL: 'http://localhost:8080/',
-    baseURL: 'http://34.16.169.60:8080/',
+    //baseURL: 'http://localhost:8080/'
+    baseURL: 'http://34.16.169.60:8080/'
 });
 
 const evaluatePasswordStrength = (password) => {

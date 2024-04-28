@@ -121,12 +121,12 @@ function MyInfoPage() {
     console.log("User to fetch for: " + user);
 
     api.get(`me/${user}`)
-      .then(data => {
-        setUser(data.data);
-        console.log(data.data);
-        setSchool(data.data.school);
-      })
-      .catch(error => console.error('Error fetching user:', error));
+        .then(data => {
+          setUser(data.data);
+          console.log(data.data);
+          setSchool(data.data.school);
+        })
+        .catch(error => console.error('Error fetching user:', error));
   };
 
   const fetchConnectionCount = (user) => {
@@ -280,16 +280,8 @@ function MyInfoPage() {
   }
 
 
-  //HANDLING RATINGS
-  const displayRatings = () => {
-    return(
-        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px'}}>
-          <Typography variant="body1" style={{fontWeight: 'bold', marginRight: '10px', fontSize: '24px'}}>
-            Average Rating Score:
-          </Typography>
-          <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly/>
-        </div>);
-  }
+
+
 
   //HANDLING RESET PASSWORD
   const handleResetPwdOpen = () => {
@@ -435,24 +427,24 @@ function MyInfoPage() {
                     <div style={{ color: 'gray' }}>@{user.username}</div>
                     <br/>
                     <div className="hover-underline" style={{ marginRight: '10px'}}>
-                        <Link href="/viewConnections">
+                      <Link href="/viewConnections">
                           <span className="hover-underline" onclick={handleViewConnections} style={{ fontWeight: 'bold', cursor: 'pointer'}}>
                             {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                           </span>
-                        </Link>
+                      </Link>
 
-                        <Link href="/viewConnections">
+                      <Link href="/viewConnections">
                           <span onclick={handleViewConnections} style={{ color: 'blue', fontWeight: 'bold', cursor: 'pointer'}}>
                             {connectionCount === 1 ? 'buddy' : 'buddies'}
                           </span>
-                        </Link>
+                      </Link>
 
                     </div>
 
                     <div style={{ marginRight: '10px'}}>
-                        <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
-                          {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
-                        </Typography>
+                      <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
+                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
+                      </Typography>
                     </div>
 
                   </Grid>
@@ -477,34 +469,35 @@ function MyInfoPage() {
                     </div>
                 )}
 
-            {user.userType !== 'tutor' && (
-              <>
-                {ratings.length > 0 ? (
-                  ratings.map((rating, index) => (
-                    <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
-                      <CardContent>
-                        <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-                          Rating from {rating.ratingUser.username}
-                        </Typography>
-                        <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
-                          Meeting: {rating.meetingTitle}
-                        </Typography>
-                        <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                          <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
-                        </Typography>
-                        <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
-                          Review: {rating.review}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <Typography variant="body1" align="center">
-                    No ratings available.
-                  </Typography>
+                {user.userType === 'tutor' && (
+                    <div>
+                      {ratings.length > 0 ? (
+                          ratings.map((rating, index) => (
+                              <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                                <CardContent>
+                                  <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                                    Rating from {rating.ratingUser.username}
+                                  </Typography>
+                                  <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                                    Meeting: {rating.meetingTitle}
+                                  </Typography>
+                                  <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                                    <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                                  </Typography>
+                                  <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                                    Review: {rating.review}
+                                  </Typography>
+                                </CardContent>
+                              </Card>
+                          ))
+                      ) : (
+                          <Typography variant="body1" align="center">
+                            No ratings available.
+                          </Typography>
+                      )}
+                    </div>
                 )}
-              </>
-            )}
+
                 <div>
                   <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
                     Courses
@@ -516,87 +509,95 @@ function MyInfoPage() {
                           </div>
                       ))
                   ) : (
-                      <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                        Not enrolled in any courses.
-                      </Typography>
+                      user.userType === 'student' ? (
+                            <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                              Not enrolled in any courses.
+                            </Typography>
+                          ) :
+                          (
+                            <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                              Not teaching any courses.
+                            </Typography>
+                          )
+
                   )}
                   <Grid item sx={{ marginLeft: '80px', marginRight: '100px', marginTop: '40px' }}>
-                      <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
+                    <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
                   </Grid>
                 </div>
-          </CardContent>
-        </Card>
-      )}
-  
-      <Dialog
-        open={settingsOpen}
-        onClose={handleSettingsClose}
-        component="form" validate="true" onSubmit={handleSubmit}
-      >
-        <DialogTitle>Profile Settings</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Edit your profile.
-          </DialogContentText>
-  
-          <TextField
-            autoFocus
-            margin="dense"
-            id="bio"
-            name="bio"
-            label="Bio"
-            type="string"
-            fullWidth
-            variant="standard"
-            defaultValue={user?.bio || ''}
-            onChange={(e) => setBio(e.target.value)}
-          />
-  
-          <div style={{ marginTop: '15px', marginBottom: '10px', color: 'gray', fontSize: '15px'}}>Profile Picture</div>
-          <div style={{ display: 'flex'}}>
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
-            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/penguin.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/penguin.jpg')} src="/penguin.jpg" />
-          </div>
-        </DialogContent>
-  
-        <DialogActions>
-          <Button onClick={handleSettingsClose}>Cancel</Button>
-          <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
-        </DialogActions>
-      </Dialog>
+              </CardContent>
+            </Card>
+        )}
+
+        <Dialog
+            open={settingsOpen}
+            onClose={handleSettingsClose}
+            component="form" validate="true" onSubmit={handleSubmit}
+        >
+          <DialogTitle>Profile Settings</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Edit your profile.
+            </DialogContentText>
+
+            <TextField
+                autoFocus
+                margin="dense"
+                id="bio"
+                name="bio"
+                label="Bio"
+                type="string"
+                fullWidth
+                variant="standard"
+                defaultValue={user?.bio || ''}
+                onChange={(e) => setBio(e.target.value)}
+            />
+
+            <div style={{ marginTop: '15px', marginBottom: '10px', color: 'gray', fontSize: '15px'}}>Profile Picture</div>
+            <div style={{ display: 'flex'}}>
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
+              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/penguin.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/penguin.jpg')} src="/penguin.jpg" />
+            </div>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handleSettingsClose}>Cancel</Button>
+            <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
+          </DialogActions>
+        </Dialog>
 
         <Dialog  id="course-selection"
-            open={coursesOpen}
-            onClose={handleCoursesClose}
-            component="form" validate="true" onSubmit={handleCoursesSubmit}
+                 open={coursesOpen}
+                 onClose={handleCoursesClose}
+                 component="form" validate="true" onSubmit={handleCoursesSubmit}
         >
           <DialogTitle>Courses</DialogTitle>
           <DialogContent>
             <Box sx={{width: 500}}>
-            <DialogContentText>
-              Edit your courses.
-            </DialogContentText>
+              <DialogContentText>
+                Edit your courses.
+              </DialogContentText>
 
-            <Autocomplete
-                multiple
-                id="tags-standard"
-                options={courses}
-                getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
-                value={coursesSelect}
-                isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
-                onChange={(e, params) => setCoursesSelect(params)}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        variant="standard"
-                        label="Multiple values"
-                        placeholder="Favorites"
-                    />
-                )}
-            />
+              <Autocomplete
+                  multiple
+                  id="tags-standard"
+                  options={courses}
+                  getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
+                  value={coursesSelect}
+                  isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
+                  onChange={(e, params) => setCoursesSelect(params)}
+                  renderInput={(params) => (
+                      <TextField
+                          {...params}
+                          variant="standard"
+                          label="Multiple values"
+                          placeholder="Favorites"
+                      />
+                  )}
+              />
               <br/>
               <Stack direction="row" sx={{alignItems:"center"}}>
                 <p>Not there?</p><Button variant="contained" onClick={() => handleAddCoursesOpen()}>+ Add Course</Button>
@@ -739,7 +740,7 @@ function MyInfoPage() {
               },
             }}
         />
-    </div>
+      </div>
   );
 }
 

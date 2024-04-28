@@ -96,6 +96,10 @@ function SearchMeetupsPage() {
                 console.log(err.value);
             });
     }
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     const handleJoin = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted
@@ -293,7 +297,14 @@ function SearchMeetupsPage() {
                                 {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
                                     <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                         <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                        <span>{attendee.username}</span>
+                                        {username !== attendee.username && ( // Compare the usernames
+                                            <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                {attendee.username}
+                                            </span>
+                                        )}
+                                        {username === attendee.username && (
+                                            <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                        )}
                                     </li>
                                 ))}
                             </ul>
@@ -421,7 +432,7 @@ function SearchMeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    <span>{attendee.username}</span>
+                                                    <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>{attendee.username}</span>
                                                 </li>
                                             ))}
                                         </ul>
@@ -432,7 +443,7 @@ function SearchMeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    <span>{attendee.username}</span>
+                                                    <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>{attendee.username}</span>
                                                 </li>
                                             ))}
                                         </ul>

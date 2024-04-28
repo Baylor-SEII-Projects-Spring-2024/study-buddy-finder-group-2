@@ -18,7 +18,6 @@ public class UserEndpoint {
     @Autowired
     private UserService userService;
 
-    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/users/{id}")
     public User findUserById(@PathVariable Long id) {

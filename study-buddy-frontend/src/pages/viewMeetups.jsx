@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Rating, Box, Button, ToggleButtonGroup, ToggleButton, Card, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete} from '@mui/material';
+import { Rating, Box, Button, ToggleButtonGroup, ToggleButton, Card,Link,  index, CardContent, Stack, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -507,6 +507,10 @@ function MeetupsPage() {
             })
             .catch(error => console.error('Error deleting rating:', error));
     };
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     const handleUpdateRating = async (ratingId) => {
         try {
@@ -561,7 +565,7 @@ function MeetupsPage() {
                                     </Typography>
                                     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
                                         <Button onClick={() => handleClickOpenEditRating(rating)} variant="contained" sx={{ marginRight: '10px' }}>
-                                            Edit Rating
+                                            Make Rating
                                         </Button>
                                         <Button onClick={() => removeRating(rating.ratingId)} variant="contained" style={{ backgroundColor: '#ff6961', color: 'white' }}>
                                             Remove Rating
@@ -571,14 +575,19 @@ function MeetupsPage() {
                             </Card>
                         ))
                     ) : (
-                            <Typography variant="body1" align="center">
-                                No ratings available.
-                            </Typography>
+                            <Card key={index} sx={{ width: 375, margin: 'auto', marginTop: 1, marginRight: 'auto', marginLeft: 0, height: 'auto' }} elevation={3}>
+                                <CardContent>
+                                    <Typography variant="body1" align="center">
+                                        No ratings available.
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            
                         )}
     
                     {/*View user profile and add as connection*/}
                     <Dialog open={openEditRating} onClose={handleCloseEditRating}>
-                        <DialogTitle>Edit Rating</DialogTitle>
+                        <DialogTitle>Make Rating</DialogTitle>
                         <DialogContent style={{ height: '300px' }}>
                             <Rating
                                 name="rating-score"
@@ -601,14 +610,14 @@ function MeetupsPage() {
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={handleCloseEditRating} variant="contained" style={{ backgroundColor: 'red', color: 'white' }}>Cancel</Button>
-                            <Button onClick={() => handleUpdateRating(ratingId)} variant="contained" sx={{ marginRight: '10px' }}>Save Changes</Button>
+                            <Button onClick={() => handleUpdateRating(ratingId)} variant="contained" sx={{ marginRight: '10px' }}>Save Rating</Button>
                         </DialogActions>
                     </Dialog>
                 </Box>
     
-                <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
+                <Stack sx={{ paddingTop: 1 }} alignItems='center' gap={2}>
     
-                    <Box component="form" noValidate sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
+                    <Box component="form" noValidate sx={{ paddingTop: 1, width: 550, margin: 'auto' }}>
                         <Stack spacing={4} direction="row" justifyContent="center">
                             {/* get request type (incoming or outgoing) */}
                             <ToggleButtonGroup
@@ -765,7 +774,14 @@ function MeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    <span>{attendee.username}</span>
+                                                    {username !== attendee.username && ( // Compare the usernames
+                                                        <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                            {attendee.username}
+                                                        </span>
+                                                    )}
+                                                    {username === attendee.username && (
+                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                                    )}
                                                 </li>
                                             ))}
                                         </ul>
@@ -776,7 +792,14 @@ function MeetupsPage() {
                                             {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    <span>{attendee.username}</span>
+                                                    {username !== attendee.username && ( // Compare the usernames
+                                                        <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                            {attendee.username}
+                                                        </span>
+                                                    )}
+                                                    {username === attendee.username && (
+                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                                    )}
                                                 </li>
                                             ))}
                                         </ul>

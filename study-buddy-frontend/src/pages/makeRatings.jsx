@@ -14,7 +14,8 @@ import {
   Stack,
   Typography,
   Rating,
-  TextField
+  TextField,
+  index
 } from "@mui/material";
 import {jwtDecode} from "jwt-decode";
 import {useRouter} from "next/navigation";
@@ -148,7 +149,7 @@ function RatingsPage() {
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
                   <Button onClick={() => handleClickOpenEdit(rating)} variant="contained" sx={{ marginRight: '10px' }}>
-                    Edit Rating
+                    Make Rating
                   </Button>
                   <Button onClick={() => removeRating(rating.ratingId)} variant="contained" style={{ backgroundColor: '#ff6961', color:  'white' }}>
                     Remove Rating
@@ -158,16 +159,21 @@ function RatingsPage() {
             </Card>
           ))
         ) : (
-          <Typography variant="body1" align="center">
-            No ratings available.
-          </Typography>
+          <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto'}} elevation={6}>
+            <CardContent>
+              <Typography variant="body1" align="center">
+                No ratings available.
+              </Typography>
+            </CardContent>
+          </Card>
+         
         )}
   
       </Stack>
   
       {/*View user profile and add as connection*/}
       <Dialog open={openEdit} onClose={handleCloseEdit}>
-        <DialogTitle>Edit Rating</DialogTitle>
+        <DialogTitle>Make Rating</DialogTitle>
           <DialogContent style={{ height: '300px' }}>
             <Rating
                 name="rating-score"
@@ -190,7 +196,7 @@ function RatingsPage() {
           </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEdit}>Cancel</Button>
-          <Button onClick={() => handleUpdateRating(id)}>Save Changes</Button>
+          <Button onClick={() => handleUpdateRating(id)}>Save Rating</Button>
         </DialogActions>
       </Dialog>
     </div>

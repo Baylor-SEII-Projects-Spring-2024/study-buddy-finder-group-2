@@ -320,7 +320,10 @@ function StudentLandingPage() {
                 });
         }
     }
-
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     const carouselUserMaker = (a) => {
         const chunkSize = 3;
@@ -350,7 +353,7 @@ function StudentLandingPage() {
                                             color="primary"
                                             size="small"
                                             sx={{ width: '100px', height: '40px' }}
-                                            onClick={() => handleClickOpenProfile(user)}
+                                            onClick={() => handleUsernameClick(user.username)}
                                         >
                                             View Profile</Button>
                                     </Stack>
@@ -416,7 +419,14 @@ function StudentLandingPage() {
                                         {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
                                             <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                 <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                <span>{attendee.username}</span>
+                                                    {username !== attendee.username && ( // Compare the usernames
+                                                        <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                            {attendee.username}
+                                                        </span>
+                                                    )}
+                                                    {username === attendee.username && (
+                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                                    )}
                                             </li>
                                         ))}
                                     </ul>
