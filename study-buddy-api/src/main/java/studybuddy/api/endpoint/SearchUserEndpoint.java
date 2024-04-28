@@ -11,6 +11,7 @@ import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +19,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
-@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class SearchUserEndpoint {
 
     @Autowired
@@ -36,8 +37,8 @@ public class SearchUserEndpoint {
             method = RequestMethod.POST
     )
     public ResponseEntity<List<User>> searchResults(@PathVariable String username, @RequestBody User userSearch) {
-        List<User> users;
-        System.out.println(username);
+        List<User> users = new ArrayList<>();
+        System.out.println("Searching for "+userSearch.getUsername());
 
         if(userSearch.getUserType() == null) {
             users = userService.findByNameOrUsername(userSearch.getUsername());
@@ -47,10 +48,10 @@ public class SearchUserEndpoint {
         }
 
         // remove the current user from search results
-        for(User u : users) {
-            if(u.getUsername().equals(username)) {
-                users.remove(u);
-            }
+        users.removeIf(u -> u.getUsername().equals(username));
+        if(userSearch.getCourses() != null && userSearch.getCourses().stream().findFirst().isPresent()) {
+            users.removeIf(u -> !u.getCourses().contains(userSearch.getCourses().stream().findFirst().get()));
+            System.out.println("WOO");
         }
         return ResponseEntity.ok(users);
     }

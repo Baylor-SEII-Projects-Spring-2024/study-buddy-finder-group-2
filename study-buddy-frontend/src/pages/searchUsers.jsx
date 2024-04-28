@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 
 import {
+    Autocomplete,
     Box,
     Button,
     Card,
@@ -40,16 +41,18 @@ function SearchUsersPage() {
     const [users, setUsers] = useState([]);
     const [recommendedUsers, setRecommendedUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-
+    const [allCourses, setAllCourses] = useState([]);
+    const [courses, selectCourse] = useState(null);
     const [id, setId] = useState(null);
     const [requester, setRequester] = useState(null);
     const [requested, setRequested] = useState(null);
     const [isConnected, setIsConnected] = useState(null);
     const [selectedConnection, setSelectedConnection] = useState(null);
+    const [filterOpen, setFilterOpen] = useState(false);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -64,6 +67,16 @@ function SearchUsersPage() {
             });
     };
 
+    const fetchCourses = () => {
+        api.get(`api/get-all-courses/`)
+            .then((res) => {
+                setAllCourses(res.data);
+            })
+            .catch((err) => {
+                alert("Can't get courses at this time");
+            })
+    }
+
     // get the user's username
     useEffect(() => {
         try{
@@ -73,6 +86,7 @@ function SearchUsersPage() {
             setRequester(decodedUser.sub);
 
             fetchRecommendations(decodedUser.sub);
+            fetchCourses()
         }
         catch(err) {
             router.push(`/error`);
@@ -84,9 +98,13 @@ function SearchUsersPage() {
         // prevents page reload
         event.preventDefault();
 
+        let course = courses ? [courses] : null;
+
         const user = {
-            username, firstName, lastName, emailAddress, userType, school
+            username, firstName, lastName, emailAddress, userType, school, courses:course
         }
+
+        console.log(user);
 
         
         api.post(`api/searchUsers/${thisUser}`, user)
@@ -222,11 +240,21 @@ function SearchUsersPage() {
         setFirstName(str);
         setLastName(str);
         setUsername(str);
+        console.log("string: "+str);
     };
+
+
     const handleUsernameClick = (username) => {
         router.push(`/other/${username}`);
         console.log(`Username ${username} clicked!`);
     };
+
+    //Course filtering
+    const toggleFilter = () => {
+        setFilterOpen(!filterOpen);
+        if(!filterOpen){selectCourse(null)}
+    }
+
 
     return (
         <Box>
@@ -243,7 +271,7 @@ function SearchUsersPage() {
                                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                                     <Stack direction="row" alignItems="center">
                                         <Avatar sx={{ width: 30, height: 30, marginBottom: '3px' }} src={user.pictureUrl} />
-                                        <Typography sx={{ marginLeft: '15px', fontWeight: 'bold'}} variant='subtitle1'>{user.username}</Typography>
+                                        <Typography sx={{ marginLeft: '15px', fontWeight: 'bold'}} variant='subtitle1'>{user.firstName} {user.lastName}</Typography>
                                     </Stack>
                                     <Button
                                         variant='contained'
@@ -255,7 +283,7 @@ function SearchUsersPage() {
                                     </Button>
                                 </Stack>
                                 <Typography variant='body2' color='textSecondary'>
-                                    <i>{user.firstName} {user.lastName}</i>
+                                    <i>{user.userType}</i>
                                 </Typography>
                             </Stack>
                         </CardContent>
@@ -275,6 +303,7 @@ function SearchUsersPage() {
                                  sx={{ paddingTop: 2, paddingBottom:5, margin: 'auto' }}>
                                 <Stack spacing={4} direction="row" justifyContent="center">
                                     {/* get search string for name and username */}
+                                    <Stack direction="column">
                                     <TextField
                                         required
                                         id="search"
@@ -283,6 +312,28 @@ function SearchUsersPage() {
                                         variant="outlined"
                                         onChange={(e) => handleSearch(e.target.value)}
                                     />
+                                        {filterOpen && (
+                                            <Autocomplete
+                                                labelId="filter by courses"
+                                                sx={{maxWidth:200}}
+                                                id="filter-courses"
+                                                label="filter by courses"
+                                                getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber+" of "+option.school.schoolName}
+                                                value={courses}
+                                                isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
+                                                options={allCourses}
+                                                onChange={(e, params) => selectCourse(params)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="standard"
+                                                        placeholder="Course"
+                                                    />
+                                                )}
+                                            />
+                                        )}
+                                    </Stack>
+
 
                                     {/* get requested user type (none, student, tutor) */}
                                     <FormControl sx={{ m: 1, minWidth: 120 }}>
@@ -299,6 +350,8 @@ function SearchUsersPage() {
                                             <MenuItem value={"student"}>Student</MenuItem>
                                             <MenuItem value={"tutor"}>Tutor</MenuItem>
                                         </Select>
+                                        <br/>
+                                        <Button variant='outlined' onClick={toggleFilter}>Filter</Button>
                                     </FormControl>
 
                                     {/* submit the search form to get results */}
@@ -306,6 +359,7 @@ function SearchUsersPage() {
                                         variant='contained'
                                         color="primary"
                                         type="submit"
+                                        sx={{height:55}}
                                     >
                                         Search</Button>
                                 </Stack>
