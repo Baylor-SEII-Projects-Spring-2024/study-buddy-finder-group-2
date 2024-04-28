@@ -291,7 +291,7 @@ function NotificationPage() {
                               anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                               transformOrigin={{vertical: 'top', horizontal: 'right'}}
                               keepMounted>
-                            <MenuItem><Link href={`/me`} passHref>
+                            <MenuItem><Link href={`/myProfile?`} passHref>
                                 My Profile
                             </Link></MenuItem>
                             <MenuItem><Link href={`/`} passHref onClick={(e) => {dispatch(deauthorize())}}>

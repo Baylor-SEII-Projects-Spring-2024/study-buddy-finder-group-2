@@ -238,6 +238,10 @@ function viewConnectionsPage() {
                 console.log(err);
             });
     }
+    const handleUsernameClick = (username) => {
+        router.push(`/other/${username}`);
+        console.log(`Username ${username} clicked!`);
+    };
 
     return (
         <div>
@@ -285,7 +289,7 @@ function viewConnectionsPage() {
                                         color="primary"
                                         size="small"
                                         startIcon={<VisibilityIcon />}
-                                        onClick={() => handleClickOpenProfile(req)}
+                                        onClick={() => handleUsernameClick(req)}
                                         sx={{
                                             borderRadius: 20,
                                             textTransform: 'none',
@@ -353,7 +357,7 @@ function viewConnectionsPage() {
                                         color="primary"
                                         size="small"
                                         sx={{ width: '100px', height: '40px' }}
-                                        onClick={() => handleClickOpenProfile(user)}
+                                        onClick={() => handleUsernameClick(user.username)}
                                     >
                                         View Profile</Button>
                                 </Stack>
@@ -361,6 +365,7 @@ function viewConnectionsPage() {
                         </CardContent>
                     </Card>
                 ))}
+                
 
                 {/* add button back to user's landing page */}
                 {/*<Button
@@ -380,7 +385,7 @@ function viewConnectionsPage() {
                 component="form"
                 validate="true"
             >
-                <DialogTitle variant='s2'>{firstName + " " + lastName}'s Profile</DialogTitle>
+                <DialogTitle variant='s2'>{firstName + " " + lastName}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2}>
                         <Typography variant='s2'>{userType}</Typography>

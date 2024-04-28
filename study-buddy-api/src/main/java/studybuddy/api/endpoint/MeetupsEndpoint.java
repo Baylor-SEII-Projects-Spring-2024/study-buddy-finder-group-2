@@ -147,7 +147,7 @@ public class MeetupsEndpoint {
                     notification.setReciever(attendee);
                     notification.setSender(userService.findByUsernameExists(meeting.getUsername()));
                     notification.setTimestamp(new Date());
-                    notification.setNotificationUrl("/invitations");
+                    notification.setNotificationUrl("/viewMeetups");
                     notification.setNotificationContent("The meetup '" + meeting.getTitle() + "' by '" + meeting.getUsername() + "' is starting soon!");
                     notificationService.sendNotification(notification);
                 }

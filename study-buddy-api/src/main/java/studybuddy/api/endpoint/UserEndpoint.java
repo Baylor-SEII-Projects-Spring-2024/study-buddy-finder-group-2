@@ -3,9 +3,12 @@ package studybuddy.api.endpoint;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
+
+import java.util.Optional;
 
 @Log4j2
 @RestController
@@ -14,6 +17,7 @@ import studybuddy.api.user.UserService;
 public class UserEndpoint {
     @Autowired
     private UserService userService;
+
 
     @GetMapping("/users/{id}")
     public User findUserById(@PathVariable Long id) {
@@ -46,4 +50,5 @@ public class UserEndpoint {
     public User saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
+
 }
