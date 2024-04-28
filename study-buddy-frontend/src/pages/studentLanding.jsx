@@ -523,7 +523,7 @@ function StudentLandingPage() {
 
                     {/* About link */}
                     <Link href="/about" passHref>
-                        <div style={{ textDecoration: 'none', color: 'white', color: '#888', cursor: 'pointer', marginTop: '8px' }}>
+                        <div style={{ textDecoration: 'none', color: 'white', cursor: 'pointer', marginTop: '8px' }}>
                             About
                         </div>
                     </Link>

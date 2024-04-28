@@ -513,9 +513,25 @@ function TutorLandingPage() {
 
                 <AppBar position="static" sx={{ backgroundColor: '#2d4726'}}>
                 <Toolbar>
-                    <Typography variant="body2" color="white">
-                    &copy; 2024 StuCon Corporation. All rights reserved.
-                    </Typography>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginLeft: '16px' }}>
+
+                        {/* StuCon text */}
+                        <Typography variant="h3" style={{ fontFamily: 'Roboto', color: 'white', marginTop: '30px', marginBottom: '8px', fontWeight: 'bold' }}>
+                            StuCon
+                        </Typography>
+
+                        {/* About link */}
+                        <Link href="/about" passHref>
+                            <div style={{ textDecoration: 'none', color: 'white', cursor: 'pointer', marginTop: '8px' }}>
+                                About
+                            </div>
+                        </Link>
+
+                        {/* Copyright text */}
+                        <Typography variant="body2" color="white">
+                            &copy; 2024 StuCon Corporation. All rights reserved.
+                        </Typography>
+                    </div>
                 </Toolbar>
                 </AppBar>
 
