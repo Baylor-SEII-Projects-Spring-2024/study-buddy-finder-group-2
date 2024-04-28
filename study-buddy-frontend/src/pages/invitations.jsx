@@ -22,6 +22,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Avatar from '@mui/material/Avatar';
 import Head from "next/head";
+import {deauthorize} from "@/utils/authSlice";
 
 
 function InvitationsPage() {
@@ -50,8 +51,8 @@ function InvitationsPage() {
     const [selectedConnection, setSelectedConnection] = useState(null);
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/',
-        //baseURL: 'http://34.16.169.60:8080/',
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -67,6 +68,7 @@ function InvitationsPage() {
             fetchInRequests(decodedUser.sub);
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])

@@ -19,6 +19,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Avatar from '@mui/material/Avatar';
 import Head from "next/head";
+import {deauthorize} from "@/utils/authSlice";
 
 function viewConnectionsPage() {
     const router = useRouter();
@@ -50,8 +51,8 @@ function viewConnectionsPage() {
     const [text, setText] = useState("Connect");
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/',
-        //baseURL: 'http://34.16.169.60:8080/',
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`}
     });
@@ -68,6 +69,7 @@ function viewConnectionsPage() {
             fetchInRequests(decodedUser.sub);
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])
@@ -289,7 +291,7 @@ function viewConnectionsPage() {
                                         color="primary"
                                         size="small"
                                         startIcon={<VisibilityIcon />}
-                                        onClick={() => handleUsernameClick(req)}
+                                        onClick={() => handleUsernameClick(req.username)}
                                         sx={{
                                             borderRadius: 20,
                                             textTransform: 'none',

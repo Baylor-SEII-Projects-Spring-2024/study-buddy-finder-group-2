@@ -55,8 +55,8 @@ function NotificationPage() {
 
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/',
-        //baseURL: 'http://34.16.169.60:8080/',
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -291,7 +291,7 @@ function NotificationPage() {
                               anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                               transformOrigin={{vertical: 'top', horizontal: 'right'}}
                               keepMounted>
-                            <MenuItem><Link href={`/myProfile?`} passHref>
+                            <MenuItem><Link href={`/myProfile`} passHref>
                                 My Profile
                             </Link></MenuItem>
                             <MenuItem><Link href={`/`} passHref onClick={(e) => {dispatch(deauthorize())}}>

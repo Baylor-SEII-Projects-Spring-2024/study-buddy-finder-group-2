@@ -29,6 +29,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 import Avatar from '@mui/material/Avatar';
+import {deauthorize} from "@/utils/authSlice";
 // import Footer from "@/pages/Footer";
 
 function StudentLandingPage() {
@@ -59,8 +60,8 @@ function StudentLandingPage() {
 
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/',
-        //baseURL: 'http://34.16.169.60:8080/',
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
         headers: {'Authorization': `Bearer ${token}`},
 
     });
@@ -84,6 +85,7 @@ function StudentLandingPage() {
                 })
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])

@@ -13,7 +13,7 @@ function ErrorPage() {
             <Head>
                 <title>Unauthorized</title>
             </Head>
-            {/* Jurassic park!!!*/}
+            {/* bear waves */}
             <img src="bearWaving.webp" alt="GIF" style={{ width: '100px', marginRight: '20px' }} />
 
             <Stack textAlign="left">
