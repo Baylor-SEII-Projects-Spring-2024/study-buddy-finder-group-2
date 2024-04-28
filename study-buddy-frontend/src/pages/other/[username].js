@@ -309,6 +309,31 @@ function OthersInfoPage() {
                             {user.bio}
                         </Typography>
 
+                        <div>
+                            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                                Courses
+                            </Typography>
+                            {userCourses && userCourses.length > 0 ? (
+                                userCourses.map((course, index) => (
+                                    <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                                        {course.coursePrefix} {course.courseNumber}
+                                    </div>
+                                ))
+                            ) : (
+                                user.userType === 'student' ? (
+                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                            Not enrolled in any courses.
+                                        </Typography>
+                                    ) :
+                                    (
+                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                            Not teaching any courses.
+                                        </Typography>
+                                    )
+
+                            )}
+                        </div>
+
                         {user.userType === 'tutor' && (
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
                                 <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
@@ -346,31 +371,6 @@ function OthersInfoPage() {
                                 )}
                             </div>
                         )}
-
-                        <div>
-                            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
-                                Courses
-                            </Typography>
-                            {userCourses && userCourses.length > 0 ? (
-                                userCourses.map((course, index) => (
-                                    <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
-                                        {course.coursePrefix} {course.courseNumber}
-                                    </div>
-                                ))
-                            ) : (
-                                user.userType === 'student' ? (
-                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                                            Not enrolled in any courses.
-                                        </Typography>
-                                    ) :
-                                    (
-                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                                            Not teaching any courses.
-                                        </Typography>
-                                    )
-
-                            )}
-                        </div>
                     </CardContent>
                 </Card>
             )}
