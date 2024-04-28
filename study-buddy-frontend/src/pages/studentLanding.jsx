@@ -439,7 +439,7 @@ function StudentLandingPage() {
                                         {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
                                             <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                 <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                <span>{attendee.username}</span>
+                                                <span onClick={() => handleUsernameClick(attendee.username)}>{attendee.username}</span>
                                             </li>
                                         ))}
                                     </ul>
