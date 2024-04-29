@@ -70,7 +70,7 @@ public class MeetingService {
 
         //filter out expired meetings
         potentialMeetings = potentialMeetings.stream()
-                .filter(meeting -> meeting.getEndDate().isAfter(LocalDateTime.now()))
+                .filter(meeting -> meeting.getStartDate().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
 
         Optional<User> curUser = UserService.findUser(id);
