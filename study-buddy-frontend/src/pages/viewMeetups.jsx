@@ -1031,6 +1031,8 @@ function MeetupsPage() {
                                 disablePast
                             />
 
+                            <br/>
+
                             <Autocomplete
                                 id="google-map-demo2"
                                 sx={{width: 300}}
@@ -1225,6 +1227,8 @@ function MeetupsPage() {
                                 disablePast
                                 onChange={(e) => setEndDate(e)}
                             />
+
+                            <br/>
 
                             <Autocomplete
                                 id="google-map-demo"
