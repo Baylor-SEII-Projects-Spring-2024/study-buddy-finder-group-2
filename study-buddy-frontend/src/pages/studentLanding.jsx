@@ -340,24 +340,28 @@ function StudentLandingPage() {
                                                 sx={{mt: 2, fontWeight: 'bold'}}>Attendees</Typography>
                                     <Typography variant='subtitle2'
                                                 sx={{mt:1, fontWeight: 'bold'}}>Students</Typography>
+                                    <Stack sx={{marginLeft:4}}>
                                     <ul sx={{listStyleType: 'none', padding: 0}}>
                                         {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
                                             <li key={index} sx={{color: '#777', fontSize: 14, mt: 1}}>
                                                 <Avatar sx={{width: 20, height: 20, mr: 1}} src={attendee.pictureUrl}/>
-                                                {attendee.username}
+                                                <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>{attendee.username}</span>
                                             </li>
                                         ))}
                                     </ul>
+                                    </Stack>
 
                                     <Typography variant='subtitle2' sx={{mt: 1, fontWeight: 'bold'}}>Tutors</Typography>
+                                    <Stack sx={{marginLeft:4}}>
                                     <ul sx={{listStyleType: 'none', padding: 0}}>
                                         {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
                                             <li key={index} sx={{color: '#777', fontSize: 14, mt: 1}}>
                                                 <Avatar sx={{width: 20, height: 20, mr: 1}} src={attendee.pictureUrl}/>
-                                                {attendee.username}
+                                                <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>{attendee.username}</span>
                                             </li>
                                         ))}
                                     </ul>
+                                    </Stack>
 
 
                                     {meetup.attendees.some(attendee => attendee.username === username) ? (
