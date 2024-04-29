@@ -1032,6 +1032,7 @@ function MeetupsPage() {
                             />
 
                             <br/>
+                            <br/>
 
                             <Autocomplete
                                 id="google-map-demo2"
