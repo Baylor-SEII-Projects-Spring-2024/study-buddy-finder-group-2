@@ -93,7 +93,7 @@ public class SearchMeetupEndpoint {
         notification.setReciever(userService.findByUsernameExists(creator));
         notification.setSender(user);
         notification.setTimestamp(new Date());
-        notification.setNotificationUrl("/invitations");
+        notification.setNotificationUrl("/viewMeetups");
         notification.setNotificationContent(user.getUsername() + " has joined your meeting, '" + meeting.get().getTitle() + "'");
         notificationService.sendNotification(notification);
     }
@@ -104,6 +104,21 @@ public class SearchMeetupEndpoint {
             method = RequestMethod.DELETE
     )
     public void leaveMeeting(@PathVariable String username, @RequestParam Long meetingId){
+        System.out.println("USERNAME: " + username);
+        System.out.println("MEETINGID: " + meetingId);
+        Optional<User> user = userService.findByUsername(username);
+
+        if(user.isPresent()) {
+            meetingService.leaveMeetup(user.get().getId(), meetingId);
+        }
+    }
+
+    @Transactional
+    @RequestMapping(
+            value = "/api/removeUser/{username}",
+            method = RequestMethod.DELETE
+    )
+    public void removeUser(@PathVariable String username, @RequestParam Long meetingId){
         System.out.println("USERNAME: " + username);
         System.out.println("MEETINGID: " + meetingId);
         Optional<User> user = userService.findByUsername(username);
