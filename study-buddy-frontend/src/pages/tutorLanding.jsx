@@ -11,7 +11,7 @@ import {
     Typography,
     AppBar,
     Toolbar,
-    CircularProgress
+    CircularProgress, Tooltip
 } from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
@@ -31,6 +31,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 // import Footer from "@/pages/Footer";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import NotesIcon from "@mui/icons-material/Notes";
 
 
 
@@ -289,6 +290,9 @@ function TutorLandingPage() {
                             <Card key={i} sx={{
                                 margin: 2,
                                 width: 400,
+                                display:"flex",
+                                justifyContent:"space-around",
+                                alignItems:"center",
                                 borderRadius: '16px', // Rounded corners
                                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)', // Subtle shadow
                                 backgroundColor: '#f0f0f0', // Light gray background for modern look
@@ -298,38 +302,67 @@ function TutorLandingPage() {
                                 }
                             }}>
                                 <CardContent>
-                                    <Typography variant='h5' align='center' sx={{ color: '#2e7d32', fontWeight: 'bold', marginTop: 2 }}>{meetup.title}</Typography>
-                                    <Typography sx={{ mt: 1, color: '#666', fontSize: 14 }}>{meetup.description}</Typography>
+                                    <Typography variant='h5' align='center' sx={{
+                                        color: '#2e7d32',
+                                        fontWeight: 'bold',
+                                        marginTop: 2
+                                    }}>{meetup.title}</Typography>
 
-                                    <Typography sx={{ mt: 2, display: 'flex', alignItems: 'center', color: '#333' }}>
-                                        <EventIcon sx={{ fontSize: 20, mr: 1, color: 'primary.main' }} />
+                                    <Tooltip title={"creator"}><PersonIcon sx={{fontSize: 20, mr: 1, color: 'primary.main'}}/></Tooltip>
+                                    <span style={{
+                                        color: 'gray',
+                                        fontStyle: 'italic',
+                                    }}>@{meetup.username}</span>
+                                    <Typography
+                                        sx={{mt: 1, color: '#666', fontSize: 14}}>
+                                        <Tooltip title={"description"}>
+                                            <NotesIcon sx={{fontSize: 20, mr: 1, color: 'primary.main'}}/></Tooltip>
+                                        {meetup.description}</Typography>
+                                    <Typography
+                                        sx={{mt: 1, color: '#666', fontSize: 14}}>
+                                        <Tooltip title={"subject"}>
+                                            <CreateIcon sx={{fontSize: 20, mr: 1, color: 'primary.main'}} /> </Tooltip>
+                                        {meetup.subject}</Typography>
+
+                                    <Typography sx={{mt: 2, display: 'flex', alignItems: 'center', color: '#333'}}>
+                                        <Tooltip title={"when"}>
+                                            <EventIcon sx={{fontSize: 20, mr: 1, color: 'primary.main'}}/></Tooltip>
                                         {dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}
                                     </Typography>
 
-                                    <Typography sx={{ display: 'flex', alignItems: 'center', mt: 1, color: '#333' }}>
-                                        <LocationOnIcon sx={{ fontSize: 20, mr: 1, color: 'primary.main' }} />
+                                    <Typography sx={{display: 'flex', alignItems: 'center', mt: 1, color: '#333'}}>
+                                        <Tooltip title={"where"}>
+                                            <LocationOnIcon sx={{fontSize: 20, mr: 1, color: 'primary.main'}}/></Tooltip>
                                         {meetup.location}
                                     </Typography>
 
-                                    <Typography variant='subtitle1' sx={{ mt: 2, fontWeight: 'bold' }}>Attendees</Typography>
-                                    <ul sx={{ listStyleType: 'none', padding: 0 }}>
-                                        {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
-                                            <li key={index} sx={{ color: '#777', fontSize: 14, mt: 1 }}>
-                                                <Avatar sx={{ width: 20, height: 20, mr: 1 }} src={attendee.pictureUrl} />
-                                                {attendee.username}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <Typography variant='subtitle1'
+                                                sx={{mt: 2, fontWeight: 'bold'}}>Attendees</Typography>
+                                    <Typography variant='subtitle2'
+                                                sx={{mt:1, fontWeight: 'bold'}}>Students</Typography>
+                                    <Stack sx={{marginLeft:4}}>
+                                        <ul sx={{listStyleType: 'none', padding: 0}}>
+                                            {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
+                                                <li key={index} sx={{color: '#777', fontSize: 14, mt: 1}}>
+                                                    <Avatar sx={{width: 20, height: 20, mr: 1}} src={attendee.pictureUrl}/>
+                                                    <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>{attendee.username}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Stack>
 
-                                    <Typography variant='subtitle1' sx={{ mt: 2, fontWeight: 'bold' }}>Tutors</Typography>
-                                    <ul sx={{ listStyleType: 'none', padding: 0 }}>
-                                        {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
-                                            <li key={index} sx={{ color: '#777', fontSize: 14, mt: 1 }}>
-                                                <Avatar sx={{ width: 20, height: 20, mr: 1 }} src={attendee.pictureUrl} />
-                                                {attendee.username}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <Typography variant='subtitle2' sx={{mt: 1, fontWeight: 'bold'}}>Tutors</Typography>
+                                    <Stack sx={{marginLeft:4}}>
+                                        <ul sx={{listStyleType: 'none', padding: 0}}>
+                                            {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
+                                                <li key={index} sx={{color: '#777', fontSize: 14, mt: 1}}>
+                                                    <Avatar sx={{width: 20, height: 20, mr: 1}} src={attendee.pictureUrl}/>
+                                                    <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>{attendee.username}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Stack>
+
 
                                     {meetup.attendees.some(attendee => attendee.username === username) ? (
                                         <Button variant='contained' color="error" sx={{
@@ -412,23 +445,6 @@ function TutorLandingPage() {
                 </Stack>
                 {/* Lazy-load Meetups Section */}
                 <LazyLoadMeetups recommendedMeetups={recommendedMeetups} carouselMeetupMaker={carouselMeetupMaker} />
-
-                <AppBar position="static" sx={{ backgroundColor: '#2d4726' }}>
-                    <Toolbar>
-                        {/* Navigation and Info */}
-                        <Typography variant="h3" style={{ fontFamily: 'Roboto', color: 'gold', marginLeft: '16px', marginTop: '30px', marginBottom: '8px', fontWeight: 'bold' }}>
-                            StuCon
-                        </Typography>
-                        <Link href="/about" passHref>
-                            <div style={{ textDecoration: 'none', color: 'white', cursor: 'pointer', marginLeft: '16px', marginTop: '8px' }}>
-                                About
-                            </div>
-                        </Link>
-                        <Typography variant="body2" color="white" style={{ marginLeft: '16px' }}>
-                            &copy; 2024 StuCon Corporation. All rights reserved.
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
             </main>
         </>
     );

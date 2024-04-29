@@ -125,6 +125,14 @@ public class SearchMeetupEndpoint {
 
         if(user.isPresent()) {
             meetingService.leaveMeetup(user.get().getId(), meetingId);
+
+            Notification kicked = new Notification();
+            kicked.setReciever(user.get());
+            kicked.setSender(userService.findByUsernameExists(meetingService.findById(meetingId).get().getUsername()));
+            kicked.setTimestamp(new Date());
+            kicked.setNotificationUrl("/viewMeetups");
+            kicked.setNotificationContent("You got kicked from a meeting, '" + meetingService.findById(meetingId).get().getTitle() + "'");
+            notificationService.sendNotification(kicked);
         }
     }
 }
