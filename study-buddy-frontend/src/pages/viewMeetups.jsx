@@ -923,7 +923,9 @@ function MeetupsPage() {
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
                                                     {username !== attendee.username && ( // Compare the usernames
                                                         <>
-                                                        <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                        <span onClick={(e) => { e.stopPropagation();
+                                                        handleUsernameClick(attendee.username);
+                                                        }} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
                                                             {attendee.username}
                                                         </span>
                                                         {attendee.username !== meetup.username && username === meetup.username && new Date(meetup.startDate) > new Date() && (
@@ -949,7 +951,10 @@ function MeetupsPage() {
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
                                                     {username !== attendee.username && ( // Compare the usernames
                                                         <>
-                                                        <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
+                                                        <span onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleUsernameClick(attendee.username);
+                                                        }} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
                                                             {attendee.username}
                                                         </span>
 
