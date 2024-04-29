@@ -261,8 +261,8 @@ function NotificationPage() {
                                                               else {
                                                                   setCount(count-1);
                                                               }
-                                                              value.read = !value.read
                                                               switchNotifReadStatus(value);
+                                                              value.read = !value.read
                                                           }}>
                                                 </Checkbox>
                                                 <Link href={`${value.notificationUrl}`}>
