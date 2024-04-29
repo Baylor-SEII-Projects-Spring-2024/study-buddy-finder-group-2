@@ -356,7 +356,7 @@ function SearchMeetupsPage() {
                                         <MenuItem value=""><em>None</em></MenuItem>
                                         {courses.map((course) => (
                                             <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
-                                                {course.coursePrefix} {course.courseNumber}
+                                                {course.coursePrefix} {course.courseNumber} <i>of course.school.schoolName</i>
                                             </MenuItem>
                                         ))}
                                     </Select>
