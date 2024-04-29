@@ -104,8 +104,8 @@ function MeetupsPage() {
     const loaded = React.useRef(false);
 
     const api = axios.create({
-        baseURL: 'http://localhost:8080/',
-        //baseURL: 'http://34.16.169.60:8080/',
+        //baseURL: 'http://localhost:8080/',
+        baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -926,7 +926,7 @@ function MeetupsPage() {
                                                         <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
                                                             {attendee.username}
                                                         </span>
-                                                        {attendee.username !== meetup.username && username === meetup.username && (
+                                                        {attendee.username !== meetup.username && username === meetup.username && new Date(meetup.startDate) > new Date() && (
                                                         <button onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleRemoveUser(attendee.username, meetup);
@@ -953,7 +953,7 @@ function MeetupsPage() {
                                                             {attendee.username}
                                                         </span>
 
-                                                        {attendee.username !== meetup.username && username === meetup.username && (
+                                                        {attendee.username !== meetup.username && username === meetup.username && new Date(meetup.startDate) > new Date() && (
                                                             <button onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 handleRemoveUser(attendee.username, meetup);
