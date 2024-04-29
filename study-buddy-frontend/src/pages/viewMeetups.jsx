@@ -1141,11 +1141,11 @@ function MeetupsPage() {
                     >
                         <DialogTitle>Edit Meetup</DialogTitle>
                         <DialogContent>
-    
+
                             <DialogContentText>
                                 Edit the details of your meeting.
                             </DialogContentText>
-    
+
                             <TextField
                                 autoFocus
                                 required
@@ -1159,7 +1159,7 @@ function MeetupsPage() {
                                 defaultValue={selectedMeeting?.title || ''}
                                 onChange={(e) => setTitle(e.target.value)}
                             />
-    
+
                             <TextField
                                 autoFocus
                                 required
@@ -1173,67 +1173,69 @@ function MeetupsPage() {
                                 defaultValue={selectedMeeting?.description || ''}
                                 onChange={(e) => setDescription(e.target.value)}
                             />
-    
+
                             <FormControl fullWidth required>
-                                <InputLabel id="courses" sx={{ marginTop: '20px' }}>Select a Course</InputLabel>
+                                <InputLabel id="courses" sx={{marginTop: '20px'}}>Select a Course</InputLabel>
                                 <Select
                                     labelId="courses"
                                     id="dropdown"
-                                    sx={{ marginTop: '20px' }}
+                                    sx={{marginTop: '20px'}}
                                     value={subject}
                                     onChange={(e) => setSubject(e.target.value)}
                                     label="Select a Course"
                                 >
-    
+
                                     {courses.map(course => {
                                         return (
-                                            <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                                            <MenuItem key={course.courseId}
+                                                      value={course.coursePrefix + " " + course.courseNumber}>
                                                 {course.coursePrefix} {course.courseNumber}
                                             </MenuItem>
                                         )
                                     })}
-    
+
                                 </Select>
                             </FormControl>
-    
+
                             <DateTimePicker
                                 label="Start"
                                 defaultValue={dayjs(selectedMeeting?.startDate)}
-    
+
                                 //makes field required
                                 slotProps={{
                                     textField: {
                                         required: true,
-                                        style: { marginTop: '20px' }
+                                        style: {marginTop: '20px'}
                                     }
                                 }}
-    
+
                                 disablePast
                                 onChange={(e) => setStartDate(e)}
                             />
-    
+
                             <DateTimePicker
                                 label="End"
-                                sx={{ marginLeft: '15px' }}
+                                sx={{marginLeft: '15px'}}
                                 defaultValue={dayjs(selectedMeeting?.endDate)}
-    
+
                                 //makes field required
                                 slotProps={{
                                     textField: {
                                         required: true,
-                                        style: { marginTop: '20px' }
+                                        style: {marginTop: '20px'}
                                     }
                                 }}
-    
+
                                 disablePast
                                 onChange={(e) => setEndDate(e)}
                             />
 
                             <br/>
-
+                            <br/>
+                            
                             <Autocomplete
                                 id="google-map-demo"
-                                sx={{ width: 300 }}
+                                sx={{width: 300}}
                                 getOptionLabel={(option) =>
                                     typeof option === 'string' ? option : option.description
                                 }
@@ -1252,7 +1254,7 @@ function MeetupsPage() {
                                     setLocation(newInputValue);
                                 }}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Add a location" fullWidth />
+                                    <TextField {...params} label="Add a location" fullWidth/>
                                 )}
                                 renderOption={(props, option) => {
                                     const matches =
@@ -1266,15 +1268,15 @@ function MeetupsPage() {
                                     return (
                                         <li {...props}>
                                             <Grid container alignItems="center">
-                                                <Grid item sx={{ display: 'flex', width: 44 }}>
-                                                    <LocationOnIcon sx={{ color: 'text.secondary' }} />
+                                                <Grid item sx={{display: 'flex', width: 44}}>
+                                                    <LocationOnIcon sx={{color: 'text.secondary'}}/>
                                                 </Grid>
-                                                <Grid item sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
+                                                <Grid item sx={{width: 'calc(100% - 44px)', wordWrap: 'break-word'}}>
                                                     {parts.map((part, index) => (
                                                         <Box
                                                             key={index}
                                                             component="span"
-                                                            sx={{ fontWeight: part.highlight ? 'bold' : 'regular' }}
+                                                            sx={{fontWeight: part.highlight ? 'bold' : 'regular'}}
                                                         >
                                                             {part.text}
                                                         </Box>
@@ -1288,7 +1290,7 @@ function MeetupsPage() {
                                     );
                                 }}
                             />
-    
+
                             <Autocomplete
                                 multiple
                                 id="attendees-autocomplete"
@@ -1298,15 +1300,15 @@ function MeetupsPage() {
                                         !meetupInvitees.some(invitee => invitee.username.toLowerCase() === attendee.username.toLowerCase())
                                     )
                                 }
-    
-    
+
+
                                 getOptionLabel={(option) => option.username}
                                 onChange={(event, value) => {
                                     console.log('Selected Attendees:', value);
                                     setInvites(value);
                                     // setInvites([...invites, ...value]);
                                     console.log(JSON.stringify(invites, null, 2));
-    
+
                                 }}
                                 renderInput={(params) => (
                                     <TextField
@@ -1324,7 +1326,7 @@ function MeetupsPage() {
                                 )}
                             />
                         </DialogContent>
-    
+
                         <DialogActions>
                             <Button onClick={handleCloseEdit}>Cancel</Button>
                             <Button onClick={handleDelete} variant="contained" style={{ backgroundColor: 'red', color: 'white' }}>Delete</Button>
