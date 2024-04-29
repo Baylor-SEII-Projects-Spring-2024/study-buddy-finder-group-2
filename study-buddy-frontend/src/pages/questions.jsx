@@ -5,7 +5,6 @@ import NotificationPage from "@/pages/Notification";
 
 const useStyles = makeStyles((theme) => ({
   faqItem: {
-    cursor: 'pointer',
     marginBottom: theme.spacing(2)
     
   },
