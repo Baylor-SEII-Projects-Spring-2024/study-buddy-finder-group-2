@@ -112,4 +112,19 @@ public class SearchMeetupEndpoint {
             meetingService.leaveMeetup(user.get().getId(), meetingId);
         }
     }
+
+    @Transactional
+    @RequestMapping(
+            value = "/api/removeUser/{username}",
+            method = RequestMethod.DELETE
+    )
+    public void removeUser(@PathVariable String username, @RequestParam Long meetingId){
+        System.out.println("USERNAME: " + username);
+        System.out.println("MEETINGID: " + meetingId);
+        Optional<User> user = userService.findByUsername(username);
+
+        if(user.isPresent()) {
+            meetingService.leaveMeetup(user.get().getId(), meetingId);
+        }
+    }
 }

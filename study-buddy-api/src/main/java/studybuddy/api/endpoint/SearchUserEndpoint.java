@@ -40,7 +40,7 @@ public class SearchUserEndpoint {
         List<User> users = new ArrayList<>();
         System.out.println("Searching for "+userSearch.getUsername());
 
-        if(userSearch.getUserType() == null) {
+        if(userSearch.getUserType().equals("all")) {
             users = userService.findByNameOrUsername(userSearch.getUsername());
         }
         else {
@@ -93,7 +93,7 @@ public class SearchUserEndpoint {
             notification.setReciever(userService.findByUsernameExists(connection.getRequested()));
             notification.setSender(userService.findByUsernameExists(connection.getRequester()));
             notification.setTimestamp(new Date());
-            notification.setNotificationUrl("/invitations");
+            notification.setNotificationUrl("/viewConnections");
             notification.setNotificationContent(connection.getRequester()+" wants to be your buddy!");
             notificationService.sendNotification(notification);
 
