@@ -46,6 +46,12 @@ export default function App({ Component, pageProps }) {
                   About
                 </div>
               </Link>
+              <Link href="/questions" passHref>
+                <div style={{ textDecoration: 'none', color: 'white', cursor: 'pointer', marginLeft: '16px', marginTop: '8px' }}>
+                  FAQ
+                </div>
+              </Link>
+
               <Typography variant="body2" color="white" style={{ marginLeft: '16px' }}>
                 &copy; 2024 StuCon Corporation. All rights reserved.
               </Typography>

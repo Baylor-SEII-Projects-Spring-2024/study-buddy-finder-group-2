@@ -273,7 +273,7 @@ function OthersInfoPage() {
                                     <span style={{ fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                                     </span>
-                                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                                    <span style={{/* color: 'blue',*/ fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? 'buddy' : 'buddies'}
                                     </span>
                                 </div>
