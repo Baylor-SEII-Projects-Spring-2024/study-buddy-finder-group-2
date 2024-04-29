@@ -83,6 +83,13 @@ public class SearchUserEndpoint {
         Optional<Connection> existingConnection = connectionService.findConnection(connection.getRequester(), connection.getRequested());
 
         if(existingConnection.isPresent()) {
+            Notification notification = new Notification();
+            notification.setReciever(userService.findByUsernameExists(connection.getRequested()));
+            notification.setSender(userService.findByUsernameExists(connection.getRequester()));
+            notification.setTimestamp(new Date());
+            notification.setNotificationUrl("/viewConnections");
+            notification.setNotificationContent(connection.getRequester()+" is now your buddy!");
+            notificationService.sendNotification(notification);
             connection.setId(existingConnection.get().getId());
             connection.setIsConnected(true);
             return ResponseEntity.ok(connectionService.saveConnection(connection));
