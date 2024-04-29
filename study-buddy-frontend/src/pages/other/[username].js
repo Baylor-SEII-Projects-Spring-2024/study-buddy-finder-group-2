@@ -280,7 +280,7 @@ function OthersInfoPage() {
 
                                 <div style={{ marginRight: '10px'}}>
                                     <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
-                                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
+                                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)} of {user.school.schoolName}
                                     </Typography>
                                 </div>
 
