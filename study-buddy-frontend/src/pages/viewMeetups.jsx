@@ -104,8 +104,8 @@ function MeetupsPage() {
     const loaded = React.useRef(false);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         // must add the header to associate requests with the authenticated user
         headers: {'Authorization': `Bearer ${token}`},
     });
@@ -398,6 +398,45 @@ function MeetupsPage() {
             .catch((err) => {
                 console.error('Error leaving meetup:', err);
             });
+    };
+
+    const handleRemoveUser = async (username, meetup) => {
+        console.log("LEAVING")
+
+        api.delete(`api/removeUser/${username}?meetingId=${meetup.id}`)
+        .then((res) => {
+            if (res.status === 200) {
+                console.log('Left meetup:', res.data);
+
+                // Remove the user from the meetup attendees list
+                const updatedMeetups = meetups.map(m => {
+                    if (m.id === meetup.id) {
+                        return {
+                            ...m,
+                            attendees: m.attendees.filter(attendee => attendee.username !== username)
+                        };
+                    }
+                    return m;
+                });
+
+                // Update the meetups state with the updated attendees list
+                setMeetups(updatedMeetups);
+
+
+                // delay so that the page has time to refresh meetups variable
+                return new Promise(resolve => setTimeout(resolve, 100))
+                    .then(() => {
+                        // Fetch updated meetups data
+                        fetchMeetups(decodedUser.sub);
+                    });
+
+                // Fetch updated meetups data
+                fetchMeetups(decodedUser.sub);
+            }
+        })
+        .catch((err) => {
+            console.error('Error leaving meetup:', err);
+        });
     };
 
 
@@ -883,9 +922,17 @@ function MeetupsPage() {
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
                                                     {username !== attendee.username && ( // Compare the usernames
+                                                        <>
                                                         <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
                                                             {attendee.username}
                                                         </span>
+                                                        {attendee.username !== meetup.username && username === meetup.username && (
+                                                        <button onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleRemoveUser(attendee.username, meetup);
+                                                        }}  style={{ marginLeft: '15px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'red' }}>X</button>
+                                                         )}
+                                                         </>
                                                     )}
                                                     {username === attendee.username && (
                                                         <span>{attendee.username}</span> // Render differently if the usernames are equal
@@ -901,9 +948,19 @@ function MeetupsPage() {
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
                                                     <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
                                                     {username !== attendee.username && ( // Compare the usernames
+                                                        <>
                                                         <span onClick={() => handleUsernameClick(attendee.username)} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
                                                             {attendee.username}
                                                         </span>
+
+                                                        {attendee.username !== meetup.username && username === meetup.username && (
+                                                            <button onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRemoveUser(attendee.username, meetup);
+                                                            }}  style={{ marginLeft: '15px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'red' }}>X</button>
+                                                        )}
+
+                                                        </>
                                                     )}
                                                     {username === attendee.username && (
                                                         <span>{attendee.username}</span> // Render differently if the usernames are equal

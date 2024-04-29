@@ -21,8 +21,8 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // for local testing
-@CrossOrigin(origins = "http://34.16.169.60:3000")
+@CrossOrigin(origins = "http://localhost:3000") // for local testing
+//@CrossOrigin(origins = "http://34.16.169.60:3000")
 public class SearchMeetupEndpoint {
     @Autowired
     private MeetingService meetingService;
@@ -104,6 +104,21 @@ public class SearchMeetupEndpoint {
             method = RequestMethod.DELETE
     )
     public void leaveMeeting(@PathVariable String username, @RequestParam Long meetingId){
+        System.out.println("USERNAME: " + username);
+        System.out.println("MEETINGID: " + meetingId);
+        Optional<User> user = userService.findByUsername(username);
+
+        if(user.isPresent()) {
+            meetingService.leaveMeetup(user.get().getId(), meetingId);
+        }
+    }
+
+    @Transactional
+    @RequestMapping(
+            value = "/api/removeUser/{username}",
+            method = RequestMethod.DELETE
+    )
+    public void removeUser(@PathVariable String username, @RequestParam Long meetingId){
         System.out.println("USERNAME: " + username);
         System.out.println("MEETINGID: " + meetingId);
         Optional<User> user = userService.findByUsername(username);
