@@ -46,8 +46,8 @@ function OthersInfoPage() {
     const [selectedConnection, setSelectedConnection] = useState(null);
 
     const api = axios.create({
-        //baseURL: 'http://localhost:8080/',
-        baseURL: 'http://34.16.169.60:8080/',
+        baseURL: 'http://localhost:8080/',
+        //baseURL: 'http://34.16.169.60:8080/',
         headers: {'Authorization': `Bearer ${token}`},
     });
 
@@ -273,7 +273,7 @@ function OthersInfoPage() {
                                     <span style={{ fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                                     </span>
-                                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                                    <span style={{/* color: 'blue',*/ fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? 'buddy' : 'buddies'}
                                     </span>
                                 </div>
