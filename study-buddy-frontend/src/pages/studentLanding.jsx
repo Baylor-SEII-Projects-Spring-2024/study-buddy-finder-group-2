@@ -331,16 +331,30 @@ function StudentLandingPage() {
                                         ))}
                                     </ul>
 
-                                    <Button variant='contained' sx={{
-                                        mt: 2,
-                                        width: '100%',
-                                        backgroundColor: '#2e7d32', // Dark green color for the button
-                                        '&:hover': {
-                                            backgroundColor: '#1e4d27' // Darker shade of green on hover
-                                        }
-                                    }}>
-                                        {meetup.attendees.some(attendee => attendee.username === username) ? 'Leave Meetup' : 'Join Meetup'}
-                                    </Button>
+
+                                    {meetup.attendees.some(attendee => attendee.username === username) ? (
+                                        <Button variant='contained' color="error" sx={{
+                                            mt: 2,
+                                            width: '100%',
+                                        }}
+                                            onClick={() => handleLeave(meetup)}
+                                        >
+                                            Leave Meetup
+                                        </Button>
+                                    ) : (
+                                        <Button variant='contained' sx={{
+                                            mt: 2,
+                                            width: '100%',
+                                            backgroundColor: '#2e7d32', // Dark green color for the button
+                                            '&:hover': {
+                                                backgroundColor: '#1e4d27' // Darker shade of green on hover
+                                            }
+                                        }}
+                                            onClick={() => handleJoin(meetup)}
+                                        >
+                                            Join Meetup
+                                        </Button>
+                                    )}
                                 </CardContent>
                             </Card>
                         ))}
