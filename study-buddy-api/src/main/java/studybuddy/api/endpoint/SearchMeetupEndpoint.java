@@ -93,7 +93,7 @@ public class SearchMeetupEndpoint {
         notification.setReciever(userService.findByUsernameExists(creator));
         notification.setSender(user);
         notification.setTimestamp(new Date());
-        notification.setNotificationUrl("/invitations");
+        notification.setNotificationUrl("/viewMeetups");
         notification.setNotificationContent(user.getUsername() + " has joined your meeting, '" + meeting.get().getTitle() + "'");
         notificationService.sendNotification(notification);
     }
