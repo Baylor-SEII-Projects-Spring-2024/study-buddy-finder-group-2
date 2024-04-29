@@ -32,23 +32,7 @@ function viewConnectionsPage() {
     const [incoming, setIncoming] = useState([]);
     const [outgoing, setOutgoing] = useState([]);
 
-    const [username, setUsername] = useState(null);
-    const [firstName, setFirstName] = useState(null);
-    const [lastName, setLastName] = useState(null);
-    const [emailAddress, setEmail] = useState(null);
-    const [userType, setType] = useState(null);
-    const [school, setSchool] = useState(null);
-
     const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
-
-    const [id, setId] = useState(null);
-    const [requester, setRequester] = useState(null);
-    const [requested, setRequested] = useState(null);
-    const [isConnected, setIsConnected] = useState(null);
-    const [selectedConnection, setSelectedConnection] = useState(null);
-
-    const [text, setText] = useState("Connect");
 
     const api = axios.create({
         //baseURL: 'http://localhost:8080/',
@@ -95,106 +79,6 @@ function viewConnectionsPage() {
             .catch(error => console.error('Error fetching connections:', error));
     };
 
-    // delete a connection
-    const deleteConnection = (event) => {
-        event.preventDefault();
-
-        api.delete(`api/viewConnections/${selectedConnection?.id}`)
-            .then((res) => {
-                if(res.status === 200) {
-                    handleCloseProfile();
-                    fetchConnections(thisUser);
-                }
-            })
-            .catch((err) => {
-                console.log("ERROR DELETING CONNECTION.");
-                console.log(err);
-            });
-
-    };
-
-    const handleConnection = (event) => {
-        event.preventDefault();
-
-        if(text === "Connect") {
-            api.post("api/searchUsers/addConnection", selectedConnection)
-                .then((res) => {
-                    console.log("CONNECTION ADDED.");
-                    if(res.status === 200) {
-                        handleCloseProfile();
-                        fetchConnections(thisUser);
-                        fetchInRequests(thisUser);
-                    }
-                })
-                .catch((err) => {
-                    console.log("ERROR ADDING CONNECTION.");
-                    console.log(err);
-                });
-        }
-        else if(text === "Disconnect") {
-            deleteConnection(event)
-        }
-    }
-
-    const [openProfile, setOpenProfile] = React.useState(false);
-
-    // show the profile of the connected user
-    const handleClickOpenProfile = (user) => {
-        setSelectedUser(user);
-
-        // set state variables to the currently selected user
-        setUsername(user.username);
-        setFirstName(user.firstName);
-        setLastName(user.lastName);
-        setEmail(user.emailAddress);
-        setType(user.userType);
-        setSchool(user.school);
-
-        // set connection
-        api.post(`api/viewConnections/getConnection/${thisUser}`, user.username)
-            .then((res) => {
-                setSelectedConnection(res.data);
-
-                setRequester(res.data.requester);
-                setRequested(res.data.requested);
-                setIsConnected(res.data.isConnected);
-                setId(res.data.id);
-
-                if(res.data.isConnected) {
-                    setText("Disconnect");
-                }
-                else if(res.data.requester === thisUser) {
-                    setText("Pending");
-                }
-            })
-            .catch((err) => {
-                console.error('Error getting connection:', err)
-            });
-
-        setOpenProfile(true);
-    };
-
-    // close the profile
-    // reset user and connection values
-    const handleCloseProfile = () => {
-        setOpenProfile(false);
-
-        // must reset values for continued search!!
-        setUsername(null);
-        setFirstName(null);
-        setLastName(null);
-        setEmail(null);
-        setType(null);
-        setSchool(null);
-
-        setSelectedConnection(null);
-        setRequested(null);
-        setRequester(null);
-        setIsConnected(false);
-
-        setText("Connect");
-    };
-
     // get incoming or outgoing requests
     const handleRequestTypeChange = (event) => {
         // prevents page reload
@@ -202,12 +86,10 @@ function viewConnectionsPage() {
 
         // incoming
         if(event.target.value === "incoming") {
-            setText("Connect");
             fetchInRequests(thisUser);
         }
         // outgoing
         else if(event.target.value === "outgoing") {
-            setText("Pending");
             fetchOutRequests(thisUser);
         }
         else {
@@ -251,7 +133,7 @@ function viewConnectionsPage() {
                 <title>My Buddies</title>
             </Head>
             <NotificationPage></NotificationPage> <br/>
-            <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
+            <Stack sx={{ paddingTop: 4, paddingBottom: 4 }} alignItems='center' gap={2}>
                 <Box component="form" noValidate
                      sx={{ paddingTop: 3, width: 550, margin: 'auto' }}>
                     <Stack spacing={4} direction="row" justifyContent="center">
@@ -367,59 +249,8 @@ function viewConnectionsPage() {
                         </CardContent>
                     </Card>
                 ))}
-                
-
-                {/* add button back to user's landing page */}
-                {/*<Button
-                        variant="outlined"
-                        color="error"
-                        href="/"
-                    >
-                        Back</Button>*/}
             </Stack>
 
-
-            {/*View user profile and add as connection*/}
-            <Dialog
-                open={openProfile}
-                onClose={handleCloseProfile}
-                fullWidth
-                component="form"
-                validate="true"
-            >
-                <DialogTitle variant='s2'>{firstName + " " + lastName}</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2}>
-                        <Typography variant='s2'>{userType}</Typography>
-                        <Typography variant='s2'></Typography>
-                        <Typography variant='s1'>Username: {username}</Typography>
-                        <Typography variant='s1'>Email: {emailAddress}</Typography>
-                        {/* error printing school */}
-                        {/* <Typography variant='s1'>School: {school}</Typography> */}
-                        <Typography variant='s1'>Courses...</Typography>
-                    </Stack>
-                </DialogContent>
-
-                <DialogActions>
-                    <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={handleCloseProfile}
-                    >
-                        Back</Button>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            backgroundColor: isConnected ? '#9c27b0' : 'light blue',
-                            '&:hover': {
-                                backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
-                            },
-                        }}
-                        onClick={handleConnection}
-                    >
-                        {text}</Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 }

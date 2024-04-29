@@ -77,7 +77,7 @@ function RegistrationPage() {
 
     //getting list of schools from database
     useEffect(() => {
-        api.get("api/request-school-options")
+        api.get("api/authorization/request-school-options")
             .then((result) => {
                 console.log(result.data);
                 setSchools(result.data);
@@ -159,7 +159,7 @@ function RegistrationPage() {
             setErrUser("Please input a username");
         }
         else {
-            api.get(`api/find-username/${newUsername}`)
+            api.get(`api/authorization/find-username/${newUsername}`)
                 .then(() => {
                     setErrUser("");
                 })
@@ -180,7 +180,7 @@ function RegistrationPage() {
             setErrEmail("Email is not a school email. Try again.");
         }
         else {
-            api.get(`api/find-email/${newEmail}`)
+            api.get(`api/authorization/find-email/${newEmail}`)
                 .then(() => {
                     setErrEmail("");
                 })

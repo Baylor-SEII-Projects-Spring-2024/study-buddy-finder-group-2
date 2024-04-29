@@ -201,6 +201,20 @@ function LoginPage() {
                                 </Grid>
                             </Grid>
                         </form>
+                        <Link href={'/registration'}>
+                            <Typography
+                                variant='s1'
+                                align="center"
+                                color={"primary"}
+                                sx={{
+                                    textDecoration: 'none',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    },
+                                    display: 'block',
+                                }}
+                            >Create an Account!</Typography>
+                        </Link>
                     </CardContent>
                 </Card>
                 <Snackbar

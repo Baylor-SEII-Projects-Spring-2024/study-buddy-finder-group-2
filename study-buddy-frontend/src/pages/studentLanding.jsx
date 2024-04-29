@@ -40,22 +40,8 @@ function StudentLandingPage() {
 
     const [username, setUsername] = useState(null);
     const [user, setUser] = useState(null);
-    const[other, setSelectedUser] = useState(null);
     const [recommendedUsers, setRecommendedUsers] = useState(null);
     const [recommendedMeetups, setRecommendedMeetups] = useState(null);
-    const [text, setText] = useState("Connect");
-    const[otherFirstName, setOtherFirstName] = useState(null);
-    const[otherLastName, setOtherLastName] = useState(null);
-    const [otherEmailAddress, setOtherEmail] = useState(null);
-    const [otherUserType, setOtherType] = useState(null);
-    const [otherSchool, setOtherSchool] = useState(null);
-    const [otherUsername, setOtherUsername] = useState(null);
-    const [id, setId] = useState(null);
-    const [requester, setRequester] = useState(null);
-    const [requested, setRequested] = useState(null);
-    const [isConnected, setIsConnected] = useState(null);
-    const [selectedConnection, setSelectedConnection] = useState(null);
-    const [openProfile, setOpenProfile] = useState(false);
     const [notificationCount, setNotificationCount] = useState(null);
 
 
@@ -217,111 +203,6 @@ function StudentLandingPage() {
             });
     };
 
-
-    function handleClickOpenProfile(other) {
-        setSelectedUser(other);
-
-        // set state variables to the currently selected user
-        setOtherUsername(other.username);
-        setOtherFirstName(other.firstName);
-        setOtherLastName(other.lastName);
-        setOtherEmail(other.emailAddress);
-        setOtherType(other.userType);
-        setOtherSchool(other.school);
-
-
-        api.post(`api/searchUsers/getConnection/${username}`, other.username)
-            .then((res) => {
-                setSelectedConnection(res.data);
-                setRequester(res.data.requester);
-                setRequested(res.data.requested);
-                setIsConnected(res.data.isConnected);
-                setId(res.data.id);
-
-                if(res.data.isConnected) {
-                    setText("Disconnect");
-                }
-                else if(res.data.requester === username) {
-                    setText("Pending");
-                }
-            })
-            .catch((err) => {
-                console.error('Error getting connection:', err)
-            });
-
-        setOpenProfile(true);
-    }
-
-    const handleCloseProfile = () => {
-        setOpenProfile(false);
-
-        // must reset values for continued search!!
-        setOtherUsername(null);
-        setOtherFirstName(null);
-        setOtherLastName(null);
-        setOtherEmail(null);
-        setOtherType(null);
-        setOtherSchool(null);
-
-        setSelectedConnection(null);
-        setRequested(null);
-        setRequester(null);
-        setIsConnected(false);
-
-        setText("Connect");
-    };
-
-    const handleSetConnection = () => {
-        if(!isConnected) {
-            setRequester(username);
-            setRequested(other.username);
-            setIsConnected(false);
-        }
-    }
-
-    const handleConnection = (event) => {
-        // prevents page reload
-        event.preventDefault();
-
-        const connection = {
-            requester, requested, isConnected
-        }
-
-        // if the users are currently connected
-        if(isConnected) {
-            api.delete(`api/searchUsers/deleteConnection/${selectedConnection?.id}`)
-                .then((res) => {
-                    if(res.status === 200) {
-                        handleCloseProfile();
-                    }
-                })
-                .catch((err) => {
-                    console.log("ERROR DELETING CONNECTION.");
-                    console.log(err);
-                });
-        }
-        // the connection is pending
-        else if(selectedConnection.requester === username) {
-            console.log(username + " oops");
-            // TODO: cancel connection??
-        }
-        // the users are not currently connected
-        else {
-
-
-            api.post("api/searchUsers/addConnection", connection)
-                .then((res) => {
-                    console.log("CONNECTION ADDED.");
-                    if(res.status === 200) {
-                        handleCloseProfile();
-                    }
-                })
-                .catch((err) => {
-                    console.log("ERROR ADDING CONNECTION.");
-                    console.log(err);
-                });
-        }
-    }
     const handleUsernameClick = (username) => {
         router.push(`/other/${username}`);
         console.log(`Username ${username} clicked!`);
@@ -445,7 +326,7 @@ function StudentLandingPage() {
                                     </ul>
 
                                     {meetup.attendees.some(attendee => attendee.username === username) ? (
-                                        <Button variant='contained' size="small" style={{ backgroundColor: 'red', color: 'white', marginTop: '10px'}} onClick={() => handleLeave(meetup)}>
+                                        <Button variant='contained' size="small" color="error" style={{ marginTop: '10px'}} onClick={() => handleLeave(meetup)}>
                                             Leave Meetup
                                         </Button>
                                     ) : (
@@ -537,49 +418,6 @@ function StudentLandingPage() {
         </AppBar>
                     
             </main>
-            {/*View user profile and add as connection*/}
-            <Dialog
-                open={openProfile}
-                onClose={handleCloseProfile}
-                fullWidth
-                component="form"
-                validate="true"
-                onSubmit={handleConnection}
-            >
-                <DialogTitle variant='s2'>{otherFirstName + " " + otherLastName}'s Profile</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2}>
-                        <Typography variant='s2'>{otherUserType}</Typography>
-                        <Typography variant='s2'></Typography>
-                        <Typography variant='s1'>Username: {otherUsername}</Typography>
-                        <Typography variant='s1'>Email: {otherEmailAddress}</Typography>
-                        {/* <Typography variant='s1'>School: {otherSchool}</Typography> */}
-                        <Typography variant='s1'>Courses...</Typography>
-                    </Stack>
-                </DialogContent>
-
-                <DialogActions>
-                    <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={handleCloseProfile}
-                    >
-                        Cancel</Button>
-                    <Button
-                        id="connection"
-                        variant="contained"
-                        sx={{
-                            backgroundColor: isConnected ? '#9c27b0' : 'light blue',
-                            '&:hover': {
-                                backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
-                            },
-                        }}
-                        type="submit"
-                        onClick={handleSetConnection}
-                    >
-                        {text}</Button>
-                </DialogActions>
-            </Dialog>
         </>
     );
 }

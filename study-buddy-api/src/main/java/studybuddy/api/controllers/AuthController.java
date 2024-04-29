@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.*;
 
 import studybuddy.api.dto.LoginDto;
 import studybuddy.api.dto.RegisterDto;
+import studybuddy.api.school.School;
 import studybuddy.api.school.SchoolService;
 import studybuddy.api.security.JwtGenerator;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -26,10 +28,11 @@ import java.util.Optional;
 public class AuthController {
     private AuthenticationManager authenticationManager;
     private UserService userService;
-
-    private SchoolService schoolService;
     private PasswordEncoder passwordEncoder;
     private JwtGenerator jwtGenerator;
+
+    @Autowired
+    SchoolService schoolService = new SchoolService();
 
     @Autowired
     public AuthController(
@@ -58,6 +61,45 @@ public class AuthController {
         String token = jwtGenerator.generateToken(auth, user);
 
         return new ResponseEntity<>(token, HttpStatus.valueOf(200));
+    }
+
+    @RequestMapping(
+            value = "/request-school-options",
+            method = RequestMethod.GET,
+            produces = "application/json"
+    )
+    public ResponseEntity<List<School>> getSchoolOptions(){
+        System.out.println("GETTING SCHOOLS");
+        return ResponseEntity.ok(schoolService.getSchools());
+    }
+
+    @RequestMapping(
+            value = "/find-username/{username}",
+            method = RequestMethod.GET
+    )
+    public ResponseEntity<String> usernameNotFound(@PathVariable String username){
+        if(userService.findByUsername(username).isEmpty()){
+            System.out.println("USER IS EMPTY");
+            return ResponseEntity.ok(username);
+        }
+        else{
+            System.out.println("USER EXISTS");
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @RequestMapping(
+            value = "/find-email/{email}",
+            method = RequestMethod.GET,
+            produces = "application/json"
+    )
+    public ResponseEntity<String>  emailNotFound(@PathVariable String email){
+        if(userService.findByEmail(email).isEmpty()){
+            return ResponseEntity.ok(email);
+        }
+        else{
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("register")

@@ -24,6 +24,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {jwtDecode} from "jwt-decode";
 import Avatar from '@mui/material/Avatar';
 import Head from "next/head";
+import {deauthorize} from "@/utils/authSlice";
 
 function SearchUsersPage() {
     const router = useRouter();
@@ -38,17 +39,12 @@ function SearchUsersPage() {
     const [emailAddress, setEmail] = useState(null);
     const [userType, setType] = useState(null);
     const [school, setSchool] = useState(null);
+
     const [searchStr, setStr] = useState(null);
     const [users, setUsers] = useState([]);
     const [recommendedUsers, setRecommendedUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
     const [allCourses, setAllCourses] = useState([]);
     const [courses, selectCourse] = useState(null);
-    const [id, setId] = useState(null);
-    const [requester, setRequester] = useState(null);
-    const [requested, setRequested] = useState(null);
-    const [isConnected, setIsConnected] = useState(null);
-    const [selectedConnection, setSelectedConnection] = useState(null);
     const [filterOpen, setFilterOpen] = useState(false);
 
     const api = axios.create({
@@ -84,12 +80,12 @@ function SearchUsersPage() {
             // only authorized users can do this (must have token)
             const decodedUser = jwtDecode(token);
             setThisUser(decodedUser.sub);
-            setRequester(decodedUser.sub);
 
             fetchRecommendations(decodedUser.sub);
             fetchCourses()
         }
         catch(err) {
+            dispatch(deauthorize());
             router.push(`/error`);
         }
     }, [])
@@ -105,8 +101,13 @@ function SearchUsersPage() {
             username, firstName, lastName, emailAddress, userType, school, courses:course
         }
 
-        console.log(user);
+        if(searchStr === null) {
+            user.username = ""
+            user.firstName = ""
+            user.lastName = ""
+        }
 
+        console.log(user);
         
         api.post(`api/searchUsers/${thisUser}`, user)
             .then((res) => {
@@ -120,128 +121,14 @@ function SearchUsersPage() {
             });
     }
 
-    // delete or add connection base off of current connection status
-    const handleConnection = (event) => {
-        // prevents page reload
-        event.preventDefault();
-
-        const connection = {
-            requester, requested, isConnected
-        }
-
-        // if the users are currently connected
-        if(isConnected) {
-            api.delete(`api/searchUsers/deleteConnection/${selectedConnection?.id}`)
-                .then((res) => {
-                    if(res.status === 200) {
-                        handleCloseProfile();
-                    }
-                })
-                .catch((err) => {
-                    console.log("ERROR DELETING CONNECTION.");
-                    console.log(err);
-                });
-        }
-        // the connection is pending
-        else if(selectedConnection.requester === thisUser) {
-            console.log(thisUser + " oops");
-            // TODO: cancel connection??
-        }
-        // the users are not currently connected
-        else {
-            api.post("api/searchUsers/addConnection", connection)
-                .then((res) => {
-                    console.log("CONNECTION ADDED.");
-                    if(res.status === 200) {
-                        handleCloseProfile();
-                    }
-                })
-                .catch((err) => {
-                    console.log("ERROR ADDING CONNECTION.");
-                    console.log(err);
-                });
-        }
-    }
-
-    // set connection values
-    const handleSetConnection = () => {
-        if(!isConnected) {
-            setRequester(thisUser);
-            setRequested(selectedUser.username);
-            setIsConnected(false);
-        }
-    }
-
-    const [openProfile, setOpenProfile] = useState(false);
-    const [text, setText] = useState("Connect");
-    // look at document.getElementById("connection")
-
-    // takes in selected user to display profile
-    const handleClickOpenProfile = (user) => {
-        setSelectedUser(user);
-
-        // set state variables to the currently selected user
-        setUsername(user.username);
-        setFirstName(user.firstName);
-        setLastName(user.lastName);
-        setEmail(user.emailAddress);
-        setType(user.userType);
-        setSchool(user.school);
-
-        
-        api.post(`api/searchUsers/getConnection/${thisUser}`, user.username)
-            .then((res) => {
-                setSelectedConnection(res.data);
-                setRequester(res.data.requester);
-                setRequested(res.data.requested);
-                setIsConnected(res.data.isConnected);
-                setId(res.data.id);
-
-                if(res.data.isConnected) {
-                    setText("Disconnect");
-                }
-                else if(res.data.requester === thisUser) {
-                    setText("Pending");
-                }
-            })
-            .catch((err) => {
-                console.error('Error getting connection:', err)
-            });
-
-        setOpenProfile(true);
-    };
-
-    // close the profile
-    // reset connection and user values
-    const handleCloseProfile = () => {
-        setOpenProfile(false);
-
-        // must reset values for continued search!!
-        setUsername(searchStr);
-        setFirstName(searchStr);
-        setLastName(searchStr);
-        setEmail(null);
-        setType(null);
-        setSchool(null);
-
-        setSelectedConnection(null);
-        setRequested(null);
-        setRequester(null);
-        setIsConnected(false);
-
-        setText("Connect");
-    };
-
     // get the string the to search with
     const handleSearch = (str) => {
-        setStr(str);
+        setStr(str)
 
-        setFirstName(str);
-        setLastName(str);
-        setUsername(str);
-        console.log("string: "+str);
+        setFirstName(str)
+        setLastName(str)
+        setUsername(str)
     };
-
 
     const handleUsernameClick = (username) => {
         router.push(`/other/${username}`);
@@ -294,7 +181,7 @@ function SearchUsersPage() {
                     ))}
                 </Box>
                 <Box sx={{width: '70%'}}>
-                    <Stack sx={{ paddingTop: 4 }} alignItems='center' gap={2}>
+                    <Stack sx={{ paddingTop: 4, paddingBottom: 4 }} alignItems='center' gap={2}>
                         <Card sx={{ width: 520, margin: 'auto' }} elevation={4}>
                             <CardContent>
                                 <Typography variant='h4' align='center'>Search Users</Typography>
@@ -312,6 +199,7 @@ function SearchUsersPage() {
                                         name="search"
                                         label="Name or Username"
                                         variant="outlined"
+                                        defaultValue={""}
                                         onChange={(e) => handleSearch(e.target.value)}
                                     />
                                         {filterOpen && (
@@ -346,9 +234,10 @@ function SearchUsersPage() {
                                             label="userType"
                                             onChange={(e) => setType(e.target.value)}
                                         >
-                                            <MenuItem value={null}>
+                                            <MenuItem value={""} disabled>
                                                 <em>None</em>
                                             </MenuItem>
+                                            <MenuItem value={"all"}>All Types</MenuItem>
                                             <MenuItem value={"student"}>Student</MenuItem>
                                             <MenuItem value={"tutor"}>Tutor</MenuItem>
                                         </Select>
@@ -401,61 +290,8 @@ function SearchUsersPage() {
                                 </CardContent>
                             </Card>
                         ))}
-
-                        {/* add button back to user's landing page */}
-                        {/*<Button
-                        variant="outlined"
-                        color="error"
-                        href="/"
-                    >
-                        Back</Button>*/}
-
                     </Stack>
 
-                    {/*View user profile and add as connection*/}
-                    <Dialog
-                        open={openProfile}
-                        onClose={handleCloseProfile}
-                        fullWidth
-                        component="form"
-                        validate="true"
-                        onSubmit={handleConnection}
-                    >
-                        <DialogTitle variant='s2'>{firstName + " " + lastName}'s Profile</DialogTitle>
-                        <DialogContent>
-                            <Stack spacing={2}>
-                                <Typography variant='s2'>{userType}</Typography>
-                                <Typography variant='s2'></Typography>
-                                <Typography variant='s1'>Username: {username}</Typography>
-                                <Typography variant='s1'>Email: {emailAddress}</Typography>
-                                {/* error printing school */}
-                                {/* <Typography variant='s1'>School: {school}</Typography> */}
-                                <Typography variant='s1'>Courses...</Typography>
-                            </Stack>
-                        </DialogContent>
-
-                        <DialogActions>
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                onClick={handleCloseProfile}
-                            >
-                                Cancel</Button>
-                            <Button
-                                id="connection"
-                                variant="contained"
-                                sx={{
-                                    backgroundColor: isConnected ? '#9c27b0' : 'light blue',
-                                    '&:hover': {
-                                        backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
-                                    },
-                                }}
-                                type="submit"
-                                onClick={handleConnection}
-                            >
-                                {text}</Button>
-                        </DialogActions>
-                    </Dialog>
                 </Box>
             </div>
         </Box>
