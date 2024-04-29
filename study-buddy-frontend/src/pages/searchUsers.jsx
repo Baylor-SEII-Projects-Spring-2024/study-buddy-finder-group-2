@@ -32,9 +32,9 @@ function SearchUsersPage() {
     const dispatch = useDispatch(); // use to change state
 
     const[thisUser, setThisUser] = useState(null);
-    const [username, setUsername] = useState(null);
-    const [firstName, setFirstName] = useState(null);
-    const [lastName, setLastName] = useState(null);
+    const [username, setUsername] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [emailAddress, setEmail] = useState(null);
     const [userType, setType] = useState(null);
     const [school, setSchool] = useState(null);
