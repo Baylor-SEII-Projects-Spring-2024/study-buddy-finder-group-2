@@ -94,17 +94,12 @@ function LoginPage() {
                 // this is decoding the token to pass the username to the reducer function
                 // decode does not return a JSON (returns a JwtPayload object)
                 const token  = res.data;
-                console.log(token);
-                // this works! window.sessionStorage.setItem('token', token);
-                //setToken(token);
 
                 const decodedUser = jwtDecode(token);
                 // just enter decodedToken.customClaim!! (easy!!)
-                console.log(decodedUser.userType);
 
                 // this changes the state
                 // (passes token and sets auth = true)
-                // TODO: onClick={() => dispatch(authorize(token))} ??
                 dispatch(authorize(token));
 
                 // find a different way to decide if student or tutor
@@ -114,9 +109,6 @@ function LoginPage() {
                     setSnackbarOpen(true);
 
                     setTimeout(() => { // Delay for showing the message before redirection
-                        //var params = new URLSearchParams();
-                        //params.append("username", res.data.username);
-
                         if (decodedUser.userType === "student") {
                             router.push(`/studentLanding`);
                         }
