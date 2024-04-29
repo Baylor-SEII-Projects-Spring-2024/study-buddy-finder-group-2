@@ -6,10 +6,8 @@ import NotificationPage from "@/pages/Notification";
 const useStyles = makeStyles((theme) => ({
   faqItem: {
     cursor: 'pointer',
-    marginBottom: theme.spacing(2),
-    '&:hover': {
-      color: theme.palette.primary.main,
-    },
+    marginBottom: theme.spacing(2)
+    
   },
   card: {
     marginBottom: theme.spacing(2),
