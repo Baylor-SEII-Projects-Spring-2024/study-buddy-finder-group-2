@@ -35,28 +35,33 @@ export default function App({ Component, pageProps }) {
             <Component {...pageProps} />
           </StudyBuddyThemeProvider>
 
-          <AppBar position="static" sx={{ backgroundColor: '#2d4726' }}>
+          <AppBar position="static" sx={{ backgroundColor: '#2d4726'}}>
             <Toolbar>
-              {/* Navigation and Info */}
-              <Typography variant="h3" style={{ fontFamily: 'Roboto', color: 'gold', marginLeft: '16px', marginTop: '30px', marginBottom: '8px', fontWeight: 'bold' }}>
-                StuCon
-              </Typography>
-              <Link href="/about" passHref>
-                <div style={{ textDecoration: 'none', color: 'white', cursor: 'pointer', marginLeft: '16px', marginTop: '8px' }}>
-                  About
-                </div>
-              </Link>
-              <Link href="/questions" passHref>
-                <div style={{ textDecoration: 'none', color: 'white', cursor: 'pointer', marginLeft: '16px', marginTop: '8px' }}>
-                  FAQ
-                </div>
-              </Link>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginLeft: '16px' }}>
 
-              <Typography variant="body2" color="white" style={{ marginLeft: '16px' }}>
-                &copy; 2024 StuCon Corporation. All rights reserved.
-              </Typography>
+                    <Typography variant="h3" style={{ fontFamily: 'Roboto', color: 'gold', marginTop: '30px', marginBottom: '4px', fontWeight: 'bold' }}>
+                        StuCon
+                    </Typography>
+
+                    <Link href="/about" passHref>
+                        <div style={{ textDecoration: 'none', color: 'white', color: 'white', cursor: 'pointer', marginLeft: '16px', marginTop: '8px'}}>
+                            About
+                        </div>
+                    </Link>
+
+                    <Link href="/questions" passHref>
+                      <div style={{ textDecoration: 'none', color: 'white', cursor: 'pointer', marginLeft: '16px', marginBottom: '10px'}}>
+                        FAQ
+                      </div>
+                    </Link>
+
+                    <Typography variant="body2" color="white" style={{ marginBottom: '15px' }}>
+                    &copy; 2024 StuCon Corporation. All rights reserved.
+                    </Typography>
+                </div>
             </Toolbar>
-          </AppBar>
+        </AppBar>
+
         </AppCacheProvider>
       </PersistGate>
     </ReduxProvider>

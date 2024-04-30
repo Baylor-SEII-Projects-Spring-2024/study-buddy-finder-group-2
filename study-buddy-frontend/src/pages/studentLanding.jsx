@@ -11,7 +11,7 @@ import {
     Typography,
     AppBar,
     Toolbar,
-    CircularProgress, Tooltip
+    CircularProgress, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText
 } from "@mui/material";
 import Link from "next/link";
 import NotificationPage from "@/pages/Notification";
@@ -46,6 +46,7 @@ function StudentLandingPage() {
     const [recommendedUsers, setRecommendedUsers] = useState(null);
     const [recommendedMeetups, setRecommendedMeetups] = useState(null);
     const [notificationCount, setNotificationCount] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
 
     const api = axios.create({
@@ -65,6 +66,7 @@ function StudentLandingPage() {
                 .then((res) => {
                     setUser(res.data);
                     console.log(res.data);
+                    fetchCourseCount(decodedUser.sub);
                     fetchRecommendations(decodedUser.sub);
                     fetchRecommendedMeetups(decodedUser.sub);
                     fetchNotificationCount(decodedUser.sub);
@@ -115,6 +117,20 @@ function StudentLandingPage() {
                 console.error('Error fetching notification count:', error);
             });
     };
+
+    const fetchCourseCount = (username) => {
+        api.get(`api/get-courses-user/${username}`)
+            .then((res) => {
+                if(res.data.length <= 0){
+                    setDialogOpen(true);
+                    console.log("No courses!");
+                }
+                else{
+                    setDialogOpen(false);
+                }
+            })
+            .catch((err) => console.log(err))
+    }
 
     const handleJoin = (meetup) => {
         // get up to date version of the meetup to make sure its not deleted
@@ -209,6 +225,11 @@ function StudentLandingPage() {
     const handleUsernameClick = (username) => {
         router.push(`/other/${username}`);
         console.log(`Username ${username} clicked!`);
+    };
+
+    const handleDialogClick = () => {
+        router.push(`/myProfile/`);
+        console.log(`My Profile clicked!`);
     };
 
     // Function to generate a random gradient
@@ -445,6 +466,34 @@ function StudentLandingPage() {
                 </Stack>
                 {/* Lazy-load Meetups Section */}
                 <LazyLoadMeetups recommendedMeetups={recommendedMeetups} carouselMeetupMaker={carouselMeetupMaker} />
+
+                <Dialog
+                 open={dialogOpen}
+                 onClose={() => setDialogOpen(false)}
+                 sx={{ display:"flex",
+                    justifyContent:"space-around",
+                    justifyItems:"center",
+                    alignItems:"center",
+                }}>
+                    <DialogTitle>Let's get you some courses!</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>Before anything happens, you should add some courses to get the right buddies for you!
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions sx={{ justifyContent:"space-around",
+                        justifyItems:"center",
+                        alignItems:"center",}}>
+                    <Button onClick={() => handleDialogClick()} sx={{
+                        width: '30%',
+                        variant:"contained",
+                        backgroundColor: '#2e7d32', // Dark green color for the button
+                        '&:hover': {
+                            backgroundColor: '#1e4d27' // Darker shade of green on hover
+                        }}}><Typography color={"white"}>Let's Add Courses!</Typography></Button>
+                        <Button variant="outlined" onClick={() => setDialogOpen(false)}>no thanks :(</Button>
+                    </DialogActions>
+                </Dialog>
+
                 <br/>
             </main>
         </>
