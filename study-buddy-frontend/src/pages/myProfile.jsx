@@ -11,7 +11,7 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-  Autocomplete, Box, Stack, Input, LinearProgress, Snackbar
+  Autocomplete, Box, Stack, Input, LinearProgress, Snackbar, ThemeProvider
 } from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -28,6 +28,21 @@ import Link from "next/link";
 import Head from "next/head";
 import {createTheme} from "@mui/material/styles";
 import {deauthorize} from "@/utils/authSlice";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#2e7d32',
+    },
+    secondary: {
+      main: '#ffc107',
+    },
+    error: {
+      main: '#f44336',
+    },
+  },
+});
+
 //This is the page that the user themself sees (able to edit and such)
 
 function MyInfoPage() {
@@ -68,20 +83,6 @@ function MyInfoPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [isError, setIsError] = useState(false);
-
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#4caf50',
-      },
-      secondary: {
-        main: '#ffeb3b',
-      },
-      error: {
-        main: '#f44336',
-      },
-    },
-  });
 
   const api = axios.create({
     //baseURL: 'http://localhost:8080/',
@@ -414,338 +415,372 @@ function MyInfoPage() {
 
 
   return (
-      <div>
-        <Head>
-          <title>My Profile</title>
-        </Head>
-        <NotificationPage></NotificationPage><br/>
+      <>
+        <ThemeProvider theme={theme}>
+          <Head>
+            <title>My Profile</title>
+          </Head>
+          <main style={{ backgroundColor: '#e8f5e9' }}>
 
-        {user && (
-            <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto', border: '3px solid black'}}
-                  elevation={4}>
-              <CardContent>
-                <Grid container alignItems="center">
-                  <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
-                    <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
+            <NotificationPage></NotificationPage><br/>
 
-                    <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
-                    <div style={{ color: 'gray' }}>@{user.username}</div>
-                    <br/>
-                    <div className="hover-underline" style={{ marginRight: '10px'}}>
-                      <Link href="/viewConnections">
+            <Stack sx={{ minHeight: 650, paddingBottom: 5 }} alignItems="center">
+              {user && (
+                  <Card
+                      sx={{
+                        width: '90%', padding: 0.5,
+                        background: `linear-gradient(${Math.floor(Math.random() * 360)}deg, #a8e063 0%, #ffcc33 100%)`,
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                        '&:hover': {
+                          boxShadow: '0 6px 12px rgba(0,0,0,0.3)',
+                        },
+                        transition: 'box-shadow 0.3s ease-in-out'
+                      }}>
+                    <Card sx={{
+                      boxShadow: 'none',
+                      transition: 'box-shadow 0.3s ease-in-out'
+                    }}>
+                      <CardContent>
+                        <Grid container alignItems="center">
+                          <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
+                            <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
+
+                            <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
+                            <div style={{ color: 'gray' }}>@{user.username}</div>
+                            <br/>
+                            <div className="hover-underline" style={{ marginRight: '10px'}}>
+                              <Link href="/viewConnections">
                           <span className="hover-underline" onclick={handleViewConnections} style={{ fontWeight: 'bold', cursor: 'pointer'}}>
                             {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                           </span>
-                      </Link>
+                              </Link>
 
-                      <Link href="/viewConnections">
+                              <Link href="/viewConnections">
                           <span onclick={handleViewConnections} style={{ color: 'blue', fontWeight: 'bold', cursor: 'pointer'}}>
                             {connectionCount === 1 ? 'buddy' : 'buddies'}
                           </span>
-                      </Link>
+                              </Link>
 
-                    </div>
+                            </div>
 
-                    <div style={{ marginRight: '10px'}}>
-                      <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
-                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)} of {school.schoolName}
-                      </Typography>
-                    </div>
+                            <div style={{ marginRight: '10px'}}>
+                              <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
+                                {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)} of {school.schoolName}
+                              </Typography>
+                            </div>
 
-                  </Grid>
+                          </Grid>
 
-                  <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
-                    <Button variant="contained" onClick={handleSettingsOpen} startIcon={<SettingsIcon />}>Settings</Button>
-                    <Button variant="contained" onClick={handleResetPwdOpen} >Reset Password</Button>
-                  </Grid>
-                </Grid>
-                <br />
+                          <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
+                            <Button variant="contained"
+                                    onClick={handleSettingsOpen}
+                                    startIcon={<SettingsIcon />}
+                                    sx={{
+                                      marginRight: 2
+                                    }}
+                            >Settings</Button>
+                            <Button variant="contained" onClick={handleResetPwdOpen} >Reset Password</Button>
+                          </Grid>
+                        </Grid>
+                        <br />
 
-                <Typography variant="body1" style={{ marginLeft: '100px' }}>
-                  {user.bio}
-                </Typography>
+                        <Typography variant="body1" style={{ marginLeft: '100px' }}>
+                          {user.bio}
+                        </Typography>
 
-                <div>
-                  <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
-                    Courses
-                  </Typography>
-                  {userCourses && userCourses.length > 0 ? (
-                      userCourses.map((course, index) => (
-                          <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
-                            {course.coursePrefix} {course.courseNumber}
-                          </div>
-                      ))
-                  ) : (
-                      user.userType === 'student' ? (
-                            <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                              Not enrolled in any courses.
-                            </Typography>
-                          ) :
-                          (
-                            <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                              Not teaching any courses.
-                            </Typography>
-                          )
-
-                  )}
-                  <Grid item sx={{ marginLeft: '80px', marginRight: '100px', marginTop: '40px' }}>
-                    <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
-                  </Grid>
-                </div>
-
-                {user.userType === 'tutor' && (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-                      <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                        Average Rating Score:
-                      </Typography>
-                      <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
-                    </div>
-                )}
-
-                {user.userType === 'tutor' && (
-                    <div>
-                      {ratings.length > 0 ? (
-                          ratings.map((rating, index) => (
-                              <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
-                                <CardContent>
-                                  <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-                                    Rating from {rating.ratingUser.username}
-                                  </Typography>
-                                  <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
-                                    Meeting: {rating.meetingTitle}
-                                  </Typography>
-                                  <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                                    <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
-                                  </Typography>
-                                  <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
-                                    Review: {rating.review}
-                                  </Typography>
-                                </CardContent>
-                              </Card>
-                          ))
-                      ) : (
-                          <Typography variant="body1" align="center">
-                            No ratings available.
+                        <div>
+                          <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                            Courses
                           </Typography>
-                      )}
-                    </div>
-                )}
-              </CardContent>
-            </Card>
-        )}
+                          {userCourses && userCourses.length > 0 ? (
+                              userCourses.map((course, index) => (
+                                  <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                                    {course.coursePrefix} {course.courseNumber}
+                                  </div>
+                              ))
+                          ) : (
+                              user.userType === 'student' ? (
+                                      <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                        Not enrolled in any courses.
+                                      </Typography>
+                                  ) :
+                                  (
+                                      <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                        Not teaching any courses.
+                                      </Typography>
+                                  )
 
-        <Dialog
-            open={settingsOpen}
-            onClose={handleSettingsClose}
-            component="form" validate="true" onSubmit={handleSubmit}
-        >
-          <DialogTitle>Profile Settings</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Edit your profile.
-            </DialogContentText>
+                          )}
+                          <Grid item sx={{ marginLeft: '80px', marginRight: '100px', marginTop: '40px' }}>
+                            <Button variant="contained" onClick={() => handleCoursesOpen()} startIcon={<MenuBookIcon />}>Edit Your Courses</Button>
+                          </Grid>
+                        </div>
 
-            <TextField
-                autoFocus
-                margin="dense"
-                id="bio"
-                name="bio"
-                label="Bio"
-                type="string"
-                fullWidth
-                variant="standard"
-                defaultValue={user?.bio || ''}
-                onChange={(e) => setBio(e.target.value)}
-            />
+                        {user.userType === 'tutor' && (
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                              <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                                Average Rating Score:
+                              </Typography>
+                              <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                            </div>
+                        )}
 
-            <div style={{ marginTop: '15px', marginBottom: '10px', color: 'gray', fontSize: '15px'}}>Profile Picture</div>
-            <div style={{ display: 'flex'}}>
-              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
-              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
-              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
-              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
-              <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/penguin.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/penguin.jpg')} src="/penguin.jpg" />
-            </div>
-          </DialogContent>
+                        {user.userType === 'tutor' && (
+                            <div>
+                              {ratings.length > 0 ? (
+                                  ratings.map((rating, index) => (
+                                      <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                                        <CardContent>
+                                          <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                                            Rating from {rating.ratingUser.username}
+                                          </Typography>
+                                          <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                                            Meeting: {rating.meetingTitle}
+                                          </Typography>
+                                          <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                                            <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                                          </Typography>
+                                          <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                                            Review: {rating.review}
+                                          </Typography>
+                                        </CardContent>
+                                      </Card>
+                                  ))
+                              ) : (
+                                  <Typography variant="body1" align="center">
+                                    No ratings available.
+                                  </Typography>
+                              )}
+                            </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Card>
+              )}
+            </Stack>
 
-          <DialogActions>
-            <Button onClick={handleSettingsClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog  id="course-selection"
-                 open={coursesOpen}
-                 onClose={handleCoursesClose}
-                 component="form" validate="true" onSubmit={handleCoursesSubmit}
-        >
-          <DialogTitle>Courses</DialogTitle>
-          <DialogContent>
-            <Box sx={{width: 500}}>
-              <DialogContentText>
-                Edit your courses.
-              </DialogContentText>
-
-              <Autocomplete
-                  multiple
-                  id="tags-standard"
-                  options={courses}
-                  getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
-                  value={coursesSelect}
-                  isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
-                  onChange={(e, params) => setCoursesSelect(params)}
-                  renderInput={(params) => (
-                      <TextField
-                          {...params}
-                          variant="standard"
-                          label="Courses"
-                          placeholder="Add courses from your school"
-                      />
-                  )}
-              />
-              <br/>
-              <Stack direction="row" sx={{alignItems:"center"}}>
-                <p>Not there?</p><Button variant="contained" onClick={() => handleAddCoursesOpen()}>+ Add Course</Button>
-              </Stack>
-            </Box>
-
-          </DialogContent>
-
-          <DialogActions>
-
-            <Button onClick={handleCoursesClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onSubmit={handleCoursesSubmit} color="primary">Save</Button>
-          </DialogActions>
-        </Dialog>
-
-        {/*adding courses not in system*/}
-        <Dialog  id="course-adding"
-                 open={addCoursesOpen}
-                 onClose={handleAddCoursesClose}
-                 component="form" validate="true" onSubmit={handleAddCoursesSubmit}
-        >
-          <DialogTitle>Add Course</DialogTitle>
-          <DialogContent>
-            <Box sx={{width: 500}}>
-              <DialogContentText>
-                Add your course.
-              </DialogContentText>
-
-              <Box  sx={{ margin: 5 }}
-                    component="form" validate="true">
-                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value.toUpperCase())} label="Course Prefix" sx={{ width:100 }}/>
-                <br/>
-                <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
-              </Box>
-            </Box>
-
-          </DialogContent>
-
-          <DialogActions>
-            <Button onClick={handleAddCoursesClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog  id="course-adding"
-                 open={addCoursesOpen}
-                 onClose={handleAddCoursesClose}
-                 component="form" validate="true" onSubmit={(event) => handleAddCoursesSubmit(event)}
-        >
-          <DialogTitle>Add Course</DialogTitle>
-          <DialogContent>
-            <Box sx={{width: 500}}>
-              <DialogContentText>
-                Add your course.
-              </DialogContentText>
-
-              <Box  sx={{ margin: 5 }}
-                    component="form" validate="true">
-                <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
-                <br/>
-                <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
-              </Box>
-            </Box>
-
-          </DialogContent>
-
-          <DialogActions>
-            <Button onClick={handleAddCoursesClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog  id="reset-password"
-                 open={passwordOpen}
-                 onClose={handleResetPwdClose}
-                 component="form" validate="true" onSubmit={handlePasswordChange}
-        >
-          <DialogTitle>Reset Password</DialogTitle>
-          <DialogContent>
-            <Box sx={{width: 500}}>
-
-              <Box  sx={{ margin: 5 }}
-                    component="form" validate="true">
-                <TextField id="pwd-old"
-                           type={"password"}
-                           error={errOldPwd !== ""}
-                           onChange={(event) => handleOldPassword(event)}
-                           label="Old Password"
-                           sx={{ width:300 }}/>
-                <br/> <br/>
+            <Dialog
+                open={settingsOpen}
+                onClose={handleSettingsClose}
+                component="form" validate="true" onSubmit={handleSubmit}
+            >
+              <DialogTitle>Profile Settings</DialogTitle>
+              <DialogContent>
                 <DialogContentText>
-                  Enter your new password:
+                  Edit your profile.
                 </DialogContentText>
-                <br/>
-                {password && (
-                    <Box sx={{ width: '100%', mb: 2, transition: 'width 0.5s ease-in-out' }}>
-                      <LinearProgress
-                          variant="determinate"
-                          value={(passwordStrength / 4) * 100}
-                          color={getColor(passwordStrength)}
-                          sx={{ width: '100%', height: 10 }}
-                      />
-                      <Typography sx={{ textAlign: 'center', mt: 1 }}>
-                        Password Strength: {['Weak', 'Fair', 'Good', 'Strong'][passwordStrength - 1]}
-                      </Typography>
-                    </Box>
-                )}
-                <TextField id="pwd-new"
-                           error={errPwd !== ""}
-                           type={"password"}
-                           onChange={(event) => handleChangePassword(event)}
-                           label="New Password"
-                           sx={{ width:300 }}/>
-                <br/> <br/>
-                <TextField id="pwd-confirm"
-                           type={"password"}
-                           error={errCPwd !== ""}
-                           onChange={(event) => handleChangeConfirmPassword(event)}
-                           label="Confirm New Password"
-                           sx={{ width:300 }}/>
-                <br/>
-              </Box>
-            </Box>
 
-          </DialogContent>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="bio"
+                    name="bio"
+                    label="Bio"
+                    type="string"
+                    fullWidth
+                    variant="standard"
+                    defaultValue={user?.bio || ''}
+                    onChange={(e) => setBio(e.target.value)}
+                />
 
-          <DialogActions>
-            <Button onClick={handleResetPwdClose}>Cancel</Button>
-            <Button variant="contained" type="submit" onClick={(event) => handlePasswordChange(event)}>Change Password</Button>
-          </DialogActions>
-        </Dialog>
-        <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={6000}
-            onClose={() => setSnackbarOpen(false)}
-            message={snackbarMessage}
-            sx={{
-              '& .MuiSnackbarContent-root': {
-                backgroundColor: isError ? theme.palette.error.main : theme.palette.primary.main,
-              },
-            }}
-        />
-      </div>
+                <div style={{ marginTop: '15px', marginBottom: '10px', color: 'gray', fontSize: '15px'}}>Profile Picture</div>
+                <div style={{ display: 'flex'}}>
+                  <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',   border: pictureUrl === '/tree.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/tree.jpg')} src="/tree.jpg" />
+                  <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/space.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/space.jpg')} src="/space.jpg" />
+                  <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/laugh.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/laugh.png')} src="/laugh.png" />
+                  <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/devil.png' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/devil.png')} src="/devil.png" />
+                  <Avatar sx={{ width: 100, height: 100, marginBottom: '15px', marginRight: '10px', cursor: 'pointer',  border: pictureUrl === '/penguin.jpg' ? '3px solid #42f5e9' : 'none'}} onClick={() => handleProfilePic('/penguin.jpg')} src="/penguin.jpg" />
+                </div>
+              </DialogContent>
+
+              <DialogActions>
+                <Button onClick={handleSettingsClose}>Cancel</Button>
+                <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Save</Button>
+              </DialogActions>
+            </Dialog>
+
+            <Dialog  id="course-selection"
+                     open={coursesOpen}
+                     onClose={handleCoursesClose}
+                     component="form" validate="true" onSubmit={handleCoursesSubmit}
+            >
+              <DialogTitle>Courses</DialogTitle>
+              <DialogContent>
+                <Box sx={{width: 500}}>
+                  <DialogContentText>
+                    Edit your courses.
+                  </DialogContentText>
+
+                  <Autocomplete
+                      multiple
+                      id="tags-standard"
+                      options={courses}
+                      getOptionLabel={(option) => option.coursePrefix+" "+option.courseNumber}
+                      value={coursesSelect}
+                      isOptionEqualToValue={(option,value) => option.courseId === value.courseId}
+                      onChange={(e, params) => setCoursesSelect(params)}
+                      renderInput={(params) => (
+                          <TextField
+                              {...params}
+                              variant="standard"
+                              label="Courses"
+                              placeholder="Add courses from your school"
+                          />
+                      )}
+                  />
+                  <br/>
+                  <Stack direction="row" sx={{alignItems:"center"}}>
+                    <p>Not there?</p>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleAddCoursesOpen()}
+                      sx={{
+                        marginLeft: 2
+                      }}
+                    >
+                      + Add Course</Button>
+                  </Stack>
+                </Box>
+
+              </DialogContent>
+
+              <DialogActions>
+
+                <Button onClick={handleCoursesClose} color="error">Cancel</Button>
+                <Button variant="contained" type="submit" onSubmit={handleCoursesSubmit} color="primary">Save</Button>
+              </DialogActions>
+            </Dialog>
+
+            {/*adding courses not in system*/}
+            <Dialog  id="course-adding"
+                     open={addCoursesOpen}
+                     onClose={handleAddCoursesClose}
+                     component="form" validate="true" onSubmit={handleAddCoursesSubmit}
+            >
+              <DialogTitle>Add Course</DialogTitle>
+              <DialogContent>
+                <Box sx={{width: 500}}>
+                  <DialogContentText>
+                    Add your course.
+                  </DialogContentText>
+
+                  <Box  sx={{ margin: 5 }}
+                        component="form" validate="true">
+                    <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value.toUpperCase())} label="Course Prefix" sx={{ width:100 }}/>
+                    <br/>
+                    <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
+                  </Box>
+                </Box>
+
+              </DialogContent>
+
+              <DialogActions>
+                <Button onClick={handleAddCoursesClose}>Cancel</Button>
+                <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
+              </DialogActions>
+            </Dialog>
+
+            <Dialog  id="course-adding"
+                     open={addCoursesOpen}
+                     onClose={handleAddCoursesClose}
+                     component="form" validate="true" onSubmit={(event) => handleAddCoursesSubmit(event)}
+            >
+              <DialogTitle>Add Course</DialogTitle>
+              <DialogContent>
+                <Box sx={{width: 500}}>
+                  <DialogContentText>
+                    Add your course.
+                  </DialogContentText>
+
+                  <Box  sx={{ margin: 5 }}
+                        component="form" validate="true">
+                    <TextField id="course_prefix" onChange={(event) => setPrefix(event.target.value)} label="Course Prefix" sx={{ width:100 }}/>
+                    <br/>
+                    <Input id="course_number" onChange={(event) => {setNumber(parseInt(event.target.value,10))}} type = "number" label="Course Number" sx={{ width:100 }}/>
+                  </Box>
+                </Box>
+
+              </DialogContent>
+
+              <DialogActions>
+                <Button onClick={handleAddCoursesClose}>Cancel</Button>
+                <Button variant="contained" type="submit" onClick={handleAddCoursesSubmit}>Create Course</Button>
+              </DialogActions>
+            </Dialog>
+
+            <Dialog  id="reset-password"
+                     open={passwordOpen}
+                     onClose={handleResetPwdClose}
+                     component="form" validate="true" onSubmit={handlePasswordChange}
+            >
+              <DialogTitle>Reset Password</DialogTitle>
+              <DialogContent>
+                <Box sx={{width: 500}}>
+
+                  <Box  sx={{ margin: 5 }}
+                        component="form" validate="true">
+                    <TextField id="pwd-old"
+                               type={"password"}
+                               error={errOldPwd !== ""}
+                               onChange={(event) => handleOldPassword(event)}
+                               label="Old Password"
+                               sx={{ width:300 }}/>
+                    <br/> <br/>
+                    <DialogContentText>
+                      Enter your new password:
+                    </DialogContentText>
+                    <br/>
+                    {password && (
+                        <Box sx={{ width: '100%', mb: 2, transition: 'width 0.5s ease-in-out' }}>
+                          <LinearProgress
+                              variant="determinate"
+                              value={(passwordStrength / 4) * 100}
+                              color={getColor(passwordStrength)}
+                              sx={{ width: '100%', height: 10 }}
+                          />
+                          <Typography sx={{ textAlign: 'center', mt: 1 }}>
+                            Password Strength: {['Weak', 'Fair', 'Good', 'Strong'][passwordStrength - 1]}
+                          </Typography>
+                        </Box>
+                    )}
+                    <TextField id="pwd-new"
+                               error={errPwd !== ""}
+                               type={"password"}
+                               onChange={(event) => handleChangePassword(event)}
+                               label="New Password"
+                               sx={{ width:300 }}/>
+                    <br/> <br/>
+                    <TextField id="pwd-confirm"
+                               type={"password"}
+                               error={errCPwd !== ""}
+                               onChange={(event) => handleChangeConfirmPassword(event)}
+                               label="Confirm New Password"
+                               sx={{ width:300 }}/>
+                    <br/>
+                  </Box>
+                </Box>
+
+              </DialogContent>
+
+              <DialogActions>
+                <Button onClick={handleResetPwdClose}>Cancel</Button>
+                <Button variant="contained" type="submit" onClick={(event) => handlePasswordChange(event)}>Change Password</Button>
+              </DialogActions>
+            </Dialog>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbarOpen(false)}
+                message={snackbarMessage}
+                sx={{
+                  '& .MuiSnackbarContent-root': {
+                    backgroundColor: isError ? theme.palette.error.main : theme.palette.primary.main,
+                  },
+                }}
+            />
+          </main>
+        </ThemeProvider>
+      </>
   );
 }
 

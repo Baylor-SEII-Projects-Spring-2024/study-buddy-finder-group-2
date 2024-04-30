@@ -1,5 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Grid, Card, CardContent, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import {
+    Button,
+    Grid,
+    Card,
+    CardContent,
+    Typography,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    TextField,
+    ThemeProvider, Stack
+} from '@mui/material';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationPage from "@/pages/Notification";
@@ -11,6 +24,22 @@ import {jwtDecode} from "jwt-decode";
 import Head from "next/head";
 import Link from "next/link";
 import {deauthorize} from "@/utils/authSlice";
+import {createTheme} from "@mui/material/styles";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#2e7d32',
+        },
+        secondary: {
+            main: '#ffc107',
+        },
+        error: {
+            main: '#f44336',
+        },
+    },
+});
 
 //This is the page that the user themself sees (able to edit and such)
 
@@ -253,128 +282,151 @@ function OthersInfoPage() {
       };
 
     return (
-        <div>
-            <Head>
-                <title>{user?.username}'s Profile</title>
-            </Head>
-            <NotificationPage></NotificationPage><br/>
-            {user && (
-                <Card sx={{width: 1200, margin: 'auto', marginTop: '10px', marginBottom: '10px', overflow: 'auto', border: '3px solid black'}}
-                      elevation={4}>
-                    <CardContent>
-                        <Grid container alignItems="center">
-                            <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
-                                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
+        <>
+            <ThemeProvider theme={theme}>
+                <Head>
+                    <title>{user?.username}'s Profile</title>
+                </Head>
 
-                                <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
-                                <div style={{ color: 'gray' }}>@{user.username}</div>
-                                <br/>
-                                <div style={{ marginRight: '10px'}}>
+                <main style={{ backgroundColor: '#e8f5e9' }}>
+                    <NotificationPage></NotificationPage>
+
+                    <Stack sx={{ minHeight: 650, paddingTop: 4, paddingBottom: 4 }} alignItems="center" justifyContent="center">
+                        {user && (
+                            <Card
+                                sx={{
+                                    width: '90%', padding: 0.5,
+                                    background: `linear-gradient(${Math.floor(Math.random() * 360)}deg, #a8e063 0%, #ffcc33 100%)`,
+                                    boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                                    '&:hover': {
+                                        boxShadow: '0 6px 12px rgba(0,0,0,0.3)',
+                                    },
+                                    transition: 'box-shadow 0.3s ease-in-out'
+                                }}>
+                                <Card sx={{
+                                    boxShadow: 'none',
+                                    transition: 'box-shadow 0.3s ease-in-out'
+                                }}>
+                                    <CardContent>
+                                        <Grid container alignItems="center">
+                                            <Grid item sx={{marginLeft: '100px', marginTop: '40px'}}>
+                                                <Avatar sx={{ width: 100, height: 100, marginBottom: '15px' }} src={user.pictureUrl} />
+
+                                                <strong style={{fontSize:'20px'}}>{user.firstName} {user.lastName}</strong>
+                                                <div style={{ color: 'gray' }}>@{user.username}</div>
+                                                <br/>
+                                                <div style={{ marginRight: '10px'}}>
                                     <span style={{ fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? '1 ' : `${connectionCount} `}
                                     </span>
-                                    <span style={{/* color: 'blue',*/ fontWeight: 'bold' }}>
+                                                    <span style={{ fontWeight: 'bold' }}>
                                         {connectionCount === 1 ? 'buddy' : 'buddies'}
                                     </span>
-                                </div>
+                                                </div>
 
-                                <div style={{ marginRight: '10px'}}>
-                                    <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
-                                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)} of {user.school.schoolName}
-                                    </Typography>
-                                </div>
+                                                <div style={{ marginRight: '10px'}}>
+                                                    <Typography variant="body1" sx={{  fontStyle: 'italic', color: 'gray'}}>
+                                                        {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)} of {user.school.schoolName}
+                                                    </Typography>
+                                                </div>
 
-                            </Grid>
+                                            </Grid>
 
-                            <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
-                                <Button variant="outlined" color="error" onClick={() => router.back()} >Back</Button>
-                                <Button
-                                    id="connection"
-                                    variant="contained"
-                                    sx={{
-                                        backgroundColor: isConnected ? '#9c27b0' : 'light blue',
-                                        '&:hover': {
-                                            backgroundColor: isConnected ? '#6d1b7b' : 'light blue'
-                                        },
-                                    }}
-                                    type="submit"
-                                    onClick={handleConnection}
-                                >
-                                    {text}</Button>
-                            </Grid>
-                        </Grid>
-                        <br />
+                                            <Grid item sx={{ marginLeft: 'auto', marginRight: '100px', marginTop: '40px' }}>
+                                                <Button color="error" onClick={() => router.back()} >Back</Button>
+                                                <Button
+                                                    id="connection"
+                                                    variant="contained"
+                                                    sx={{
+                                                        backgroundColor: isConnected ? theme.palette.secondary.main : theme.palette.primary.main,
+                                                        '&:hover': {
+                                                            backgroundColor: isConnected ? theme.palette.secondary.main : theme.palette.primary.main
+                                                        },
+                                                        marginLeft: 2,
+                                                    }}
+                                                    type="submit"
+                                                    onClick={handleConnection}
+                                                    disabled={text === "pending"}
+                                                >
+                                                    {text}</Button>
+                                            </Grid>
+                                        </Grid>
+                                        <br />
 
-                        <Typography variant="body1" style={{ marginLeft: '100px' }}>
-                            {user.bio}
-                        </Typography>
-
-                        <div>
-                            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
-                                Courses
-                            </Typography>
-                            {userCourses && userCourses.length > 0 ? (
-                                userCourses.map((course, index) => (
-                                    <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
-                                        {course.coursePrefix} {course.courseNumber}
-                                    </div>
-                                ))
-                            ) : (
-                                user.userType === 'student' ? (
-                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                                            Not enrolled in any courses.
+                                        <Typography variant="body1" style={{ marginLeft: '100px' }}>
+                                            {user.bio}
                                         </Typography>
-                                    ) :
-                                    (
-                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
-                                            Not teaching any courses.
-                                        </Typography>
-                                    )
 
-                            )}
-                        </div>
+                                        <div>
+                                            <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '100px', marginTop: '50px' }}>
+                                                Courses
+                                            </Typography>
+                                            {userCourses && userCourses.length > 0 ? (
+                                                userCourses.map((course, index) => (
+                                                    <div key={index} style={{ marginLeft: '100px', color: 'gray' }}>
+                                                        {course.coursePrefix} {course.courseNumber}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                user.userType === 'student' ? (
+                                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                                            Not enrolled in any courses.
+                                                        </Typography>
+                                                    ) :
+                                                    (
+                                                        <Typography variant="body1" style={{ fontStyle: 'italic', marginLeft: '100px' }}>
+                                                            Not teaching any courses.
+                                                        </Typography>
+                                                    )
 
-                        {user.userType === 'tutor' && (
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
-                                <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
-                                    Average Rating Score:
-                                </Typography>
-                                <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
-                            </div>
+                                            )}
+                                        </div>
+
+                                        {user.userType === 'tutor' && (
+                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+                                                <Typography variant="body1" style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '24px' }}>
+                                                    Average Rating Score:
+                                                </Typography>
+                                                <Rating name="average-rating" value={ratingScore} precision={0.5} readOnly />
+                                            </div>
+                                        )}
+
+                                        {user.userType === 'tutor' && (
+                                            <div>
+                                                {ratings.length > 0 ? (
+                                                    ratings.map((rating, index) => (
+                                                        <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
+                                                            <CardContent>
+                                                                <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
+                                                                    Rating from {rating.ratingUser.username}
+                                                                </Typography>
+                                                                <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
+                                                                    Meeting: {rating.meetingTitle}
+                                                                </Typography>
+                                                                <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
+                                                                    <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
+                                                                </Typography>
+                                                                <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
+                                                                    Review: {rating.review}
+                                                                </Typography>
+                                                            </CardContent>
+                                                        </Card>
+                                                    ))
+                                                ) : (
+                                                    <Typography variant="body1" align="center">
+                                                        No ratings available.
+                                                    </Typography>
+                                                )}
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </Card>
                         )}
-
-                        {user.userType === 'tutor' && (
-                            <div>
-                                {ratings.length > 0 ? (
-                                    ratings.map((rating, index) => (
-                                        <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 3, marginBottom: 3, height: 'auto' }} elevation={6}>
-                                            <CardContent>
-                                                <Typography variant='h5' align='center' sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-                                                    Rating from {rating.ratingUser.username}
-                                                </Typography>
-                                                <Typography variant='h6' align='center' sx={{ marginTop: '10px', fontWeight: 'normal' }}>
-                                                    Meeting: {rating.meetingTitle}
-                                                </Typography>
-                                                <Typography variant='h6' align='center' sx={{ marginTop: '10px' }}>
-                                                    <Rating name="rating_score" value={rating.score} precision={0.5} readOnly />
-                                                </Typography>
-                                                <Typography variant='body1' align='center' sx={{ marginTop: '10px' }}>
-                                                    Review: {rating.review}
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    ))
-                                ) : (
-                                    <Typography variant="body1" align="center">
-                                        No ratings available.
-                                    </Typography>
-                                )}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
-        </div>
+                    </Stack>
+                </main>
+            </ThemeProvider>
+        </>
     );
 }
 

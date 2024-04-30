@@ -21,7 +21,7 @@ import {
     FormControl,
     InputLabel,
     Autocomplete,
-    debounce, Grid
+    debounce, Grid, ThemeProvider
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -46,8 +46,26 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import Head from "next/head";
 import {deauthorize} from "@/utils/authSlice";
 import parse from 'autosuggest-highlight/parse';
+import {createTheme} from "@mui/material/styles";
+import {Info} from "@mui/icons-material";
+import InfoIcon from "@mui/icons-material/Info";
+import NotesIcon from "@mui/icons-material/Notes";
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyDGm3qgXiKpfLoLInSa5hPzwTsE_HpWE7c';
+
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#2e7d32',
+        },
+        secondary: {
+            main: '#ffc107',
+        },
+        error: {
+            main: '#f44336',
+        },
+    },
+});
 
 function loadScript(src, position, id) {
     if (!position) {
@@ -404,39 +422,39 @@ function MeetupsPage() {
         console.log("LEAVING")
 
         api.delete(`api/removeUser/${username}?meetingId=${meetup.id}`)
-        .then((res) => {
-            if (res.status === 200) {
-                console.log('Left meetup:', res.data);
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log('Left meetup:', res.data);
 
-                // Remove the user from the meetup attendees list
-                const updatedMeetups = meetups.map(m => {
-                    if (m.id === meetup.id) {
-                        return {
-                            ...m,
-                            attendees: m.attendees.filter(attendee => attendee.username !== username)
-                        };
-                    }
-                    return m;
-                });
-
-                // Update the meetups state with the updated attendees list
-                setMeetups(updatedMeetups);
-
-
-                // delay so that the page has time to refresh meetups variable
-                return new Promise(resolve => setTimeout(resolve, 100))
-                    .then(() => {
-                        // Fetch updated meetups data
-                        fetchMeetups(decodedUser.sub);
+                    // Remove the user from the meetup attendees list
+                    const updatedMeetups = meetups.map(m => {
+                        if (m.id === meetup.id) {
+                            return {
+                                ...m,
+                                attendees: m.attendees.filter(attendee => attendee.username !== username)
+                            };
+                        }
+                        return m;
                     });
 
-                // Fetch updated meetups data
-                fetchMeetups(decodedUser.sub);
-            }
-        })
-        .catch((err) => {
-            console.error('Error leaving meetup:', err);
-        });
+                    // Update the meetups state with the updated attendees list
+                    setMeetups(updatedMeetups);
+
+
+                    // delay so that the page has time to refresh meetups variable
+                    return new Promise(resolve => setTimeout(resolve, 100))
+                        .then(() => {
+                            // Fetch updated meetups data
+                            fetchMeetups(decodedUser.sub);
+                        });
+
+                    // Fetch updated meetups data
+                    fetchMeetups(decodedUser.sub);
+                }
+            })
+            .catch((err) => {
+                console.error('Error leaving meetup:', err);
+            });
     };
 
 
@@ -558,7 +576,7 @@ function MeetupsPage() {
             console.log("error with request type?!");
         }
 
-        
+
     }
 
     const handleJoinMeetupInvite = (event) => {
@@ -676,8 +694,8 @@ function MeetupsPage() {
             if (response.status === 200) {
                 handleCloseEditRating();
                 fetchPendingRatings(user);
-               
-            } else { 
+
+            } else {
                 console.error("Failed to update rating.");
             }
         } catch (error) {
@@ -686,271 +704,344 @@ function MeetupsPage() {
     }
 
     return (
-        <Box>
-            <Head>
-                <title>My Meetups</title>
-            </Head>
-            <NotificationPage />
-            <br />
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
-    
-                <Box sx={{ width: '35%', paddingTop: 4 }}>
-                    <Card sx={{ width: 375, margin: 'auto', marginRight: 'auto', marginLeft: 0 }} elevation={4}>
-                        <CardContent>
-                            <Typography variant='h4' align='center'>Pending Ratings</Typography>
-                        </CardContent>
-                    </Card>
-                    {ratings.length > 0 ? (
-                        ratings.map((rating, index) => (
-                            <Card key={index} sx={{ width: 375, margin: 'auto', marginTop: 1, marginRight: 'auto', marginLeft: 0, height: 'auto' }} elevation={6}>
-                                <CardContent>
-                                    <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold' }}>
-                                        Rating for {rating.ratedUser.username}
-                                    </Typography>
-                                    <Typography variant='h6' align='center' sx={{ marginTop: '20px', fontWeight: 'normal' }}>
-                                        Meeting: {rating.meetingTitle}
-                                    </Typography>
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-                                        <Button onClick={() => handleClickOpenEditRating(rating)} variant="contained" sx={{ marginRight: '10px' }}>
-                                            Make Rating
-                                        </Button>
-                                        <Button onClick={() => removeRating(rating.ratingId)} variant="contained" color="error">
-                                            Remove Rating
-                                        </Button>
+        <>
+            <ThemeProvider theme={theme}>
+                <Head>
+                    <title>My Meetups</title>
+                </Head>
+                <main style={{ backgroundColor: '#e8f5e9' }}>
+                    <NotificationPage></NotificationPage>
+
+                    <Stack sx={{ minHeight: 650, paddingTop: 4, paddingBottom: 6 }} justifyContent='space-evenly' gap={2} direction="row">
+                        <Stack alignItems='center' width={'450px'}>
+
+                            <Box component="form" noValidate >
+                                <Stack direction="column" alignItems="center">
+                                    {/* get request type (incoming or outgoing) */}
+                                    <Box sx={{ marginBottom: 5, width: '100%' }}>
+                                        <Typography variant="h3" align="center" style={{ color: '#2e7d32' }}>Invitations</Typography>
+                                        <Typography variant='h6' color='textSecondary' align="center">Join my meetup!</Typography>
                                     </Box>
-                                </CardContent>
-                            </Card>
-                        ))
-                    ) : (
-                            <Card key="none" sx={{ width: 375, margin: 'auto', marginTop: 1, marginRight: 'auto', marginLeft: 0, height: 'auto' }} elevation={3}>
-                                <CardContent>
-                                    <Typography variant="body1" align="center">
-                                        No ratings available.
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                            
-                        )}
-    
-                    {/*View user profile and add as connection*/}
-                    <Dialog open={openEditRating} onClose={handleCloseEditRating}>
-                        <DialogTitle>Make Rating</DialogTitle>
-                        <DialogContent style={{ height: '300px' }}>
-                            <Rating
-                                name="rating-score"
-                                value={ratingScore}
-                                precision={0.5}
-                                onChange={(e, newValue) => setRatingScore(newValue)}
-                            />
-                            <TextField
-                                label="Review"
-                                multiline
-                                rows={5}
-                                value={review}
-                                onChange={(e) => setReview(e.target.value)}
-                                fullWidth
-                                variant="outlined"
-                                margin="normal"
-    
-                                InputLabelProps={{ style: { color: 'black' } }}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleCloseEditRating} variant="contained" color="error">Cancel</Button>
-                            <Button onClick={() => handleUpdateRating(ratingId)} variant="contained" sx={{ marginRight: '10px' }}>Save Rating</Button>
-                        </DialogActions>
-                    </Dialog>
-                </Box>
-    
-                <Stack sx={{ paddingTop: 1 }} alignItems='center' gap={2}>
-    
-                    <Box component="form" noValidate sx={{ paddingTop: 1, width: 550, margin: 'auto' }}>
-                        <Stack spacing={4} direction="row" justifyContent="center">
-                            {/* get request type (incoming or outgoing) */}
-                            <ToggleButtonGroup
-                                color="success"
-                                value={requestType}
-                                exclusive
-                                onChange={(e) => {
-                                    setRequestType(e.target.value);
-                                    handleRequestTypeChange(e);
-                                }}
-                                label="request type"
-                                type="submit"
-                            >
-                                <ToggleButton value={"incoming"}>
-                                    Incoming
-                                </ToggleButton>
-                                <ToggleButton value={"outgoing"}>
-                                    Outgoing
-                                </ToggleButton>
-                            </ToggleButtonGroup>
-                        </Stack>
-                    </Box>
-    
-                    {(requestType === "incoming" ? incoming : outgoing).map((req, index) => (
-                        <Card key={index} sx={{ width: '100%', maxWidth: 520, m: 'auto', mt: 2, boxShadow: 3 }}>
-                            <CardContent>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Box>
-                                        <Typography variant="subtitle1" fontWeight="bold">{req.title}</Typography>
-    
-                                        {requestType === "incoming" && (
-                                            <Typography variant="body2" color="text.secondary">
-                                                {req.username}
-                                            </Typography>
-                                        )}
-    
-                                        {requestType === "outgoing" && (
-                                            <Typography variant="body2" color="text.secondary">
-                                                {req.invitee}
-                                            </Typography>
-                                        )}
-    
-                                    </Box>
-                                    <Stack direction="row" spacing={1}>
-    
-                                        {requestType === "incoming" && (
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                size="small"
-                                                startIcon={<VisibilityIcon />}
-                                                onClick={() => handleOpenIncoming(req)}
-                                                sx={{
-                                                    borderRadius: 20,
-                                                    textTransform: 'none',
-                                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                                                    '&:hover': {
-                                                        boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
-                                                    }
-                                                }}
-                                            >
-                                                View Details
-                                            </Button>
-                                        )}
-    
-                                        <Button
-                                            variant="contained"
-                                            color="error"
-                                            size="small"
-                                            startIcon={<CancelIcon />}
-                                            onClick={() => handleRemoveRequest(req, requestType)}
-                                            sx={{
-                                                borderRadius: 20,
-                                                textTransform: 'none',
-                                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                                                '&:hover': {
-                                                    backgroundColor: '#d32f2f',
-                                                    boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
-                                                }
-                                            }}
-                                        >
-                                            {requestType === "incoming" ? "Decline" : "Cancel"} Invite
-                                        </Button>
-                                    </Stack>
+
+                                    <ToggleButtonGroup
+                                        color="secondary"
+                                        value={requestType}
+                                        exclusive
+                                        onChange={(e) => {
+                                            setRequestType(e.target.value);
+                                            handleRequestTypeChange(e);
+                                        }}
+                                        label="request type"
+                                        type="submit"
+                                        sx={{
+                                            marginBottom: 3
+                                        }}
+                                    >
+                                        <ToggleButton value={"incoming"}>
+                                            Incoming
+                                        </ToggleButton>
+                                        <ToggleButton value={"outgoing"}>
+                                            Outgoing
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                </Stack>
+                            </Box>
+                            {(requestType === "incoming" ? incoming : outgoing).map((req, index) => {
+                                return(
+                                    <Card
+                                        key={index}
+                                        sx={{
+                                            width: '100%', margin: 2, padding: 0.5,
+                                            background: `linear-gradient(${Math.floor(Math.random() * 360)}deg, #a8e063 0%, #ffcc33 100%)`,
+                                            boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                                            '&:hover': {
+                                                boxShadow: '0 6px 12px rgba(0,0,0,0.3)', // Enhanced shadow on hover
+                                            },
+                                            transition: 'box-shadow 0.3s ease-in-out' // Smooth transition for hover effect
+                                        }}>
+                                        <Card sx={{
+                                            boxShadow: 'none',
+                                            transition: 'box-shadow 0.3s ease-in-out'
+                                        }}>
+                                            <CardContent>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Box>
+                                                        <Typography variant="subtitle1" fontWeight="bold">{req.title}</Typography>
+
+                                                        {requestType === "incoming" && (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {req.username}
+                                                            </Typography>
+                                                        )}
+
+                                                        {requestType === "outgoing" && (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {req.invitee}
+                                                            </Typography>
+                                                        )}
+
+                                                    </Box>
+                                                    <Stack direction="row" spacing={1}>
+
+                                                        {requestType === "incoming" && (
+                                                            <Button
+                                                                variant="contained"
+                                                                color="primary"
+                                                                size="small"
+                                                                startIcon={<InfoIcon />}
+                                                                onClick={() => handleOpenIncoming(req)}
+                                                                sx={{
+                                                                    borderRadius: 20,
+                                                                    textTransform: 'none',
+                                                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                                                    '&:hover': {
+                                                                        boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                View Details
+                                                            </Button>
+                                                        )}
+
+                                                        <Button
+                                                            variant="contained"
+                                                            color="error"
+                                                            size="small"
+                                                            startIcon={<CancelIcon />}
+                                                            onClick={() => handleRemoveRequest(req, requestType)}
+                                                            sx={{
+                                                                borderRadius: 20,
+                                                                textTransform: 'none',
+                                                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                                                '&:hover': {
+                                                                    backgroundColor: '#d32f2f',
+                                                                    boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
+                                                                }
+                                                            }}
+                                                        >
+                                                            {requestType === "incoming" ? "Decline" : "Cancel"}
+                                                        </Button>
+                                                    </Stack>
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    </Card>
+                                )
+                            })}
+
+                            <Stack alignItems='center' gap={2} width={'450px'} marginTop={5}>
+                                <Box sx={{ width: '100%', marginBottom: 3 }}>
+                                    <Typography variant="h3" align="center" style={{ color: '#2e7d32' }}>Pending Ratings</Typography>
+                                    <Typography variant='h6' color='textSecondary' align="center">Rate your tutors!</Typography>
                                 </Box>
-                            </CardContent>
-                        </Card>
-                    ))}
-    
-                    <Card sx={{ width: 'auto', margin: 'auto' }} elevation={4}>
-                        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <SupervisorAccountIcon sx={{ fontSize: 40, marginRight: '10px' }} />
-                            <Typography variant='h4' align='center'>{username}'s Meetups</Typography>
-                        </CardContent>
-                    </Card>
-    
-                    {meetups.map((meetup, index) => (
-                        <Card key={index} sx={{ width: 500, margin: 'auto', marginTop: 1, height: 'auto', cursor: username === meetup.username && new Date(meetup.startDate) > new Date() ? 'pointer' : 'default', boxShadow: new Date(meetup.startDate) > new Date() ? '0 0 10px rgba(0, 255, 0, 0.5)' : new Date(meetup.endDate) < new Date() ? '0 0 10px rgba(255, 0, 0, 0.5)' : '0 0 10px rgba(0, 0, 255, 0.5)' }} elevation={6} onClick={() => { if (username === meetup.username && new Date(meetup.startDate) > new Date()) { handleClickOpenEdit(meetup); } }}>
-    
-                            <CardContent>
-                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
-                                    <li>
-                                        <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                                            {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60)) !== 0 && (
-                                                <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                {ratings.length > 0 ? (
+                                    ratings.map((rating, index) => {
+                                        return (
+                                            <Card
+                                                key={index}
+                                                sx={{
+                                                    width: '100%', margin: 1, padding: 0.5,
+                                                    background: `linear-gradient(${Math.floor(Math.random() * 360)}deg, #a8e063 0%, #ffcc33 100%)`,
+                                                    boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                                                    '&:hover': {
+                                                        boxShadow: '0 6px 12px rgba(0,0,0,0.3)', // Enhanced shadow on hover
+                                                    },
+                                                    transition: 'box-shadow 0.3s ease-in-out' // Smooth transition for hover effect
+                                                }}>
+                                                <Card sx={{
+                                                    boxShadow: 'none',
+                                                    transition: 'box-shadow 0.3s ease-in-out'
+                                                }}>
+                                                    <CardContent>
+                                                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold', color: 'primary.main' }}>
+                                                            Rating for {rating.ratedUser.username}
+                                                        </Typography>
+                                                        <Typography variant='h6' align='center' sx={{ marginTop: '20px', fontWeight: 'normal' }}>
+                                                            Meeting: {rating.meetingTitle}
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                                                            <Button onClick={() => handleClickOpenEditRating(rating)} variant="contained" sx={{ marginRight: '10px' }}>
+                                                                Make Rating
+                                                            </Button>
+                                                            <Button onClick={() => removeRating(rating.ratingId)} variant="contained" color="error">
+                                                                Ignore
+                                                            </Button>
+                                                        </Box>
+                                                    </CardContent>
+                                                </Card>
+                                            </Card>
+                                        );
+                                    })
+                                ) : (
+                                    <Card
+                                        key='none'
+                                        sx={{
+                                            width: '100%', margin: 1, padding: 0.5,
+                                            background: `linear-gradient(135deg, #a8e063 0%, #ffcc33 100%)`,
+                                            boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                                            '&:hover': {
+                                                boxShadow: '0 6px 12px rgba(0,0,0,0.3)', // Enhanced shadow on hover
+                                            },
+                                            transition: 'box-shadow 0.3s ease-in-out' // Smooth transition for hover effect
+                                        }}>
+                                        <Card sx={{
+                                            boxShadow: 'none',
+                                            transition: 'box-shadow 0.3s ease-in-out'
+                                        }}>
+                                            <CardContent>
+                                                <Typography variant="body1" align="center">
+                                                    No ratings available... yet!
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    </Card>
+                                )}
+
+                                {/*View user profile and add as connection*/}
+                                <Dialog open={openEditRating} onClose={handleCloseEditRating}>
+                                    <DialogTitle>Make Rating</DialogTitle>
+                                    <DialogContent style={{ height: '300px' }}>
+                                        <Rating
+                                            name="rating-score"
+                                            value={ratingScore}
+                                            precision={0.5}
+                                            onChange={(e, newValue) => setRatingScore(newValue)}
+                                        />
+                                        <TextField
+                                            label="Review"
+                                            multiline
+                                            rows={5}
+                                            value={review}
+                                            onChange={(e) => setReview(e.target.value)}
+                                            fullWidth
+                                            variant="outlined"
+                                            margin="normal"
+
+                                            InputLabelProps={{ style: { color: 'black' } }}
+                                        />
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleCloseEditRating} variant="contained" color="error">Cancel</Button>
+                                        <Button onClick={() => handleUpdateRating(ratingId)} variant="contained" sx={{ marginRight: '10px' }}>Save Rating</Button>
+                                    </DialogActions>
+                                </Dialog>
+                            </Stack>
+                        </Stack>
+
+                        <Stack alignItems='center' width={'450px'}>
+                            <Box sx={{ marginBottom: 5, width: '100%' }}>
+                                <Typography variant="h3" align="center" style={{ color: '#2e7d32' }}>{username}'s Meetups</Typography>
+                                <Typography variant='h6' color='textSecondary' align="center">Let's study together!</Typography>
+                            </Box>
+                            <Button startIcon={<AddIcon />} style={{ marginBottom: 30 }} variant='contained' onClick={handleClickOpen}>Create</Button>
+
+                            {meetups.map((meetup, index) => {
+                                return(
+                                    <Card
+                                        key={index}
+                                        sx={{
+                                            width: '100%', margin: 2, padding: 0.5,
+                                            background: `linear-gradient(${Math.floor(Math.random() * 360)}deg, #a8e063 0%, #ffcc33 100%)`,
+                                            boxShadow: new Date(meetup.startDate) > new Date() ? '0 0 20px rgba(0, 255, 0, 0.5)' : new Date(meetup.endDate) < new Date() ? '0 0 20px rgba(255, 0, 0, 0.5)' : '0 0 20px rgba(0, 0, 255, 0.5)',
+                                            transition: 'box-shadow 0.3s ease-in-out' // Smooth transition for hover effect
+                                        }}>
+                                        <Card sx={{
+                                            boxShadow:'none',
+                                            transition: 'box-shadow 0.3s ease-in-out',
+                                            cursor: username === meetup.username && new Date(meetup.startDate) > new Date() ? 'pointer' : 'default',
+                                        }}
+                                              elevation={6}
+                                              onClick={() => { if (username === meetup.username && new Date(meetup.startDate) > new Date()) { handleClickOpenEdit(meetup); } }}
+                                        >
+
+                                            <CardContent>
+                                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                                                    <li>
+                                                        <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                                            {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60)) !== 0 && (
+                                                                <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
                                                     {Math.floor(dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') / (24 * 60))}D
                                                 </span>
-                                            )}
-                                            {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
-                                                <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                                            )}
+                                                            {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
+                                                                <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
                                                     {Math.floor((dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % (24 * 60)) / 60)}HR
                                                 </span>
-                                            )}
-                                            {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60 !== 0 && (
-                                                <span style={{ fontSize: '30px', color: 'gray' }}>
+                                                            )}
+                                                            {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60 !== 0 && (
+                                                                <span style={{ fontSize: '30px', color: 'gray' }}>
                                                     {dayjs(meetup.endDate).diff(dayjs(meetup.startDate), 'minute') % 60}MIN
                                                 </span>
-                                            )}
-                                        </div>
-    
-                                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold' }}>{meetup.title}</Typography>
-    
-                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
-                                            <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                            <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
-                                        </div>
-    
-                                        <br />
-    
-                                        <span style={{ marginLeft: '30px' }}>{meetup.description}</span>
-    
-                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
-                                            <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                            <span>{meetup.subject}</span>
-                                        </div>
-    
-                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
-                                            <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                            <span>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
-                                        </div>
-    
-                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
-                                            <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                            <span>{meetup.location}</span>
-                                        </div>
-    
-                                        <br />
-    
-                                        <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px', marginBottom: '15px'}}>Attendees</Typography>
+                                                            )}
+                                                        </div>
 
-                                        {/* map students */}
-                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
-                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px' }}>Students</Typography>
-                                            {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
-                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
-                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    {username !== attendee.username && ( // Compare the usernames
-                                                        <>
+                                                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold', color: 'primary.main' }}>{meetup.title}</Typography>
+
+                                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
+                                                            <PersonIcon sx={{ fontSize: '25px', marginRight: '5px', color: 'secondary.main' }} />
+                                                            <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{meetup.username}</span>
+                                                        </div>
+
+                                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
+                                                            <NotesIcon sx={{ fontSize: '25px', marginRight: '5px', color: 'secondary.main' }}/>
+                                                            <span>{meetup.description}</span>
+                                                        </div>
+
+                                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
+                                                            <CreateIcon sx={{ fontSize: '25px', marginRight: '5px', color: 'secondary.main' }} />
+                                                            <span>{meetup.subject}</span>
+                                                        </div>
+
+                                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
+                                                            <EventIcon sx={{ fontSize: '25px', marginRight: '5px', color: 'secondary.main' }} />
+                                                            <span>{dayjs(meetup.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(meetup.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                                                        </div>
+
+                                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px' }}>
+                                                            <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px', color: 'secondary.main' }} />
+                                                            <span>{meetup.location}</span>
+                                                        </div>
+
+                                                        <br />
+
+                                                        <Typography variant='h4' sx={{ fontSize: '15px', fontWeight: 'bold', marginLeft: '10px', marginBottom: '15px', color: 'primary.main'}}>Attendees</Typography>
+
+                                                        {/* map students */}
+                                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px' }}>Students</Typography>
+                                                            {meetup.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
+                                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                                    {username !== attendee.username && ( // Compare the usernames
+                                                                        <>
                                                         <span onClick={(e) => { e.stopPropagation();
-                                                        handleUsernameClick(attendee.username);
+                                                            handleUsernameClick(attendee.username);
                                                         }} style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}>
                                                             {attendee.username}
                                                         </span>
-                                                        {attendee.username !== meetup.username && username === meetup.username && new Date(meetup.startDate) > new Date() && (
-                                                        <button onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleRemoveUser(attendee.username, meetup);
-                                                        }}  style={{ marginLeft: '15px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'red' }}>X</button>
-                                                         )}
-                                                         </>
-                                                    )}
-                                                    {username === attendee.username && (
-                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
-                                                    )}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                                                            {attendee.username !== meetup.username && username === meetup.username && new Date(meetup.startDate) > new Date() && (
+                                                                                <button onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleRemoveUser(attendee.username, meetup);
+                                                                                }}  style={{ marginLeft: '15px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'red' }}>X</button>
+                                                                            )}
+                                                                        </>
+                                                                    )}
+                                                                    {username === attendee.username && (
+                                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                                                    )}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
 
-                                         {/* map tutors */}
-                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
-                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px', marginTop: '5px'}}>Tutors</Typography>
-                                            {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
-                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
-                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
-                                                    {username !== attendee.username && ( // Compare the usernames
-                                                        <>
+                                                        {/* map tutors */}
+                                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                                            <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px', marginTop: '5px'}}>Tutors</Typography>
+                                                            {meetup.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
+                                                                <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
+                                                                    <Avatar sx={{ width: 20, height: 20, marginRight: '5px' }} src={attendee.pictureUrl} />
+                                                                    {username !== attendee.username && ( // Compare the usernames
+                                                                        <>
                                                         <span onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleUsernameClick(attendee.username);
@@ -958,517 +1049,516 @@ function MeetupsPage() {
                                                             {attendee.username}
                                                         </span>
 
-                                                        {attendee.username !== meetup.username && username === meetup.username && new Date(meetup.startDate) > new Date() && (
-                                                            <button onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleRemoveUser(attendee.username, meetup);
-                                                            }}  style={{ marginLeft: '15px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'red' }}>X</button>
-                                                        )}
+                                                                            {attendee.username !== meetup.username && username === meetup.username && new Date(meetup.startDate) > new Date() && (
+                                                                                <button onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleRemoveUser(attendee.username, meetup);
+                                                                                }}  style={{ marginLeft: '15px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'red' }}>X</button>
+                                                                            )}
 
-                                                        </>
-                                                    )}
-                                                    {username === attendee.username && (
-                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
-                                                    )}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                                                        </>
+                                                                    )}
+                                                                    {username === attendee.username && (
+                                                                        <span>{attendee.username}</span> // Render differently if the usernames are equal
+                                                                    )}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
 
-    
-                                        {/* attendee can leave meeting except when its ongoing */}
-                                        {meetup.username !== username && (new Date(meetup.startDate) > new Date() || new Date(meetup.endDate) < new Date()) ? (
-                                            <Button variant='contained' size="small" color="error" style={{ marginTop: '10px'}} onClick={() => handleLeave(meetup)}>
-                                                Leave Meetup
-                                            </Button>
-                                        ) : (null)}
-    
-                                        {/* appears when meetup you created is expired and you want to delete it */}
-                                        {meetup.username === username && new Date(meetup.endDate) <= new Date() ? (
-                                            <Button variant='contained' size="small" color="error" onClick={() => handleDeleteExpire(meetup)}>
-                                                Delete Meetup
-                                            </Button>
-                                        ) : (null)}
-                                    </li>
-                                </ul>
-                            </CardContent>
-                        </Card>
-                    ))}
-    
-                    <Button startIcon={<AddIcon />} style={{ marginBottom: '70px' }} variant='contained' color="primary" onClick={handleClickOpen}>Create</Button>
-    
-                </Stack>
 
-    
-                {/*CREATE MEETUP DIALOG BOX*/}
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <Dialog
-                        open={open}
-                        onClose={handleClose}
-                        component="form" validate="true" onSubmit={handleSubmit}
-                        disableScrollLock={true}
-                    >
-                        <DialogTitle>Create Meetup</DialogTitle>
-                        <DialogContent>
-    
-                            <DialogContentText>
-                                Set the details of your meeting.
-                            </DialogContentText>
-    
-                            <TextField
-                                autoFocus
-                                required
-                                margin="dense"
-                                id="title"
-                                name="title"
-                                label="Title of Meeting"
-                                type="string"
-                                fullWidth
-                                variant="standard"
-                                onChange={(e) => setTitle(e.target.value)}
-                            />
-    
-                            <TextField
-                                autoFocus
-                                required
-                                margin="dense"
-                                id="description"
-                                name="description"
-                                label="Description of Meeting"
-                                type="string"
-                                fullWidth
-                                variant="standard"
-                                onChange={(e) => setDescription(e.target.value)}
-                            />
-    
-                            <FormControl fullWidth required>
-                                <InputLabel id="courses" sx={{ marginTop: '20px' }}>Select a Course</InputLabel>
-                                <Select
-                                    labelId="courses"
-                                    id="dropdown"
-                                    sx={{ marginTop: '20px' }}
-                                    value={subject}
-                                    onChange={(e) => setSubject(e.target.value)}
-                                    label="Select a Course"
-                                >
-    
-                                    {courses.map(course => {
+                                                        {/* attendee can leave meeting except when its ongoing */}
+                                                        {meetup.username !== username && (new Date(meetup.startDate) > new Date() || new Date(meetup.endDate) < new Date()) ? (
+                                                            <Button variant='contained' size="small" color="error" style={{ marginTop: '10px'}} onClick={() => handleLeave(meetup)}>
+                                                                Leave
+                                                            </Button>
+                                                        ) : (null)}
+
+                                                        {/* appears when meetup you created is expired and you want to delete it */}
+                                                        {meetup.username === username && new Date(meetup.endDate) <= new Date() ? (
+                                                            <Button variant='contained' size="small" color="error" onClick={() => handleDeleteExpire(meetup)}>
+                                                                Delete
+                                                            </Button>
+                                                        ) : (null)}
+                                                    </li>
+                                                </ul>
+                                            </CardContent>
+                                        </Card>
+                                    </Card>
+                                )
+                            })}
+                        </Stack>
+                    </Stack>
+
+                    {/*CREATE MEETUP DIALOG BOX*/}
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <Dialog
+                            open={open}
+                            onClose={handleClose}
+                            component="form" validate="true" onSubmit={handleSubmit}
+                            disableScrollLock={true}
+                        >
+                            <DialogTitle>Create Meetup</DialogTitle>
+                            <DialogContent>
+
+                                <DialogContentText>
+                                    Set the details of your meeting.
+                                </DialogContentText>
+
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    id="title"
+                                    name="title"
+                                    label="Title of Meeting"
+                                    type="string"
+                                    fullWidth
+                                    variant="standard"
+                                    onChange={(e) => setTitle(e.target.value)}
+                                />
+
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    id="description"
+                                    name="description"
+                                    label="Description of Meeting"
+                                    type="string"
+                                    fullWidth
+                                    variant="standard"
+                                    onChange={(e) => setDescription(e.target.value)}
+                                />
+
+                                <FormControl fullWidth required>
+                                    <InputLabel id="courses" sx={{ marginTop: '20px' }}>Select a Course</InputLabel>
+                                    <Select
+                                        labelId="courses"
+                                        id="dropdown"
+                                        sx={{ marginTop: '20px' }}
+                                        value={subject}
+                                        onChange={(e) => setSubject(e.target.value)}
+                                        label="Select a Course"
+                                    >
+
+                                        {courses.map(course => {
+                                            return (
+                                                <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
+                                                    {course.coursePrefix} {course.courseNumber}
+                                                </MenuItem>
+                                            )
+                                        })}
+
+                                    </Select>
+                                </FormControl>
+
+                                <DateTimePicker
+                                    label="Start"
+                                    onChange={(e) => setStartDate(e)}
+
+                                    //makes field required
+                                    slotProps={{
+                                        textField: {
+                                            required: true,
+                                            style: { marginTop: '20px' }
+                                        }
+                                    }}
+
+                                    disablePast
+                                />
+
+                                <DateTimePicker
+                                    label="End"
+                                    onChange={(e) => setEndDate(e)}
+                                    sx={{ marginLeft: '15px' }}
+
+                                    //makes field required
+                                    slotProps={{
+                                        textField: {
+                                            required: true,
+                                            style: { marginTop: '20px' }
+                                        }
+                                    }}
+
+                                    disablePast
+                                />
+
+                                <br/>
+                                <br/>
+
+                                {/*From Material UI*/}
+                                <Autocomplete
+                                    id="google-map-demo2"
+                                    sx={{width: 300}}
+                                    getOptionLabel={(option) =>
+                                        typeof option === 'string' ? option : option.description
+                                    }
+                                    filterOptions={(x) => x}
+                                    options={options}
+                                    autoComplete
+                                    includeInputInList
+                                    filterSelectedOptions
+                                    value={value}
+                                    noOptionsText="No locations"
+                                    onChange={(event, newValue) => {
+                                        setOptions(newValue ? [newValue, ...options] : options);
+                                        setValue(newValue);
+                                    }}
+                                    onInputChange={(event, newInputValue) => {
+                                        setLocation(newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Add a location" fullWidth />
+                                    )}
+                                    renderOption={(props, option) => {
+                                        const matches =
+                                            option.structured_formatting.main_text_matched_substrings || [];
+
+                                        const parts = parse(
+                                            option.structured_formatting.main_text,
+                                            matches.map((match) => [match.offset, match.offset + match.length]),
+                                        );
+
                                         return (
-                                            <MenuItem key={course.courseId} value={course.coursePrefix + " " + course.courseNumber}>
-                                                {course.coursePrefix} {course.courseNumber}
-                                            </MenuItem>
-                                        )
-                                    })}
-    
-                                </Select>
-                            </FormControl>
-    
-                            <DateTimePicker
-                                label="Start"
-                                onChange={(e) => setStartDate(e)}
-    
-                                //makes field required
-                                slotProps={{
-                                    textField: {
-                                        required: true,
-                                        style: { marginTop: '20px' }
-                                    }
-                                }}
-    
-                                disablePast
-                            />
-    
-                            <DateTimePicker
-                                label="End"
-                                onChange={(e) => setEndDate(e)}
-                                sx={{ marginLeft: '15px' }}
-    
-                                //makes field required
-                                slotProps={{
-                                    textField: {
-                                        required: true,
-                                        style: { marginTop: '20px' }
-                                    }
-                                }}
-    
-                                disablePast
-                            />
-
-                            <br/>
-                            <br/>
-
-                            {/*From Material UI*/}
-                            <Autocomplete
-                                id="google-map-demo2"
-                                sx={{width: 300}}
-                                getOptionLabel={(option) =>
-                                    typeof option === 'string' ? option : option.description
-                                }
-                                filterOptions={(x) => x}
-                                options={options}
-                                autoComplete
-                                includeInputInList
-                                filterSelectedOptions
-                                value={value}
-                                noOptionsText="No locations"
-                                onChange={(event, newValue) => {
-                                    setOptions(newValue ? [newValue, ...options] : options);
-                                    setValue(newValue);
-                                }}
-                                onInputChange={(event, newInputValue) => {
-                                    setLocation(newInputValue);
-                                }}
-                                renderInput={(params) => (
-                                    <TextField {...params} label="Add a location" fullWidth />
-                                )}
-                                renderOption={(props, option) => {
-                                    const matches =
-                                        option.structured_formatting.main_text_matched_substrings || [];
-
-                                    const parts = parse(
-                                        option.structured_formatting.main_text,
-                                        matches.map((match) => [match.offset, match.offset + match.length]),
-                                    );
-
-                                    return (
-                                        <li {...props}>
-                                            <Grid container alignItems="center">
-                                                <Grid item sx={{ display: 'flex', width: 44 }}>
-                                                    <LocationOnIcon sx={{ color: 'text.secondary' }} />
+                                            <li {...props}>
+                                                <Grid container alignItems="center">
+                                                    <Grid item sx={{ display: 'flex', width: 44 }}>
+                                                        <LocationOnIcon sx={{ color: 'text.secondary' }} />
+                                                    </Grid>
+                                                    <Grid item sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
+                                                        {parts.map((part, index) => (
+                                                            <Box
+                                                                key={index}
+                                                                component="span"
+                                                                sx={{ fontWeight: part.highlight ? 'bold' : 'regular' }}
+                                                            >
+                                                                {part.text}
+                                                            </Box>
+                                                        ))}
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {option.structured_formatting.secondary_text}
+                                                        </Typography>
+                                                    </Grid>
                                                 </Grid>
-                                                <Grid item sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
-                                                    {parts.map((part, index) => (
-                                                        <Box
-                                                            key={index}
-                                                            component="span"
-                                                            sx={{ fontWeight: part.highlight ? 'bold' : 'regular' }}
-                                                        >
-                                                            {part.text}
-                                                        </Box>
-                                                    ))}
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {option.structured_formatting.secondary_text}
-                                                    </Typography>
-                                                </Grid>
-                                            </Grid>
-                                        </li>
-                                    );
-                                }}
-                            />
-    
-                            <Autocomplete
-                                multiple
-                                id="attendees-autocomplete"
-                                options={connections}
-                                getOptionLabel={(option) => option.username}
-                                onChange={(event, value) => {
-                                    console.log('Selected Attendees:', value);
-                                    setInvites(value);
-                                    // setInvites([...invites, ...value]);
-                                    console.log(JSON.stringify(invites, null, 2));
-    
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        autoFocus
-                                        margin="dense"
-                                        id="invites"
-                                        name="invites"
-                                        label="Invites"
-                                        type="string"
-                                        fullWidth
-                                        variant="standard"
-                                        onChange={(e) => handleAttendeeSearch(e.target.value)}
-                                    />
-                                )}
-                            />
-                        </DialogContent>
-    
-                        <DialogActions>
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Create</Button>
-                        </DialogActions>
-    
-                    </Dialog>
-                </LocalizationProvider>
-    
-    
-    
-                {/*EDIT MEETUP DIALOG BOX*/}
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <Dialog
-                        open={openEdit}
-                        onClose={handleCloseEdit}
-                        component="form" validate="true" onSubmit={handleSubmitUpdate}
-                        disableScrollLock={true}
-                    >
-                        <DialogTitle>Edit Meetup</DialogTitle>
-                        <DialogContent>
+                                            </li>
+                                        );
+                                    }}
+                                />
 
-                            <DialogContentText>
-                                Edit the details of your meeting.
-                            </DialogContentText>
+                                <Autocomplete
+                                    multiple
+                                    id="attendees-autocomplete"
+                                    options={connections}
+                                    getOptionLabel={(option) => option.username}
+                                    onChange={(event, value) => {
+                                        console.log('Selected Attendees:', value);
+                                        setInvites(value);
+                                        // setInvites([...invites, ...value]);
+                                        console.log(JSON.stringify(invites, null, 2));
 
-                            <TextField
-                                autoFocus
-                                required
-                                margin="dense"
-                                id="title"
-                                name="title"
-                                label="Title of Meeting"
-                                type="string"
-                                fullWidth
-                                variant="standard"
-                                defaultValue={selectedMeeting?.title || ''}
-                                onChange={(e) => setTitle(e.target.value)}
-                            />
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            autoFocus
+                                            margin="dense"
+                                            id="invites"
+                                            name="invites"
+                                            label="Invites"
+                                            type="string"
+                                            fullWidth
+                                            variant="standard"
+                                            onChange={(e) => handleAttendeeSearch(e.target.value)}
+                                        />
+                                    )}
+                                />
+                            </DialogContent>
 
-                            <TextField
-                                autoFocus
-                                required
-                                margin="dense"
-                                id="description"
-                                name="description"
-                                label="Description of Meeting"
-                                type="string"
-                                fullWidth
-                                variant="standard"
-                                defaultValue={selectedMeeting?.description || ''}
-                                onChange={(e) => setDescription(e.target.value)}
-                            />
+                            <DialogActions>
+                                <Button onClick={handleClose} color="error">Cancel</Button>
+                                <Button variant="contained" type="submit" onSubmit={handleSubmit} color="primary">Create</Button>
+                            </DialogActions>
 
-                            <FormControl fullWidth required>
-                                <InputLabel id="courses" sx={{marginTop: '20px'}}>Select a Course</InputLabel>
-                                <Select
-                                    labelId="courses"
-                                    id="dropdown"
-                                    sx={{marginTop: '20px'}}
-                                    value={subject}
-                                    onChange={(e) => setSubject(e.target.value)}
-                                    label="Select a Course"
-                                >
+                        </Dialog>
+                    </LocalizationProvider>
 
-                                    {courses.map(course => {
+
+
+                    {/*EDIT MEETUP DIALOG BOX*/}
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <Dialog
+                            open={openEdit}
+                            onClose={handleCloseEdit}
+                            component="form" validate="true" onSubmit={handleSubmitUpdate}
+                            disableScrollLock={true}
+                        >
+                            <DialogTitle>Edit Meetup</DialogTitle>
+                            <DialogContent>
+
+                                <DialogContentText>
+                                    Edit the details of your meeting.
+                                </DialogContentText>
+
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    id="title"
+                                    name="title"
+                                    label="Title of Meeting"
+                                    type="string"
+                                    fullWidth
+                                    variant="standard"
+                                    defaultValue={selectedMeeting?.title || ''}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                />
+
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    id="description"
+                                    name="description"
+                                    label="Description of Meeting"
+                                    type="string"
+                                    fullWidth
+                                    variant="standard"
+                                    defaultValue={selectedMeeting?.description || ''}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                />
+
+                                <FormControl fullWidth required>
+                                    <InputLabel id="courses" sx={{marginTop: '20px'}}>Select a Course</InputLabel>
+                                    <Select
+                                        labelId="courses"
+                                        id="dropdown"
+                                        sx={{marginTop: '20px'}}
+                                        value={subject}
+                                        onChange={(e) => setSubject(e.target.value)}
+                                        label="Select a Course"
+                                    >
+
+                                        {courses.map(course => {
+                                            return (
+                                                <MenuItem key={course.courseId}
+                                                          value={course.coursePrefix + " " + course.courseNumber}>
+                                                    {course.coursePrefix} {course.courseNumber}
+                                                </MenuItem>
+                                            )
+                                        })}
+
+                                    </Select>
+                                </FormControl>
+
+                                <DateTimePicker
+                                    label="Start"
+                                    defaultValue={dayjs(selectedMeeting?.startDate)}
+
+                                    //makes field required
+                                    slotProps={{
+                                        textField: {
+                                            required: true,
+                                            style: {marginTop: '20px'}
+                                        }
+                                    }}
+
+                                    disablePast
+                                    onChange={(e) => setStartDate(e)}
+                                />
+
+                                <DateTimePicker
+                                    label="End"
+                                    sx={{marginLeft: '15px'}}
+                                    defaultValue={dayjs(selectedMeeting?.endDate)}
+
+                                    //makes field required
+                                    slotProps={{
+                                        textField: {
+                                            required: true,
+                                            style: {marginTop: '20px'}
+                                        }
+                                    }}
+
+                                    disablePast
+                                    onChange={(e) => setEndDate(e)}
+                                />
+
+                                <br/>
+                                <br/>
+
+                                {/*From Material UI*/}
+                                <Autocomplete
+                                    id="google-map-demo"
+                                    sx={{width: 300}}
+                                    getOptionLabel={(option) =>
+                                        typeof option === 'string' ? option : option.description
+                                    }
+                                    filterOptions={(x) => x}
+                                    options={options}
+                                    autoComplete
+                                    includeInputInList
+                                    filterSelectedOptions
+                                    value={value}
+                                    noOptionsText="No locations"
+                                    onChange={(event, newValue) => {
+                                        setOptions(newValue ? [newValue, ...options] : options);
+                                        setValue(newValue);
+                                    }}
+                                    onInputChange={(event, newInputValue) => {
+                                        setLocation(newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Add a location" fullWidth/>
+                                    )}
+                                    renderOption={(props, option) => {
+                                        const matches =
+                                            option.structured_formatting.main_text_matched_substrings || [];
+
+                                        const parts = parse(
+                                            option.structured_formatting.main_text,
+                                            matches.map((match) => [match.offset, match.offset + match.length]),
+                                        );
+
                                         return (
-                                            <MenuItem key={course.courseId}
-                                                      value={course.coursePrefix + " " + course.courseNumber}>
-                                                {course.coursePrefix} {course.courseNumber}
-                                            </MenuItem>
+                                            <li {...props}>
+                                                <Grid container alignItems="center">
+                                                    <Grid item sx={{display: 'flex', width: 44}}>
+                                                        <LocationOnIcon sx={{color: 'text.secondary'}}/>
+                                                    </Grid>
+                                                    <Grid item sx={{width: 'calc(100% - 44px)', wordWrap: 'break-word'}}>
+                                                        {parts.map((part, index) => (
+                                                            <Box
+                                                                key={index}
+                                                                component="span"
+                                                                sx={{fontWeight: part.highlight ? 'bold' : 'regular'}}
+                                                            >
+                                                                {part.text}
+                                                            </Box>
+                                                        ))}
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {option.structured_formatting.secondary_text}
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                            </li>
+                                        );
+                                    }}
+                                />
+
+                                <Autocomplete
+                                    multiple
+                                    id="attendees-autocomplete"
+                                    options={
+                                        connections.filter(attendee =>
+                                            !selectedMeeting?.attendees.some(meetupAttendee => meetupAttendee.username.toLowerCase() === attendee.username.toLowerCase()) &&
+                                            !meetupInvitees.some(invitee => invitee.username.toLowerCase() === attendee.username.toLowerCase())
                                         )
-                                    })}
-
-                                </Select>
-                            </FormControl>
-
-                            <DateTimePicker
-                                label="Start"
-                                defaultValue={dayjs(selectedMeeting?.startDate)}
-
-                                //makes field required
-                                slotProps={{
-                                    textField: {
-                                        required: true,
-                                        style: {marginTop: '20px'}
                                     }
-                                }}
-
-                                disablePast
-                                onChange={(e) => setStartDate(e)}
-                            />
-
-                            <DateTimePicker
-                                label="End"
-                                sx={{marginLeft: '15px'}}
-                                defaultValue={dayjs(selectedMeeting?.endDate)}
-
-                                //makes field required
-                                slotProps={{
-                                    textField: {
-                                        required: true,
-                                        style: {marginTop: '20px'}
-                                    }
-                                }}
-
-                                disablePast
-                                onChange={(e) => setEndDate(e)}
-                            />
-
-                            <br/>
-                            <br/>
-
-                            {/*From Material UI*/}
-                            <Autocomplete
-                                id="google-map-demo"
-                                sx={{width: 300}}
-                                getOptionLabel={(option) =>
-                                    typeof option === 'string' ? option : option.description
-                                }
-                                filterOptions={(x) => x}
-                                options={options}
-                                autoComplete
-                                includeInputInList
-                                filterSelectedOptions
-                                value={value}
-                                noOptionsText="No locations"
-                                onChange={(event, newValue) => {
-                                    setOptions(newValue ? [newValue, ...options] : options);
-                                    setValue(newValue);
-                                }}
-                                onInputChange={(event, newInputValue) => {
-                                    setLocation(newInputValue);
-                                }}
-                                renderInput={(params) => (
-                                    <TextField {...params} label="Add a location" fullWidth/>
-                                )}
-                                renderOption={(props, option) => {
-                                    const matches =
-                                        option.structured_formatting.main_text_matched_substrings || [];
-
-                                    const parts = parse(
-                                        option.structured_formatting.main_text,
-                                        matches.map((match) => [match.offset, match.offset + match.length]),
-                                    );
-
-                                    return (
-                                        <li {...props}>
-                                            <Grid container alignItems="center">
-                                                <Grid item sx={{display: 'flex', width: 44}}>
-                                                    <LocationOnIcon sx={{color: 'text.secondary'}}/>
-                                                </Grid>
-                                                <Grid item sx={{width: 'calc(100% - 44px)', wordWrap: 'break-word'}}>
-                                                    {parts.map((part, index) => (
-                                                        <Box
-                                                            key={index}
-                                                            component="span"
-                                                            sx={{fontWeight: part.highlight ? 'bold' : 'regular'}}
-                                                        >
-                                                            {part.text}
-                                                        </Box>
-                                                    ))}
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {option.structured_formatting.secondary_text}
-                                                    </Typography>
-                                                </Grid>
-                                            </Grid>
-                                        </li>
-                                    );
-                                }}
-                            />
-
-                            <Autocomplete
-                                multiple
-                                id="attendees-autocomplete"
-                                options={
-                                    connections.filter(attendee =>
-                                        !selectedMeeting?.attendees.some(meetupAttendee => meetupAttendee.username.toLowerCase() === attendee.username.toLowerCase()) &&
-                                        !meetupInvitees.some(invitee => invitee.username.toLowerCase() === attendee.username.toLowerCase())
-                                    )
-                                }
 
 
-                                getOptionLabel={(option) => option.username}
-                                onChange={(event, value) => {
-                                    console.log('Selected Attendees:', value);
-                                    setInvites(value);
-                                    // setInvites([...invites, ...value]);
-                                    console.log(JSON.stringify(invites, null, 2));
+                                    getOptionLabel={(option) => option.username}
+                                    onChange={(event, value) => {
+                                        console.log('Selected Attendees:', value);
+                                        setInvites(value);
+                                        // setInvites([...invites, ...value]);
+                                        console.log(JSON.stringify(invites, null, 2));
 
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        autoFocus
-                                        margin="dense"
-                                        id="invites"
-                                        name="invites"
-                                        label="Invites"
-                                        type="string"
-                                        fullWidth
-                                        variant="standard"
-                                        onChange={(e) => handleAttendeeSearch(e.target.value)}
-                                    />
-                                )}
-                            />
-                        </DialogContent>
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            autoFocus
+                                            margin="dense"
+                                            id="invites"
+                                            name="invites"
+                                            label="Invites"
+                                            type="string"
+                                            fullWidth
+                                            variant="standard"
+                                            onChange={(e) => handleAttendeeSearch(e.target.value)}
+                                        />
+                                    )}
+                                />
+                            </DialogContent>
 
-                        <DialogActions>
-                            <Button onClick={handleCloseEdit}>Cancel</Button>
-                            <Button onClick={handleDelete} variant="contained" color="error">Delete</Button>
-                            <Button variant="contained" type="submit" onSubmit={handleSubmitUpdate} color="primary">Update</Button>
-                        </DialogActions>
-    
-                    </Dialog>
-                </LocalizationProvider>
+                            <DialogActions>
+                                <Button onClick={handleCloseEdit} color="error">Cancel</Button>
+                                <Button onClick={handleDelete} variant="contained" color="secondary">Delete</Button>
+                                <Button variant="contained" type="submit" onSubmit={handleSubmitUpdate} color="primary">Update</Button>
+                            </DialogActions>
 
-                {/* OPEN INCOMING MEETUP DIALOG BOX */}
-            <Dialog
-                open={openIncoming}
-                onClose={handleCloseIncoming}
-                fullWidth
-                component="form"
-                validate="true"
-                onSubmit={handleJoinMeetupInvite}
-            >
-                <DialogTitle variant='s2'>{selectedMeeting?.username}'s Invitation</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2}>
-                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
-                                <li>
-                                <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end'}}>
-                                    {Math.floor(dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') / (24 * 60)) !== 0 && (
-                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                        </Dialog>
+                    </LocalizationProvider>
+
+                    {/* OPEN INCOMING MEETUP DIALOG BOX */}
+                    <Dialog
+                        open={openIncoming}
+                        onClose={handleCloseIncoming}
+                        fullWidth
+                        component="form"
+                        validate="true"
+                        onSubmit={handleJoinMeetupInvite}
+                    >
+                        <DialogTitle variant='s2'>{selectedMeeting?.username}'s Invitation</DialogTitle>
+                        <DialogContent>
+                            <Stack spacing={2}>
+                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0}}>
+                                    <li>
+                                        <div style={{ display: 'flex', marginTop: '5px', marginLeft: '250px', alignItems: 'center', justifyContent: 'flex-end'}}>
+                                            {Math.floor(dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') / (24 * 60)) !== 0 && (
+                                                <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
                                             {Math.floor(dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') / (24 * 60))}D
                                         </span>
-                                    )}
-                                    {Math.floor((dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
-                                        <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
+                                            )}
+                                            {Math.floor((dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % (24 * 60)) / 60) !== 0 && (
+                                                <span style={{ marginRight: '10px', fontSize: '30px', color: 'gray' }}>
                                             {Math.floor((dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % (24 * 60)) / 60)}HR
                                         </span>
-                                    )}
-                                    {dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % 60 !== 0 && (
-                                        <span style={{ fontSize: '30px', color: 'gray' }}>
+                                            )}
+                                            {dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % 60 !== 0 && (
+                                                <span style={{ fontSize: '30px', color: 'gray' }}>
                                             {dayjs(selectedMeeting?.endDate).diff(dayjs(selectedMeeting?.startDate), 'minute') % 60}MIN
                                         </span>
-                                    )}
-                                </div>
+                                            )}
+                                        </div>
 
-                                    {/* FIX INDENTATION */}
-                                    <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{selectedMeeting?.title}</Typography>
-
-
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{selectedMeeting?.username}</span>
-                                    </div>
-
-                                    <br />
+                                        {/* FIX INDENTATION */}
+                                        <Typography variant='h4' align='center' sx={{ marginTop: '20px', fontWeight: 'bold'}}>{selectedMeeting?.title}</Typography>
 
 
-                                    <span style={{ marginLeft: '30px'}}>{selectedMeeting?.description}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                            <PersonIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                            <span style={{ color: 'gray', fontStyle: 'italic', marginRight: '30px' }}>@{selectedMeeting?.username}</span>
+                                        </div>
+
+                                        <br />
 
 
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{selectedMeeting?.subject}</span>
-                                    </div>
+                                        <span style={{ marginLeft: '30px'}}>{selectedMeeting?.description}</span>
 
 
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{dayjs(selectedMeeting?.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(selectedMeeting?.endDate).format('MMMM DD, YYYY h:mm A')}</span>
-                                    </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                            <CreateIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                            <span>{selectedMeeting?.subject}</span>
+                                        </div>
+
+
+                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                            <EventIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                            <span>{dayjs(selectedMeeting?.startDate).format('MMMM DD, YYYY h:mm A')} - {dayjs(selectedMeeting?.endDate).format('MMMM DD, YYYY h:mm A')}</span>
+                                        </div>
 
 
 
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
-                                        <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
-                                        <span>{selectedMeeting?.location}</span>
-                                    </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px', marginLeft: '10px'}}>
+                                            <LocationOnIcon sx={{ fontSize: '25px', marginRight: '5px' }} />
+                                            <span>{selectedMeeting?.location}</span>
+                                        </div>
 
-                                    <br />
+                                        <br />
 
-                                    {/* map students */}
-                                    <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
+                                        {/* map students */}
+                                        <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
                                             <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px' }}>Students</Typography>
                                             {selectedMeeting?.attendees.filter(attendee => attendee.userType === 'student').map((attendee, index) => (
                                                 <li key={index} style={{ color: 'gray', fontStyle: 'italic', marginRight: '20px', display: 'flex', alignItems: 'center' }}>
@@ -1478,7 +1568,7 @@ function MeetupsPage() {
                                             ))}
                                         </ul>
 
-                                         {/* map tutors */}
+                                        {/* map tutors */}
                                         <ul style={{ listStyleType: 'none', paddingInlineStart: '30px' }}>
                                             <Typography variant='h6' sx={{ fontSize: '13px', fontWeight: 'bold', marginLeft: '10px', marginTop: '5px'}}>Tutors</Typography>
                                             {selectedMeeting?.attendees.filter(attendee => attendee.userType === 'tutor').map((attendee, index) => (
@@ -1488,36 +1578,35 @@ function MeetupsPage() {
                                                 </li>
                                             ))}
                                         </ul>
-                                </li>
-                            </ul>
-                    </Stack>
-                </DialogContent>
+                                    </li>
+                                </ul>
+                            </Stack>
+                        </DialogContent>
 
-                <DialogActions>
-                    <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={handleCloseIncoming}
-                    >
-                        Back</Button>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            backgroundColor: isJoined ? '#9c27b0' : 'light blue',
-                            '&:hover': {
-                                backgroundColor: isJoined ? '#6d1b7b' : 'light blue'
-                            },
-                        }}
-                        type="submit"
-                    >
-                        {text}</Button>
-                </DialogActions>
-            </Dialog>
-    
-            </div>
-    
-        </Box>
+                        <DialogActions>
+                            <Button
+                                color="error"
+                                onClick={handleCloseIncoming}
+                            >
+                                Back</Button>
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    backgroundColor: isJoined ? theme.palette.secondary.main : theme.palette.primary.main,
+                                    '&:hover': {
+                                        backgroundColor: isJoined ? theme.palette.secondary.main : theme.palette.primary.main
+                                    },
+                                }}
+                                type="submit"
+                            >
+                                {text}</Button>
+                        </DialogActions>
+                    </Dialog>
 
+                </main>
+
+            </ThemeProvider>
+        </>
     );
 }
 

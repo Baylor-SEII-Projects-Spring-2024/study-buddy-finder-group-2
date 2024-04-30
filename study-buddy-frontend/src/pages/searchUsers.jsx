@@ -254,7 +254,7 @@ function SearchUsersPage() {
 
                                 <Box component="form" noValidate onSubmit={handleSubmit}
                                      sx={{ paddingTop: 2, paddingBottom:5, margin: 'auto' }}>
-                                    <Stack direaction="column" gap={3} alignItems="center">
+                                    <Stack direction="column" gap={3} alignItems="center">
                                         <Stack spacing={4} direction="row" justifyContent="center">
                                             {/* get search string for name and username */}
                                             <Stack direction="column" gap={3.5}>

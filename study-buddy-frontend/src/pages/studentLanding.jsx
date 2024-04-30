@@ -413,7 +413,7 @@ function StudentLandingPage() {
 
             <main style={{ backgroundColor: '#e8f5e9' }}> {/* Maintain the full width but control the content inside */}
                 <NotificationPage></NotificationPage>
-                <Stack sx={{ paddingTop: 2, alignItems: 'center', gap: 2 }}>
+                <Stack sx={{ paddingTop: 4, alignItems: 'center', gap: 2 }}>
                     {/* Enhanced Notification Card */}
                     <Card sx={{
                         width: '100%', maxWidth: '800px', margin: '0 auto',
@@ -445,6 +445,7 @@ function StudentLandingPage() {
                 </Stack>
                 {/* Lazy-load Meetups Section */}
                 <LazyLoadMeetups recommendedMeetups={recommendedMeetups} carouselMeetupMaker={carouselMeetupMaker} />
+                <br/>
             </main>
         </>
     );
