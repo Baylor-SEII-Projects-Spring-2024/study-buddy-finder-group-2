@@ -1,7 +1,6 @@
 package studybuddy.api.school;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.checkerframework.common.aliasing.qual.Unique;
 
 @Data
 @Entity

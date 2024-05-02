@@ -1,7 +1,7 @@
 package studybuddy.api.rating;
 import jakarta.persistence.*;
 import lombok.Data;
-import studybuddy.api.meetings.Meeting;
+
 import studybuddy.api.user.User;
 
 import java.util.Optional;

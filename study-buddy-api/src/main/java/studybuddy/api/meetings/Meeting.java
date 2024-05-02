@@ -2,7 +2,6 @@ package studybuddy.api.meetings;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import studybuddy.api.course.Course;
 import studybuddy.api.user.User;
 
 import java.time.LocalDateTime;

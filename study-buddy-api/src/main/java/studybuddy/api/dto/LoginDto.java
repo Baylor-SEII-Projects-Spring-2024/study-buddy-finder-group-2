@@ -1,7 +1,6 @@
 package studybuddy.api.dto;
 
 import lombok.Data;
-import studybuddy.api.school.School;
 
 @Data
 public class LoginDto {

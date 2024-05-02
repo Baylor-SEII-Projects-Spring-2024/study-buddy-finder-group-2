@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import studybuddy.api.dto.LoginDto;
-import studybuddy.api.dto.RegisterDto;
 import studybuddy.api.school.School;
 import studybuddy.api.school.SchoolService;
 import studybuddy.api.security.JwtGenerator;

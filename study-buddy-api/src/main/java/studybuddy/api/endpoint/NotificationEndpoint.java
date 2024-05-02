@@ -1,26 +1,12 @@
 package studybuddy.api.endpoint;
 
-import jakarta.websocket.OnClose;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
-import jakarta.websocket.server.ServerEndpoint;
 
-import java.io.IOException;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import studybuddy.api.connection.Connection;
 import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.UserService;

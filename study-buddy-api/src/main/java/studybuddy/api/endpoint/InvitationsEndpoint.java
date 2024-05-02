@@ -10,7 +10,6 @@ import studybuddy.api.meetings.Meeting;
 import studybuddy.api.meetings.MeetingService;
 import studybuddy.api.meetupInvites.MeetupInvite;
 import studybuddy.api.meetupInvites.MeetupInvitesService;
-import studybuddy.api.notifications.Notification;
 import studybuddy.api.notifications.NotificationService;
 import studybuddy.api.user.User;
 import studybuddy.api.user.UserService;

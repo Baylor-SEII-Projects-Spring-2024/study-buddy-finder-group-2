@@ -1,6 +1,5 @@
 package studybuddy.api.notifications;
 
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

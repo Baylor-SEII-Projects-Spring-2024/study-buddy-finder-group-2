@@ -1,11 +1,9 @@
 package studybuddy.api.rating;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import studybuddy.api.connection.Connection;
 
 import java.util.List;
 import java.util.Optional;
-import studybuddy.api.user.User;
 @Service
 public class RatingService {
     @Autowired

@@ -2,7 +2,6 @@ package studybuddy.api.connection;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.checkerframework.checker.units.qual.C;
 
 @Data
 @Entity
